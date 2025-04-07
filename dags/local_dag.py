@@ -15,14 +15,16 @@ with DAG(
     catchup=False,
     tags=["yolo"],
     params={
+        # 데이터셋 다운로드에 필요한 파라미터
         "dataset_url": "https://github.com/ultralytics/assets/releases/download/v0.0.0/coco128.zip",
         "dataset_cfg_url": "https://raw.githubusercontent.com/ultralytics/ultralytics/main/ultralytics/cfg/datasets/coco128.yaml",
         "dataset_path": "./data/raw/extracted",
+        # 데이터셋 Split에 필요한 파라미터
         "splits_path": "./data/splits",
         "train_ratio": 0.8,
         "val_ratio": 0.2,
         # YOLO 학습 DAG에 필요한 파라미터
-        "output_dir": "./runs/train",
+        "output_dir": "./runs",
         "epochs": 10,
         "batch_size": 16,
         "img_size": 640,
