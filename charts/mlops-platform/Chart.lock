@@ -1,0 +1,18 @@
+dependencies:
+- name: airflow
+  repository: https://airflow.apache.org
+  version: 1.16.0
+- name: mlflow
+  repository: https://community-charts.github.io/helm-charts
+  version: 0.16.4
+- name: prometheus
+  repository: https://prometheus-community.github.io/helm-charts
+  version: 27.8.0
+- name: grafana
+  repository: https://grafana.github.io/helm-charts
+  version: 8.11.3
+- name: tritoninferenceserver
+  repository: https://helm.ngc.nvidia.com/nvidia
+  version: 1.0.0
+digest: sha256:ccf1939fd14010efd53ebfc6601b3a9bd5b6604cc70f9a549d5191f0e2b2e100
+generated: "2025-04-07T15:47:41.534414189+09:00"
