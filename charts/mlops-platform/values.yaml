@@ -119,8 +119,6 @@ tolerations: []
 affinity: {}
 
 airflow:
-  enabled: true
-  # Airflow specific configurations
   webserver:
     service:
       type: NodePort
@@ -138,7 +136,6 @@ airflow:
       protocol: postgresql
 
 mlflow:
-  enabled: true
   postgresql:
     enabled: false
   backendStore:
@@ -149,28 +146,25 @@ mlflow:
       database: mlflow
       user: postgres
       password: postgres
+  service:
+    type: NodePort
 
 prometheus:
-  enabled: false
-  # Prometheus specific configurations
   server:
     persistentVolume:
       enabled: true
     service:
-      type: ClusterIP
+      type: NodePort
   alertmanager:
     enabled: true
     persistentVolume:
       enabled: true
 
 grafana:
-  enabled: false
-  # Grafana specific configurations
   persistence:
     enabled: true
   service:
-    type: ClusterIP
-  # Configure Prometheus as a datasource
+    type: NodePort
   datasources:
     datasources.yaml:
       apiVersion: 1
@@ -180,32 +174,16 @@ grafana:
           url: http://{{ .Release.Name }}-prometheus-server
           access: proxy
           isDefault: true
+  adminPassword: admin
 
 triton:
-  enabled: false
-  # Triton Inference Server specific configurations
   image:
     modelRepositoryPath: /models
+    numGpus: 0
   service:
-    type: ClusterIP
-  persistence:
-    enabled: true
-    mountPath: /models
-  podSecurityContext:
-    fsGroup: 1000
-  securityContext:
-    runAsUser: 1000
-    runAsGroup: 1000
-  resources:
-    limits:
-      cpu: "4"
-      memory: "8Gi"
-    requests:
-      cpu: "1"
-      memory: "4Gi"
+    type: NodePort
 
 postgresql:
-  enabled: true
   fullnameOverride: postgresql
   auth:
     postgresPassword: postgres
