@@ -176,7 +176,7 @@ grafana:
           isDefault: true
   adminPassword: admin
 
-triton:
+tritoninferenceserver:
   image:
     modelRepositoryPath: /models
     numGpus: 0
