@@ -90,3 +90,17 @@ curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 ```bash
 brew install helm
 ```
+
+### 이 레포의 helm chart 설치
+이 레포의 charts/mlops-platform 폴더에 있는 helm chart를 설치합니다.
+airflow, mlflow, prometheus, grafana, triton 등의 서비스를 kubernetes에 배포합니다.
+
+```bash
+helm upgrade --install mlops-platform charts/mlops-platform --namespace mlops-platform --create-namespace
+```
+
+uninstall
+```bash
+helm uninstall mlops-platform
+kubectl delete namespace mlops-platform
+```

@@ -14,5 +14,8 @@ dependencies:
 - name: tritoninferenceserver
   repository: https://helm.ngc.nvidia.com/nvidia
   version: 1.0.0
-digest: sha256:ccf1939fd14010efd53ebfc6601b3a9bd5b6604cc70f9a549d5191f0e2b2e100
-generated: "2025-04-07T15:47:41.534414189+09:00"
+- name: postgresql
+  repository: https://charts.bitnami.com/bitnami
+  version: 16.6.0
+digest: sha256:b96ee2f11d36e82467fd396dd800003aa7bb4c9306b037494a7667952c7b3044
+generated: "2025-04-07T17:12:18.360308017+09:00"

@@ -1,7 +1,3 @@
-# Default values for mlops-platform.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
 # This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
 replicaCount: 1
 
@@ -11,7 +7,7 @@ image:
   # This sets the pull policy for images.
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "latest"
 
 # This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []
@@ -122,55 +118,56 @@ tolerations: []
 
 affinity: {}
 
-# Global values for MLOps Platform
-global:
-  storageClass: standard
-
-# Enable/disable components
 airflow:
   enabled: true
   # Airflow specific configurations
   webserver:
     service:
-      type: ClusterIP
+      type: NodePort
   postgresql:
-    enabled: true
+    enabled: false
   redis:
     enabled: true
-  
+  data:
+    metadataConnection:
+      user: postgres
+      pass: postgres
+      host: postgresql
+      port: 5432
+      db: airflow
+      protocol: postgresql
+
 mlflow:
   enabled: true
-  # MLflow specific configurations
-  serviceAccount:
-    create: true
-  service:
-    type: ClusterIP
   postgresql:
-    enabled: true
-    persistence:
-      storageClass: standard
+    enabled: false
+  backendStore:
+    postgres:
+      enabled: true
+      host: postgresql
+      port: 5432
+      database: mlflow
+      user: postgres
+      password: postgres
 
 prometheus:
-  enabled: true
+  enabled: false
   # Prometheus specific configurations
   server:
     persistentVolume:
       enabled: true
-      storageClass: standard
     service:
       type: ClusterIP
   alertmanager:
     enabled: true
     persistentVolume:
       enabled: true
-      storageClass: standard
 
 grafana:
-  enabled: true
+  enabled: false
   # Grafana specific configurations
   persistence:
     enabled: true
-    storageClass: standard
   service:
     type: ClusterIP
   # Configure Prometheus as a datasource
@@ -185,7 +182,7 @@ grafana:
           isDefault: true
 
 triton:
-  enabled: true
+  enabled: false
   # Triton Inference Server specific configurations
   image:
     modelRepositoryPath: /models
@@ -193,8 +190,12 @@ triton:
     type: ClusterIP
   persistence:
     enabled: true
-    storageClass: standard
     mountPath: /models
+  podSecurityContext:
+    fsGroup: 1000
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
   resources:
     limits:
       cpu: "4"
@@ -202,3 +203,19 @@ triton:
     requests:
       cpu: "1"
       memory: "4Gi"
+
+postgresql:
+  enabled: true
+  fullnameOverride: postgresql
+  auth:
+    postgresPassword: postgres
+    username: postgres
+    password: postgres
+    database: airflow
+  primary:
+    initdb:
+      scripts:
+        01-create-databases.sql: |
+          -- MLflow 데이터베이스 생성
+          CREATE DATABASE mlflow;
+          GRANT ALL PRIVILEGES ON DATABASE mlflow TO postgres;
