@@ -134,6 +134,14 @@ airflow:
       port: 5432
       db: airflow
       protocol: postgresql
+  triggerer:
+    persistence:
+      enabled: true
+      size: 5Gi
+  workers:
+    persistence:
+      enabled: true
+      size: 5Gi
 
 mlflow:
   postgresql:
@@ -151,18 +159,16 @@ mlflow:
 
 prometheus:
   server:
-    persistentVolume:
-      enabled: true
     service:
       type: NodePort
-  alertmanager:
-    enabled: true
     persistentVolume:
       enabled: true
+      size: 5Gi
 
 grafana:
   persistence:
     enabled: true
+    size: 5Gi
   service:
     type: NodePort
   datasources:
@@ -197,3 +203,6 @@ postgresql:
           -- MLflow 데이터베이스 생성
           CREATE DATABASE mlflow;
           GRANT ALL PRIVILEGES ON DATABASE mlflow TO postgres;
+    persistence:
+      enabled: true
+      size: 5Gi
