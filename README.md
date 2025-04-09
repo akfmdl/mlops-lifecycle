@@ -27,6 +27,31 @@ MLOps가 왜 필요한지, 그리고 어떤 방식으로 머신러닝 프로젝�
 Kubernetes는 주로 Linux 환경에서 사용되기 때문에, 이 튜토리얼은 Linux 환경(amd64)을 기준으로 작성되었습니다.
 Windows 환경에서는 WSL2를 사용하여 Linux 환경을 구축할 수 있습니다.
 
+### 아키텍처 확인 방법
+for linux and mac
+```bash
+uname -m
+```
+* x86_64일 경우: amd64 -> 정상적으로 동작함
+* arm64일 경우: aarch64 -> 정상적으로 동작하지 않을 수 있음
+* 그 외 i686 또는 i386: 32비트이므로 동작하지 않을 수 있음
+
+for windows
+```bash
+echo %PROCESSOR_ARCHITECTURE%
+```
+* AMD64일 경우: amd64 -> 정상적으로 동작함
+* ARM64일 경우: aarch64 -> 정상적으로 동작하지 않을 수 있음
+* 그 외: 32비트이므로 동작하지 않을 수 있음
+
+### AWS 프리티어 계정 생성
+만약 본인이 사용하는 PC가 호환이 안되는 아키텍처일 경우, AWS 프리티어 계정을 생성하여 사용할 수 있습니다.
+AWS 프리티어 계정 생성 방법은 아래 링크를 참고하세요.
+https://aws.amazon.com/ko/free/
+
+### [k3s](https://k3s.io/): Lightweight Kubernetes
+```
+
 ### [k3s](https://k3s.io/): Lightweight Kubernetes
 k3s는 가볍고 쉽게 설치할 수 있는 Kubernetes 클러스터입니다. 가볍지만 이 튜토리얼에서 사용하는 모든 기능을 지원합니다.
 
@@ -104,3 +129,15 @@ uninstall
 helm uninstall mlops-platform
 kubectl delete namespace mlops-platform
 ```
+
+### airflow, mlflow, prometheus, grafana, triton 등의 서비스를 브라우저에서 접근해보기
+mlops-platform 차트의 values.yaml 파일에서 일부 서비스들의 서비스 타입을 아래와 같이 NodePort로 설정해두었습니다.
+
+```bash
+    service:
+      type: NodePort
+```
+참고로 이 NodePort는 쿠버네티스 클러스터 외부에서 접근할 수 있도록 하기 위한 서비스 타입인데, 사용 가능한 포트 번호를 자동으로 할당합니다.
+또한, k3s의 경우 기본적으로 localhost:<NodePort>로 접근할 수 있도록 설정되어 있습니다.
+k9s에서 각 서비스의 포트 번호를 확인하거나 kubectl get svc -n mlops-platform 명령어로 확인할 수 있습니다.
+브라우저에서 http://localhost:<NodePort>로 접근해보면 각 서비스의 페이지를 확인할 수 있습니다.
