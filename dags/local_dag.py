@@ -2,10 +2,12 @@ from datetime import datetime
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from modules.data_collection import download_dataset, extract_dataset
-from modules.data_split import split_dataset
-from modules.data_validation import validate_dataset
-from modules.model_train import create_data_yaml, train_yolo
+from modules.create_data_yaml import create_data_yaml
+from modules.download_dataset import download_dataset
+from modules.extract_dataset import extract_dataset
+from modules.split_dataset import split_dataset
+from modules.train_yolo import train_yolo
+from modules.validate_dataset import validate_dataset
 
 with DAG(
     "local_dag",
@@ -13,7 +15,7 @@ with DAG(
     schedule=None,
     start_date=datetime(2024, 1, 1),
     catchup=False,
-    tags=["yolo"],
+    tags=["yolo", "local"],
     params={
         # 데이터셋 다운로드에 필요한 파라미터
         "dataset_url": "https://github.com/ultralytics/assets/releases/download/v0.0.0/coco128.zip",
@@ -21,8 +23,9 @@ with DAG(
         "dataset_path": "./data/raw/extracted",
         # 데이터셋 Split에 필요한 파라미터
         "splits_path": "./data/splits",
-        "train_ratio": 0.8,
+        "train_ratio": 0.7,
         "val_ratio": 0.2,
+        "test_ratio": 0.1,
         # YOLO 학습 DAG에 필요한 파라미터
         "output_dir": "./runs",
         "epochs": 10,
@@ -60,6 +63,7 @@ with DAG(
             "target_path": "{{ params.splits_path }}",
             "train_ratio": "{{ params.train_ratio }}",
             "val_ratio": "{{ params.val_ratio }}",
+            "test_ratio": "{{ params.test_ratio }}",
         },
     )
 
