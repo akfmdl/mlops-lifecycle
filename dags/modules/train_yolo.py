@@ -47,34 +47,16 @@ def train_yolo(data_yaml_path, output_dir, epochs=10, batch_size=16, img_size=64
         val_results = model.val(name="valid")
 
         # 검증 결과 저장 - 배열일 경우 첫 번째 요소 사용
-        metrics_file = save_dir / "metrics.json"
+        metrics_file = val_results.save_dir / "metrics.json"
+        metrics = {
+            "mAP50": round(float(val_results.box.map50), 4),
+            "mAP50-95": round(float(val_results.box.map), 4),
+        }
 
-        # 배열/텐서를 안전하게 스칼라로 변환하는 함수
-        def safe_float(value):
-            if hasattr(value, "item"):  # 텐서인 경우
-                return value.item()
-            elif hasattr(value, "ndim") and value.ndim > 0:  # numpy 배열인 경우
-                return float(value[0])
-            else:
-                return float(value)
+        with open(metrics_file, "w", encoding="utf-8") as f:
+            json.dump(metrics, f, indent=2)
 
-        # 메트릭 값 안전하게 추출
-        try:
-            metrics = {
-                "mAP50": safe_float(val_results.box.map50),
-                "mAP50-95": safe_float(val_results.box.map),
-                "precision": safe_float(val_results.box.p),
-                "recall": safe_float(val_results.box.r),
-            }
-
-            with open(metrics_file, "w", encoding="utf-8") as f:
-                json.dump(metrics, f, indent=2)
-
-            print(f"검증 완료: mAP50={metrics['mAP50']:.4f}, mAP50-95={metrics['mAP50-95']:.4f}")
-        except Exception as e:
-            print(f"메트릭 저장 중 오류 발생: {e}, 메트릭 저장 건너뜀")
-            # 대안적인 방법으로 메트릭 정보 출력
-            print(f"검증 완료: 메트릭 정보 = {val_results}")
+        print(f"검증 완료: {metrics}")
 
         # 모델 저장
         best_model_path = save_dir / "weights" / "best.pt"
@@ -99,7 +81,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="YOLO 모델 학습")
     parser.add_argument("--data_yaml_path", type=str, help="데이터 YAML 파일 경로", default="./data/splits/data.yaml")
     parser.add_argument("--output_dir", type=str, help="출력 디렉토리 경로", default="./runs")
-    parser.add_argument("--epochs", type=int, default=10, help="학습 에포크 수")
+    parser.add_argument("--epochs", type=int, default=1, help="학습 에포크 수")
     parser.add_argument("--batch_size", type=int, default=16, help="배치 크기")
     parser.add_argument("--img_size", type=int, default=640, help="이미지 크기")
 
