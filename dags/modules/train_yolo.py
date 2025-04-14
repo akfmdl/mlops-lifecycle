@@ -11,7 +11,6 @@ def train_yolo(data_yaml_path, output_dir, epochs=10, batch_size=16, img_size=64
     """YOLO 모델 학습"""
     print(f"YOLO 학습 시작: {data_yaml_path}")
 
-    # 경로 객체로 변환
     data_yaml_path = Path(data_yaml_path)
     output_dir = Path(output_dir)
 
@@ -25,7 +24,7 @@ def train_yolo(data_yaml_path, output_dir, epochs=10, batch_size=16, img_size=64
     try:
         # 모델 로드
         print("YOLO 모델 로드 중...")
-        model = YOLO("yolo11n.pt")  # 작은 모델 사용
+        model = YOLO("yolo11n.pt")
 
         # 학습 실행
         print(f"학습 시작 (에포크: {epochs}, 배치 크기: {batch_size}, 이미지 크기: {img_size})...")
