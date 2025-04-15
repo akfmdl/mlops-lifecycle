@@ -40,5 +40,5 @@ dependencies:
     version: "1.0.0"
     repository: "https://helm.ngc.nvidia.com/nvidia"
   - name: postgresql
-    version: "16.6.0"
+    version: "16.6.3"
     repository: "https://charts.bitnami.com/bitnami"

@@ -118,6 +118,7 @@ tolerations: []
 
 affinity: {}
 
+# https://artifacthub.io/packages/helm/apache-airflow/airflow
 airflow:
   webserver:
     service:
@@ -142,7 +143,17 @@ airflow:
     persistence:
       enabled: true
       size: 5Gi
+  dags:
+    persistence:
+      enabled: true
+      size: 1Gi
+    gitSync:
+      enabled: true
+      repo: https://github.com/akfmdl/mlops-lifecycle.git
+      branch: main
+      subPath: "dags"
 
+# https://artifacthub.io/packages/helm/mlflow/mlflow
 mlflow:
   postgresql:
     enabled: false
@@ -157,6 +168,7 @@ mlflow:
   service:
     type: NodePort
 
+# https://artifacthub.io/packages/helm/prometheus-community/prometheus
 prometheus:
   server:
     service:
@@ -165,6 +177,7 @@ prometheus:
       enabled: true
       size: 5Gi
 
+# https://artifacthub.io/packages/helm/grafana/grafana
 grafana:
   persistence:
     enabled: true
@@ -182,6 +195,7 @@ grafana:
           isDefault: true
   adminPassword: admin
 
+# https://artifacthub.io/packages/helm/gpu-operator/tritoninferenceserver
 tritoninferenceserver:
   image:
     modelRepositoryPath: /models
@@ -189,6 +203,7 @@ tritoninferenceserver:
   service:
     type: NodePort
 
+# https://artifacthub.io/packages/helm/bitnami/postgresql
 postgresql:
   fullnameOverride: postgresql
   auth:
