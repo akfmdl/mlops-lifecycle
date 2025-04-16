@@ -35,4 +35,4 @@ k9s에서 각 서비스의 포트 번호를 확인하거나 kubectl get svc -n m
 브라우저에서 http://localhost:<NodePort>로 접근해보면 각 서비스의 페이지를 확인할 수 있습니다.
 
 ## Airflow admin 비밀번호
-airflow admin 초기 비밀번호는 admin입니다.
+초기 비밀번호는 admin입니다.
