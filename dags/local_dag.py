@@ -72,6 +72,8 @@ with DAG(
         bash_command="python {{ params.modules_dir }}/train_yolo.py \
             --data_yaml_path {{ params.splits_path }}/data.yaml \
             --output_dir {{ params.output_dir }} \
+            --metrics_file_path {{ params.output_dir }}/valid/metrics.json \
+            --best_model_path {{ params.output_dir }}/weights/best.pt \
             --epochs {{ params.epochs }} \
             --batch_size {{ params.batch_size }} \
             --img_size {{ params.img_size }}",

@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 import argparse
 import json
+import shutil
 import sys
 from pathlib import Path
 
 from ultralytics import YOLO
 
 
-def train_yolo(data_yaml_path, output_dir, epochs=10, batch_size=16, img_size=640):
+def train_yolo(data_yaml_path, output_dir, metrics_file_path, best_model_path, epochs=10, batch_size=16, img_size=640):
     """YOLO 모델 학습"""
     print(f"YOLO 학습 시작: {data_yaml_path}")
 
@@ -35,6 +36,7 @@ def train_yolo(data_yaml_path, output_dir, epochs=10, batch_size=16, img_size=64
             imgsz=img_size,
             project=str(output_dir),
             name="train",
+            exist_ok=True,
         )
 
         # 학습 결과 저장 경로
@@ -43,28 +45,25 @@ def train_yolo(data_yaml_path, output_dir, epochs=10, batch_size=16, img_size=64
 
         # 모델 검증
         print("모델 검증 중...")
-        val_results = model.val(name="valid")
+        val_results = model.val(name="valid", exist_ok=True)
 
-        # 검증 결과 저장 - 배열일 경우 첫 번째 요소 사용
-        metrics_file = val_results.save_dir / "metrics.json"
         metrics = {
             "mAP50": round(float(val_results.box.map50), 4),
             "mAP50-95": round(float(val_results.box.map), 4),
         }
 
-        with open(metrics_file, "w", encoding="utf-8") as f:
+        with open(metrics_file_path, "w", encoding="utf-8") as f:
             json.dump(metrics, f, indent=2)
 
         print(f"검증 완료: {metrics}")
 
         # 모델 저장
-        best_model_path = save_dir / "weights" / "best.pt"
         if best_model_path.exists():
             print(f"모델 저장 완료: {best_model_path}")
         else:
-            # 일반적인 모델 파일 찾기
-            model_files = list(save_dir.glob("**/*.pt"))
+            model_files = list(save_dir.glob("best.pt"))
             if model_files:
+                shutil.copy(model_files[0], best_model_path)
                 print(f"모델 저장 완료: {model_files[0]}")
             else:
                 print("모델 파일을 찾을 수 없습니다.")
@@ -78,8 +77,22 @@ def train_yolo(data_yaml_path, output_dir, epochs=10, batch_size=16, img_size=64
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="YOLO 모델 학습")
-    parser.add_argument("--data_yaml_path", type=str, help="데이터 YAML 파일 경로", default="./data/splits/data.yaml")
-    parser.add_argument("--output_dir", type=str, help="출력 디렉토리 경로", default="./runs")
+    parser.add_argument(
+        "--data_yaml_path", type=str, help="데이터 YAML 파일 경로", default="/tmp/airflow/data/splits/data.yaml"
+    )
+    parser.add_argument("--output_dir", type=str, help="출력 디렉토리 경로", default="/tmp/airflow/data/runs")
+    parser.add_argument(
+        "--metrics_file_path",
+        type=str,
+        help="검증 결과 저장 파일 경로",
+        default="/tmp/airflow/data/runs/valid/metrics.json",
+    )
+    parser.add_argument(
+        "--best_model_path",
+        type=str,
+        help="Best 모델 저장 파일 경로",
+        default="/tmp/airflow/data/runs/weights/best.pt",
+    )
     parser.add_argument("--epochs", type=int, default=1, help="학습 에포크 수")
     parser.add_argument("--batch_size", type=int, default=16, help="배치 크기")
     parser.add_argument("--img_size", type=int, default=640, help="이미지 크기")
