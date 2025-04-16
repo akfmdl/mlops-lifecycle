@@ -6,6 +6,22 @@
 - helm 설치
 - kubectl 설치
 
+## Repository Clone 및 Helm Chart 설치
+이 레포의 charts/mlops-platform 폴더에 있는 helm chart를 설치합니다.
+airflow, mlflow, prometheus, grafana, triton 등의 서비스를 kubernetes에 배포합니다.
+
+```bash
+git clone https://github.com/akfmdl/mlops-lifecycle.git
+cd mlops-lifecycle
+helm upgrade --install mlops-platform charts/mlops-platform --namespace mlops-platform --create-namespace
+```
+
+## Helm Chart 삭제
+```bash
+helm uninstall mlops-platform -n mlops-platform
+kubectl delete namespace mlops-platform
+```
+
 ## airflow, mlflow, prometheus, grafana, triton 등의 서비스를 브라우저에서 접근해보기
 mlops-platform 차트의 values.yaml 파일에서 일부 서비스들의 서비스 타입을 아래와 같이 NodePort로 설정해두었습니다.
 

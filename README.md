@@ -44,11 +44,6 @@ echo %PROCESSOR_ARCHITECTURE%
 * ARM64일 경우: aarch64 -> 정상적으로 동작하지 않을 수 있음
 * 그 외: 32비트이므로 동작하지 않을 수 있음
 
-### AWS 프리티어 계정 생성
-만약 본인이 사용하는 PC가 호환이 안되는 아키텍처일 경우, AWS 프리티어 계정을 생성하여 사용할 수 있습니다.
-AWS 프리티어 계정 생성 방법은 아래 링크를 참고하세요.
-https://aws.amazon.com/ko/free/
-
 ### [k3s](https://k3s.io/): Lightweight Kubernetes
 k3s는 가볍고 쉽게 설치할 수 있는 Kubernetes 클러스터입니다. 가볍지만 이 튜토리얼에서 사용하는 모든 기능을 지원합니다. 또한, 튜토리얼만 진행하기 때문에 단일 노드로만 구성합니다.
 
@@ -66,11 +61,6 @@ KUBECONFIG 환경변수 설정
 ```bash
 echo 'export KUBECONFIG=/etc/rancher/k3s/k3s.yaml' >> ~/.bashrc
 source ~/.bashrc
-```
-
-확인
-```bash
-kubectl get nodes
 ```
 
 #### for mac
@@ -91,6 +81,11 @@ sudo mv ./kubectl /usr/local/bin/kubectl
 #### for mac
 ```bash
 brew install kubectl
+```
+
+확인
+```bash
+kubectl get nodes
 ```
 
 ### [k9s](https://k9scli.io/): Kubernetes CLI
