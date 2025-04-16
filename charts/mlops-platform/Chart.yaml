@@ -1,6 +1,6 @@
 apiVersion: v2
 name: mlops-platform
-description: A Helm chart for MLOps Platform with Airflow and MLflow
+description: MLOps Platform for full machine learning lifecycle
 
 # A chart can be either an 'application' or a 'library' chart.
 #

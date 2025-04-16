@@ -50,20 +50,26 @@ AWS 프리티어 계정 생성 방법은 아래 링크를 참고하세요.
 https://aws.amazon.com/ko/free/
 
 ### [k3s](https://k3s.io/): Lightweight Kubernetes
-```
-
-### [k3s](https://k3s.io/): Lightweight Kubernetes
-k3s는 가볍고 쉽게 설치할 수 있는 Kubernetes 클러스터입니다. 가볍지만 이 튜토리얼에서 사용하는 모든 기능을 지원합니다.
+k3s는 가볍고 쉽게 설치할 수 있는 Kubernetes 클러스터입니다. 가볍지만 이 튜토리얼에서 사용하는 모든 기능을 지원합니다. 또한, 튜토리얼만 진행하기 때문에 단일 노드로만 구성합니다.
 
 #### for linux
 * --write-kubeconfig-mode 644: kubeconfig 파일의 권한을 644로 설정
 ```bash
 curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644
 ```
+확인
+```bash
+systemctl status k3s
+```
+
 KUBECONFIG 환경변수 설정
 ```bash
 echo 'export KUBECONFIG=/etc/rancher/k3s/k3s.yaml' >> ~/.bashrc
 source ~/.bashrc
+```
+
+확인
+```bash
 kubectl get nodes
 ```
 
@@ -114,4 +120,23 @@ curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 #### for mac
 ```bash
 brew install helm
+```
+
+### [옵션] Cluster 제거
+cluster를 제거하면 설치된 모든 리소스들을 한번에 제거할 수 있습니다.
+
+k3s-uninstall.sh 파일 위치 찾기
+```bash
+which k3s
+```
+
+k3s-uninstall.sh 파일은 위에서 찾은 경로와 같은 디렉토리에 있습니다.
+```bash
+sudo /usr/local/bin/k3s-uninstall.sh
+```
+
+### [옵션] Helm Chart 삭제
+```bash
+helm uninstall mlops-platform
+kubectl delete namespace mlops-platform
 ```

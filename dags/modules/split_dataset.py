@@ -102,7 +102,7 @@ def split_dataset(data_path, target_path, train_ratio=0.7, val_ratio=0.2, test_r
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="데이터셋 학습/검증/테스트 분할")
-    parser.add_argument("--data_path", type=str, help="원본 데이터셋 경로", default="./data/raw/extracted")
+    parser.add_argument("--data_path", type=str, help="원본 데이터셋 경로", default="./data/raw")
     parser.add_argument("--target_path", type=str, help="분할된 데이터셋 저장 경로", default="./data/splits")
     parser.add_argument("--train_ratio", type=float, default=0.7, help="학습 데이터 비율 (기본값: 0.7)")
     parser.add_argument("--val_ratio", type=float, default=0.2, help="검증 데이터 비율 (기본값: 0.2)")

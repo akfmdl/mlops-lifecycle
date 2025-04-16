@@ -43,9 +43,13 @@ def validate_dataset(data_path):
             print(f"- {file}")
         return False
 
+    print("검증 성공: 모든 이미지와 라벨 파일이 존재합니다.")
+    return True
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="데이터셋 검증")
-    parser.add_argument("--data_path", type=str, help="데이터셋 경로", default="./data/raw/extracted")
+    parser.add_argument("--data_path", type=str, help="데이터셋 경로", default="./data/raw")
 
     args = parser.parse_args()
 
@@ -55,4 +59,3 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"검증 실패: {e}")
         sys.exit(1)
-

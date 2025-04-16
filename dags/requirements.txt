@@ -1,3 +1,5 @@
 opencv-python-headless==4.11.0.86
 apache-airflow==2.10.5
 ultralytics==8.3.101
+apache-airflow-providers-cncf-kubernetes==10.4.0
+scikit-learn==1.6.1
