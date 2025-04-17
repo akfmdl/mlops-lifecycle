@@ -221,6 +221,7 @@ grafana:
 
 # https://artifacthub.io/packages/helm/gpu-operator/tritoninferenceserver
 tritoninferenceserver:
+  enabled: false
   fullnameOverride: tritoninferenceserver
   image:
     modelRepositoryPath: /models
@@ -248,7 +249,7 @@ postgresql:
       size: 1Gi
 
 nvidia:
-  enabled: false
+  enabled: true
   image:
     repository: nvcr.io/nvidia/k8s-device-plugin
     tag: "v0.17.1"
