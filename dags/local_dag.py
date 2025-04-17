@@ -25,7 +25,6 @@ with DAG(
         "val_ratio": 0.2,
         "test_ratio": 0.1,
         # YOLO 학습 DAG에 필요한 파라미터
-        "output_dir": os.path.join(WORK_DIR, "runs"),
         "epochs": 10,
         "batch_size": 16,
         "img_size": 640,
