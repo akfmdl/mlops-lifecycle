@@ -160,9 +160,6 @@ airflow:
       repo: https://github.com/akfmdl/mlops-lifecycle.git
       branch: main
       subPath: "dags"
-  env:
-    - name: MLFLOW_TRACKING_URI
-      value: http://mlflow-server:5000
 
 # https://artifacthub.io/packages/helm/mlflow/mlflow
 mlflow:

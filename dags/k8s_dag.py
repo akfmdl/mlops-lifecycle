@@ -7,6 +7,7 @@ from kubernetes.client import models as k8s
 
 DAGS_DIR = os.environ.get("DAGS_DIR", "/app/dags")
 WORK_DIR = os.environ.get("WORK_DIR", "/work_dir")
+MLFLOW_TRACKING_URI = os.environ.get("MLFLOW_TRACKING_URI", "http://mlflow-server:5000")
 
 with DAG(
     "k8s_dag",
@@ -50,6 +51,9 @@ with DAG(
 
     work_dir_volume_mount = k8s.V1VolumeMount(name=work_dir_volume.name, mount_path=WORK_DIR)
     dags_dir_volume_mount = k8s.V1VolumeMount(name=dags_dir_volume.name, mount_path=DAGS_DIR)
+
+    # Common environment variables for all pods
+    env_vars = [k8s.V1EnvVar(name="MLFLOW_TRACKING_URI", value=MLFLOW_TRACKING_URI)]
 
     # 데이터 다운로드 태스크
     download_task = KubernetesPodOperator(
@@ -165,6 +169,7 @@ with DAG(
         ],
         volumes=[work_dir_volume, dags_dir_volume],
         volume_mounts=[work_dir_volume_mount, dags_dir_volume_mount],
+        env_vars=env_vars,
         container_resources=k8s.V1ResourceRequirements(
             requests={"cpu": "1", "memory": "4Gi"}, limits={"cpu": "2", "memory": "8Gi"}
         ),
