@@ -9,7 +9,7 @@ WORK_DIR = os.environ.get("WORK_DIR", "/tmp/airflow/data")
 
 with DAG(
     "local_dag",
-    description="YOLO 데이터셋 Collection, Split, Validation, Train",
+    description="YOLO 데이터셋 Collection, Split, Validation, Train, Deploy",
     schedule=None,
     start_date=datetime(2024, 1, 1),
     catchup=False,
@@ -71,9 +71,6 @@ with DAG(
         task_id="train_yolo",
         bash_command="python {{ params.modules_dir }}/train_yolo.py \
             --data_yaml_path {{ params.splits_path }}/data.yaml \
-            --output_dir {{ params.output_dir }} \
-            --metrics_file_path {{ params.output_dir }}/valid/metrics.json \
-            --best_model_path {{ params.output_dir }}/weights/best.pt \
             --epochs {{ params.epochs }} \
             --batch_size {{ params.batch_size }} \
             --img_size {{ params.img_size }}",
