@@ -171,7 +171,8 @@ with DAG(
         volume_mounts=[work_dir_volume_mount, dags_dir_volume_mount],
         env_vars=env_vars,
         container_resources=k8s.V1ResourceRequirements(
-            requests={"cpu": "1", "memory": "4Gi"}, limits={"cpu": "2", "memory": "8Gi"}
+            requests={"cpu": "1", "memory": "4Gi", "nvidia.com/gpu": 1},
+            limits={"cpu": "2", "memory": "8Gi", "nvidia.com/gpu": 1},
         ),
         is_delete_operator_pod=True,
         in_cluster=True,
