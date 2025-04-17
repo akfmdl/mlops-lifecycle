@@ -77,11 +77,9 @@ sudo apt-get install -y nvidia-container-toolkit nvidia-container-runtime
 ```
 
 k3s를 재시작 한 후 3번을 재확인합니다.
+k3s는 자동으로 NVIDIA runtime을 containerd 설정에 추가합니다.
+참고: https://docs.k3s.io/advanced#alternative-container-runtime-support
 
 ```bash
 sudo systemctl restart k3s
 ```
-
-
-
-
