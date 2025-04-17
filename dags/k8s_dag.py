@@ -157,8 +157,6 @@ with DAG(
             "{{ params.modules_dir }}/train_yolo.py",
             "--data_yaml_path",
             "{{ params.splits_path }}/data.yaml",
-            "--output_dir",
-            "{{ params.output_dir }}",
             "--epochs",
             "{{ params.epochs }}",
             "--batch_size",
