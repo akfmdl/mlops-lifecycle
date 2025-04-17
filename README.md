@@ -49,8 +49,9 @@ k3s는 가볍고 쉽게 설치할 수 있는 Kubernetes 클러스터입니다. �
 
 #### for linux
 * --write-kubeconfig-mode 644: kubeconfig 파일의 권한을 644로 설정
+* --default-runtime nvidia: GPU 사용 설정(GPU가 없는 경우 무시)
 ```bash
-curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644
+curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 --default-runtime nvidia
 ```
 확인
 ```bash
@@ -117,6 +118,12 @@ curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 brew install helm
 ```
 
+### [옵션] Helm Chart 삭제
+```bash
+helm uninstall mlops-platform
+kubectl delete namespace mlops-platform
+```
+
 ### [옵션] Cluster 제거
 cluster를 제거하면 설치된 모든 리소스들을 한번에 제거할 수 있습니다.
 
@@ -128,10 +135,4 @@ which k3s
 k3s-uninstall.sh 파일은 위에서 찾은 경로와 같은 디렉토리에 있습니다.
 ```bash
 sudo /usr/local/bin/k3s-uninstall.sh
-```
-
-### [옵션] Helm Chart 삭제
-```bash
-helm uninstall mlops-platform
-kubectl delete namespace mlops-platform
 ```

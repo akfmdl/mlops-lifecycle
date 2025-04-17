@@ -246,3 +246,14 @@ postgresql:
     persistence:
       enabled: true
       size: 1Gi
+
+nvidia:
+  enabled: false
+  image:
+    repository: nvcr.io/nvidia/k8s-device-plugin
+    tag: "v0.17.1"
+    pullPolicy: IfNotPresent
+  tolerations:
+    - key: nvidia.com/gpu
+      operator: Exists
+      effect: NoSchedule
