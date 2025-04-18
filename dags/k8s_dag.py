@@ -48,9 +48,12 @@ with DAG(
         name="dags-dir",
         persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name="{{ params.dags_dir_pvc_name }}"),
     )
+    # shared memory 볼륨 정의 for Training
+    shm_volume = k8s.V1Volume(name="dshm", empty_dir=k8s.V1EmptyDirVolumeSource(medium="Memory", size_limit="2Gi"))
 
     work_dir_volume_mount = k8s.V1VolumeMount(name=work_dir_volume.name, mount_path=WORK_DIR)
     dags_dir_volume_mount = k8s.V1VolumeMount(name=dags_dir_volume.name, mount_path=DAGS_DIR)
+    shm_volume_mount = k8s.V1VolumeMount(mount_path="/dev/shm", name="dshm")
 
     # Common environment variables for all pods
     env_vars = [k8s.V1EnvVar(name="MLFLOW_TRACKING_URI", value=MLFLOW_TRACKING_URI)]
@@ -167,8 +170,8 @@ with DAG(
             "--img_size",
             "{{ params.img_size }}",
         ],
-        volumes=[work_dir_volume, dags_dir_volume],
-        volume_mounts=[work_dir_volume_mount, dags_dir_volume_mount],
+        volumes=[work_dir_volume, dags_dir_volume, shm_volume],
+        volume_mounts=[work_dir_volume_mount, dags_dir_volume_mount, shm_volume_mount],
         env_vars=env_vars,
         container_resources=k8s.V1ResourceRequirements(
             requests={"cpu": "1", "memory": "4Gi", "nvidia.com/gpu": 1},  # GPU가 없을 경우 nvidia.com/gpu 항목 제거
