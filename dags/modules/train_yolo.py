@@ -145,6 +145,7 @@ if __name__ == "__main__":
     parser.add_argument("--epochs", type=int, default=1, help="학습 에포크 수")
     parser.add_argument("--batch_size", type=int, default=16, help="배치 크기")
     parser.add_argument("--img_size", type=int, default=640, help="이미지 크기")
+    parser.add_argument("--run_name", type=str, default="YOLOv11n", help="mlflow run name & model name")
 
     args = parser.parse_args()
 

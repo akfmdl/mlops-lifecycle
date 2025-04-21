@@ -28,6 +28,7 @@ with DAG(
         "epochs": 10,
         "batch_size": 16,
         "img_size": 640,
+        "run_name": "YOLOv11n",
         # modules 디렉토리 경로
         "modules_dir": MODULES_DIR,
     },
@@ -72,7 +73,8 @@ with DAG(
             --data_yaml_path {{ params.splits_path }}/data.yaml \
             --epochs {{ params.epochs }} \
             --batch_size {{ params.batch_size }} \
-            --img_size {{ params.img_size }}",
+            --img_size {{ params.img_size }} \
+            --run_name {{ params.run_name }}",
     )
 
     download_task >> validate_task >> split_task >> create_data_yaml_task >> train_yolo_task
