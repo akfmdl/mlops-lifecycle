@@ -159,6 +159,7 @@ if __name__ == "__main__":
         )
         valid_results = yolo_model.validate()
         yolo_model.register_model(valid_results)
+        mlflow.end_run()
         print(f"XCOM_RETURN:{valid_results}")
     except Exception as e:
         print(f"학습 실패: {e}")
