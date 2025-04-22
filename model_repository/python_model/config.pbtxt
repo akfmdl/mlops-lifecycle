@@ -1,0 +1,19 @@
+name: "python_model"
+backend: "python"
+max_batch_size: 8
+
+input [
+  {
+    name: "images"
+    data_type: TYPE_FP32
+    dims: [3, 640, 640]
+  }
+]
+
+output [
+  {
+    name: "detections"
+    data_type: TYPE_FP32
+    dims: [-1, 6]  # (N, [x1, y1, x2, y2, conf, class])
+  }
+]
