@@ -119,7 +119,7 @@ class YOLOModel:
             previous_inference_speed = 0
 
         # 성능이 향상된 경우에만 모델 등록
-        if current_map > previous_map or current_inference_speed > previous_inference_speed:
+        if current_map > previous_map and current_inference_speed > previous_inference_speed:
             # ONNX 형식으로 모델 내보내기
             onnx_path = self.model.export(format="onnx")
 
