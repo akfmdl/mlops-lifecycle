@@ -255,6 +255,7 @@ def main(args):
     # 이미지 원본 크기 저장
     original_shape = image.shape[:2]  # (height, width)
 
+    # 이미지 전처리: 모델 입력 크기에 맞게 조정
     input_data = preprocess_image(image, args.input_size)
 
     try:
@@ -312,29 +313,15 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Triton Inference Client")
-    parser.add_argument(
-        "--triton_url", type=str, default="localhost:8000", help="Triton server URL"
-    )
-    parser.add_argument(
-        "--model_name", type=str, default="yolo11n", help="Model name registered in Triton"
-    )
+    parser.add_argument("--triton_url", type=str, default="localhost:8000", help="Triton server URL")
+    parser.add_argument("--model_name", type=str, default="python_model", help="Model name registered in Triton")
     parser.add_argument(
         "--model_version", type=str, default="1", help="Model version (empty string means latest version)"
     )
     parser.add_argument("--image_path", type=str, default="examples/dog.jpg", help="Path to the input image")
-    parser.add_argument(
-        "--input_size",
-        type=int,
-        nargs=2,
-        default=[640, 640],
-        help="Input image size (width, height) (default: 640 640)",
-    )
-    parser.add_argument(
-        "--output_name", type=str, default="output0", help="Name of the output tensor (default: output0)"
-    )
-    parser.add_argument(
-        "--conf_thres", type=float, default=0.5, help="Confidence threshold for detections"
-    )
+    parser.add_argument("--input_size", type=int, nargs=2, default=[640, 640], help="Input image size (width, height)")
+    parser.add_argument("--output_name", type=str, default="detections", help="Name of the output tensor")
+    parser.add_argument("--conf_thres", type=float, default=0.5, help="Confidence threshold for detections")
     parser.add_argument("--iou_thres", type=float, default=0.5, help="IoU threshold for NMS")
     parser.add_argument("--output_image", type=str, default="dog_detection.jpg", help="Path to save the output image")
     args = parser.parse_args()
