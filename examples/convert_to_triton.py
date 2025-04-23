@@ -45,10 +45,10 @@ output [
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Convert ONNX model to Triton Inference Server format")
-    parser.add_argument("--onnx_model", type=str, default="yolo11n.onnx", help="Path to the ONNX model file")
-    parser.add_argument("--output_dir", type=str, default="./model_repository", help="Path to the output directory")
-    parser.add_argument("--model_name", type=str, default="yolo11n", help="Name of the model in Triton")
-    parser.add_argument("--model_version", type=str, default="1", help="Version of the model")
+    parser.add_argument("--onnx-model", type=str, default="yolo11n.onnx", help="Path to the ONNX model file")
+    parser.add_argument("--output-dir", type=str, default="./model_repository", help="Path to the output directory")
+    parser.add_argument("--model-name", type=str, default="yolo11n", help="Name of the model in Triton")
+    parser.add_argument("--model-version", type=str, default="1", help="Version of the model")
 
     args = parser.parse_args()
 
