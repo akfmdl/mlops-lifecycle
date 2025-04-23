@@ -1,4 +1,4 @@
-name: "basic"
+name: "python_model"
 backend: "python"
 max_batch_size: 8
 

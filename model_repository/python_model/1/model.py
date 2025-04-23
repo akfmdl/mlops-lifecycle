@@ -7,7 +7,7 @@ import requests
 import triton_python_backend_utils as pb_utils
 
 MLFLOW_MODEL_NAME = os.getenv("MLFLOW_MODEL_NAME", "yolo11n")
-MLFLOW_MODEL_VERSION = os.getenv("MLFLOW_MODEL_VERSION", "1")
+MLFLOW_MODEL_VERSION = os.getenv("MLFLOW_MODEL_VERSION", "2")
 MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000")
 
 
@@ -23,12 +23,9 @@ class TritonPythonModel:
 
         mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
         client = mlflow.tracking.MlflowClient()
-        registered_model = client.get_registered_model(MLFLOW_MODEL_NAME)
 
-        # Download the ONNX model file from MLflow to a local path
-        local_path = mlflow.artifacts.download_artifacts(artifact_uri=registered_model.latest_versions[0].source)
-
-        # Initialize ONNX Runtime session
+        registered_model = client.get_model_version(MLFLOW_MODEL_NAME, MLFLOW_MODEL_VERSION)
+        local_path = mlflow.artifacts.download_artifacts(artifact_uri=registered_model.source)
         self.session = ort.InferenceSession(local_path)
 
         # Get input and output names

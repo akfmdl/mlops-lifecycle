@@ -18,10 +18,10 @@ def download_mlflow_artifact(model_name, model_version, output_dir):
     client = mlflow.tracking.MlflowClient()
 
     # Get the specific model version instead of using the latest
-    model_version_details = client.get_model_version(model_name, model_version)
+    registered_model = client.get_model_version(model_name, model_version)
 
     # Download the model file from MLflow to a local path
-    mlflow.artifacts.download_artifacts(artifact_uri=model_version_details.source, dst_path=output_dir)
+    mlflow.artifacts.download_artifacts(artifact_uri=registered_model.source, dst_path=output_dir)
 
 
 if __name__ == "__main__":
