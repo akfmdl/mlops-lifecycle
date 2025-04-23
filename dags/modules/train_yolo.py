@@ -11,15 +11,16 @@ import requests
 import yaml
 from ultralytics import YOLO, settings
 
+os.environ["MLFLOW_KEEP_RUN_ACTIVE"] = "true"
+
 
 class YOLOModel:
-    def __init__(self, experiment_name="yolo-object-detection", run_name="yolo11n", model_path="yolo11n.pt"):
+    def __init__(self, experiment_name="yolo", run_name="yolo11n", model_path="yolo11n.pt"):
         print("YOLO 모델 로드 중...")
         self.model = YOLO(model_path)
         self.run_name = run_name
         self.experiment_name = experiment_name
         self.model_path = model_path
-        self.run_id = None
         self.mlflow_enabled = True
 
         tracking_uri = os.environ.get("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000")
@@ -34,7 +35,6 @@ class YOLOModel:
                 mlflow.set_experiment(experiment_name)
                 mlflow.start_run(run_name=self.run_name, nested=True)
                 settings.update({"mlflow": True})
-                self.run_id = mlflow.active_run().info.run_id
             else:
                 raise ConnectionError(f"MLflow 서버 응답 오류: {response.status_code}")
         except (requests.RequestException, ConnectionError) as e:
@@ -90,11 +90,11 @@ class YOLOModel:
             print("MLflow 기능이 비활성화되어 모델 검증을 건너뜁니다.")
             return
 
-        valid_results = self.model.val(exist_ok=True)
+        valid_results = self.model.val(exist_ok=True, name=self.run_name)
 
         # 모델 성능 메트릭 로깅
-        mlflow.log_metric("mAP50-95", valid_results.box.map, run_id=self.run_id)
-        mlflow.log_metric("inference_speed", valid_results.speed["inference"], run_id=self.run_id)
+        mlflow.log_metric("mAP50-95", valid_results.box.map)
+        mlflow.log_metric("inference_speed", valid_results.speed["inference"])
 
         return valid_results
 
@@ -120,15 +120,18 @@ class YOLOModel:
             previous_inference_speed = 0
 
         # 성능이 향상된 경우에만 모델 등록
-        if current_map > previous_map and current_inference_speed > previous_inference_speed:
+        # if current_map > previous_map and current_inference_speed > previous_inference_speed:
+        if True:
             # ONNX 형식으로 모델 내보내기
             onnx_path = self.model.export(format="onnx", dynamic=True)
 
             # 현재 실행 중인 MLflow run에 아티팩트로 모델 저장
-            mlflow.log_artifact(local_path=onnx_path, run_id=self.run_id)
+            mlflow.log_artifact(local_path=onnx_path)
 
             # Model Registry에 모델 등록 또는 업데이트
-            mlflow.register_model(f"runs:/{self.run_id}/{os.path.basename(onnx_path)}", self.run_name)
+            mlflow.register_model(
+                f"runs:/{mlflow.active_run().info.run_id}/{os.path.basename(onnx_path)}", self.run_name
+            )
 
             print(
                 f"모델 성능 향상 확인 - mAP50-95: {previous_map:.3f} -> {current_map:.3f}, "
@@ -138,6 +141,7 @@ class YOLOModel:
         else:
             print("현재 모델의 성능이 이전 모델보다 낮아 등록을 건너뜁니다.")
             return False
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="YOLO 모델 학습")

@@ -28,8 +28,8 @@ dependencies:
     version: "1.16.0"
     repository: "https://airflow.apache.org"
   - name: mlflow
-    version: "0.16.4"
-    repository: "https://community-charts.github.io/helm-charts"
+    version: "3.0.1"
+    repository: "https://charts.bitnami.com/bitnami"
   - name: prometheus
     version: "27.8.0"
     repository: "https://prometheus-community.github.io/helm-charts"
