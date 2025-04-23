@@ -11,11 +11,11 @@ dependencies:
 - name: grafana
   repository: https://grafana.github.io/helm-charts
   version: 8.11.3
-- name: tritoninferenceserver
-  repository: https://helm.ngc.nvidia.com/nvidia
-  version: 1.0.0
 - name: postgresql
   repository: https://charts.bitnami.com/bitnami
   version: 16.6.3
-digest: sha256:dcdb39c0da48b02df96f672ded02ba0cf889fc8cdfef449863edf5b957329437
-generated: "2025-04-15T10:17:19.765817972+09:00"
+- name: argo-cd
+  repository: https://argoproj.github.io/argo-helm
+  version: 7.8.28
+digest: sha256:b1ca454b670a24175d4a69b34eeb084277aeb6c456be0c0261135180fe8d7aba
+generated: "2025-04-23T13:56:44.660926685+09:00"

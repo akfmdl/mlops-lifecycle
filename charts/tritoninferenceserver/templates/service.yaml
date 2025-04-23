@@ -1,0 +1,26 @@
+{{- range .Values.tritonServers }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .name }}
+  namespace: {{ $.Release.Namespace | default "default" }}
+  labels:
+    app: {{ .name }}
+    chart: {{ template "tritoninferenceserver.chart" $ }}
+    release: {{ $.Release.Name }}
+    heritage: {{ $.Release.Service }}
+spec:
+  type: {{ .service.type }}
+  ports:
+    - port: 8000
+      targetPort: http
+      name: http-inference-server
+    - port: 8001
+      targetPort: grpc
+      name: grpc-inference-server
+    - port: 8002
+      targetPort: metrics
+      name: metrics-inference-server
+  selector:
+    app: triton-{{ .name }}
+{{- end }}

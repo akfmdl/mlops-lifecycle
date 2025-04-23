@@ -219,16 +219,6 @@ grafana:
           isDefault: true
   adminPassword: admin
 
-# https://artifacthub.io/packages/helm/gpu-operator/tritoninferenceserver
-tritoninferenceserver:
-  enabled: false
-  fullnameOverride: tritoninferenceserver
-  image:
-    modelRepositoryPath: /models
-    numGpus: 0
-  service:
-    type: NodePort
-
 # https://artifacthub.io/packages/helm/bitnami/postgresql
 postgresql:
   fullnameOverride: postgresql
@@ -258,3 +248,14 @@ nvidia:
     - key: nvidia.com/gpu
       operator: Exists
       effect: NoSchedule
+
+# https://artifacthub.io/packages/helm/argoproj/argo-cd
+argo-cd:
+  enabled: true
+  fullnameOverride: argo-cd
+  server:
+    service:
+      type: NodePort
+  configs:
+    secret:
+      argocdServerAdminPassword: $2a$10$fYFgQiokT3Qm3uvzKgUHGu0gKOnHfFZ5J47UyV6wT46ag8H4YK.kS

@@ -1,0 +1,74 @@
+{{- range .Values.tritonServers }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: triton-{{ .name }}
+  namespace: {{ $.Release.Namespace | default "default" }}
+  labels:
+    app: triton-{{ .name }}
+    chart: {{ template "tritoninferenceserver.chart" $ }}
+    release: {{ $.Release.Name }}
+    heritage: {{ $.Release.Service }}
+spec:
+  replicas: {{ .replicas | default 1 }}
+  selector:
+    matchLabels:
+      app: triton-{{ .name }}
+  template:
+    metadata:
+      labels:
+        app: triton-{{ .name }}
+    spec:
+      containers:
+        - name: triton
+          image: {{ .image.imageName | default "nvcr.io/nvidia/tritonserver:25.03-py3" }}
+          imagePullPolicy: {{ .image.pullPolicy }}
+          resources:
+            {{- if .resources }}
+            {{- toYaml .resources | nindent 12 }}
+            {{- end }}
+          args: ["tritonserver", "--model-repository={{ .model.repository }}", "--model-control-mode=explicit", "--load-model={{ .model.name }}"]
+          volumeMounts:
+            - name: model-repo
+              mountPath: /git
+          {{- if .env }}
+          env:
+            {{- toYaml .env | nindent 12 }}
+          {{- end }}
+          ports:
+            - containerPort: 8000
+              name: http
+            - containerPort: 8001
+              name: grpc
+            - containerPort: 8002
+              name: metrics
+          livenessProbe:
+            httpGet:
+              path: /api/health/live
+              port: http
+          readinessProbe:
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            httpGet:
+              path: /api/health/ready
+              port: http
+          securityContext:
+            runAsUser: 1000
+            fsGroup: 1000
+        {{- if $.Values.gitSync.enabled }}
+        - name: git-sync
+          image: {{ $.Values.gitSync.image.imageName }}
+          env:
+            {{- toYaml $.Values.gitSync.env | nindent 12 }}
+          volumeMounts:
+            - name: model-repo
+              mountPath: /git
+          securityContext:
+            runAsUser: 1000
+            fsGroup: 1000
+        {{- end }}
+      volumes:
+        - name: model-repo
+          emptyDir: {}
+---
+{{- end }}
