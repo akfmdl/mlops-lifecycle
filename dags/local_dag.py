@@ -28,7 +28,7 @@ with DAG(
         "epochs": 10,
         "batch_size": 16,
         "img_size": 640,
-        "run_name": "YOLOv11n",
+        "run_name": "yolo11n",
         # modules 디렉토리 경로
         "modules_dir": MODULES_DIR,
     },

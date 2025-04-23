@@ -13,7 +13,7 @@ from ultralytics import YOLO, settings
 
 
 class YOLOModel:
-    def __init__(self, experiment_name="yolo-object-detection", run_name="YOLOv11n", model_path="yolo11n.pt"):
+    def __init__(self, experiment_name="yolo-object-detection", run_name="yolo11n", model_path="yolo11n.pt"):
         print("YOLO 모델 로드 중...")
         self.model = YOLO(model_path)
         self.run_name = run_name
@@ -100,7 +100,7 @@ class YOLOModel:
     def register_model(self, valid_results):
         if not self.mlflow_enabled:
             print("MLflow 기능이 비활성화되어 모델 등록을 건너뜁니다.")
-            return
+            return False
 
         # 현재 모델의 성능 메트릭 가져오기
         current_map = valid_results.box.map
@@ -121,7 +121,7 @@ class YOLOModel:
         # 성능이 향상된 경우에만 모델 등록
         if current_map > previous_map and current_inference_speed > previous_inference_speed:
             # ONNX 형식으로 모델 내보내기
-            onnx_path = self.model.export(format="onnx")
+            onnx_path = self.model.export(format="onnx", dynamic=True)
 
             # 현재 실행 중인 MLflow run에 아티팩트로 모델 저장
             mlflow.log_artifact(local_path=onnx_path, run_id=self.run_id)
@@ -133,9 +133,10 @@ class YOLOModel:
                 f"모델 성능 향상 확인 - mAP50-95: {previous_map:.3f} -> {current_map:.3f}, "
                 f"추론 속도: {previous_inference_speed:.3f} -> {current_inference_speed:.3f}"
             )
+            return True
         else:
             print("현재 모델의 성능이 이전 모델보다 낮아 등록을 건너뜁니다.")
-
+            return False
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="YOLO 모델 학습")
@@ -145,7 +146,7 @@ if __name__ == "__main__":
     parser.add_argument("--epochs", type=int, default=1, help="학습 에포크 수")
     parser.add_argument("--batch_size", type=int, default=16, help="배치 크기")
     parser.add_argument("--img_size", type=int, default=640, help="이미지 크기")
-    parser.add_argument("--run_name", type=str, default="YOLOv11n", help="mlflow run name & model name")
+    parser.add_argument("--run_name", type=str, default="yolo11n", help="mlflow run name & model name")
 
     args = parser.parse_args()
 
@@ -158,9 +159,9 @@ if __name__ == "__main__":
             img_size=args.img_size,
         )
         valid_results = yolo_model.validate()
-        yolo_model.register_model(valid_results)
+        is_registered = yolo_model.register_model(valid_results)
         mlflow.end_run()
-        print(f"XCOM_RETURN:{valid_results}")
+        print(f"XCOM_RETURN:{is_registered}")
     except Exception as e:
         print(f"학습 실패: {e}")
         sys.exit(1)

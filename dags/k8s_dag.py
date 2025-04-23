@@ -30,7 +30,7 @@ with DAG(
         "epochs": 10,
         "batch_size": 16,
         "img_size": 640,
-        "run_name": "YOLOv11n",
+        "run_name": "yolo11n",
         # Kubernetes 파라미터
         "work_dir_pvc_name": "data-volume",
         "dags_dir_pvc_name": "mlops-platform-dags",
