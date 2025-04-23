@@ -30,9 +30,9 @@ class YOLOModel:
             response = requests.get(health_url, timeout=5)
             if response.status_code == 200:
                 mlflow.set_tracking_uri(tracking_uri)
-                mlflow.create_experiment(experiment_name)
+                print(f"mlflow artifact uri: {mlflow.get_artifact_uri()}")
                 mlflow.set_experiment(experiment_name)
-                mlflow.start_run(run_name=self.run_name)
+                mlflow.start_run(run_name=self.run_name, nested=True)
                 settings.update({"mlflow": True})
                 self.run_id = mlflow.active_run().info.run_id
             else:
