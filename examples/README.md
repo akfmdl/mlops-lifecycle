@@ -8,7 +8,7 @@ mkdir tmp_model_repository
 ```
 
 컨테이너 실행
-* goranidocker/tritonserver:python-v1: model_repository/python_model/Dockerfile 를 빌드한 커스텀 이미지
+* goranidocker/tritonserver:python-v1: model_repository/Dockerfile을 빌드한 커스텀 이미지
 * 기본 nvidia에서 제공하는 이미지는 https://catalog.ngc.nvidia.com/orgs/nvidia/containers/tritonserver/tags 참고
 
 ```bash
@@ -62,12 +62,12 @@ python3 examples/register_to_mlflow.py --onnx-model yolo11n.onnx --model-name yo
 
 python 백엔드 모델 폴더 복사
 ```bash
-cp -r model_repository/python_model tmp_model_repository
+cp -r model_repository/basic tmp_model_repository
 ```
 
 모델 추론
 ```bash
-python3 examples/triton_yolo_inference.py --model-name python_model --output-name detections --output-image dog_detection.jpg
+python3 examples/triton_yolo_inference.py --model-name basic --output-name detections --output-image dog_detection.jpg
 ```
 
 추론 결과 확인: dog_detection.jpg
