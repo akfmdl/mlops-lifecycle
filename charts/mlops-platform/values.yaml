@@ -163,7 +163,7 @@ airflow:
       subPath: "dags"
   env:
     - name: MLFLOW_TRACKING_URI
-      value: http://mlflow:5000
+      value: "http://mlflow.mlops-platform.svc.cluster.local:5000"
 
 # https://artifacthub.io/packages/helm/mlflow/mlflow
 mlflow:
