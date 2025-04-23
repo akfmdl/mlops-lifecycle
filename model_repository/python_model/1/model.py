@@ -1,7 +1,9 @@
 import os
+from urllib.parse import urljoin
 
 import mlflow
 import onnxruntime as ort
+import requests
 import triton_python_backend_utils as pb_utils
 
 MLFLOW_MODEL_NAME = os.getenv("MLFLOW_MODEL_NAME", "YOLOv11n")
@@ -13,6 +15,12 @@ class TritonPythonModel:
     def initialize(self, args):
         self.logger = pb_utils.Logger
         self.logger.log_info("Initializing model...")
+
+        health_url = urljoin(MLFLOW_TRACKING_URI, "health")
+        response = requests.get(health_url, timeout=5)
+        if response.status_code != 200:
+            raise Exception("MLflow server is not healthy")
+
         mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
         client = mlflow.tracking.MlflowClient()
         registered_model = client.get_registered_model(MLFLOW_MODEL_NAME)
