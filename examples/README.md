@@ -8,12 +8,16 @@ mkdir tmp_model_repository
 ```
 
 컨테이너 실행
+* goranidocker/tritonserver:python-v1: model_repository/python_model/Dockerfile 를 빌드한 커스텀 이미지
+* 기본 nvidia에서 제공하는 이미지는 https://catalog.ngc.nvidia.com/orgs/nvidia/containers/tritonserver/tags 참고
 
 ```bash
 sudo docker run --gpus=all -it --shm-size=256m --network="host" --rm -p 8000:8000 -p 8001:8001 -p 8002:8002 -v $(pwd)/tmp_model_repository:/models goranidocker/tritonserver:python-v1
 ```
 
 프로세스 실행
+* --model-control-mode=poll: 모델 변경 시 자동으로 모델 로드
+* --repository-poll-secs=3: 모델 변경 시 3초마다 모델 로드
 
 ```bash
 tritonserver --model-repository=/models --model-control-mode=poll --repository-poll-secs=3
@@ -38,7 +42,12 @@ python3 examples/triton_yolo_inference.py --model-name yolo11n --output-name out
 
 추론 결과 확인: dog_detection.jpg
 
-## 3. MLflow 백엔드 모델 배포 방법
+## 3. Python 백엔드 모델 배포 방법
+
+ONNX Runtime 백엔드를 사용할 경우, 전처리나 후처리 코드를 커스터마이징 할 수 없기 때문에 Python 백엔드를 사용해야 함.
+기본 구조
+* initialize: 모델 초기화(로드시 한번만 실행)
+* execute: 모델 추론
 
 mlflow 서버 실행
 ```bash
