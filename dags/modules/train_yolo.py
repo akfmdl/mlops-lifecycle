@@ -119,26 +119,26 @@ class YOLOModel:
             previous_inference_speed = 0
 
         # 성능이 향상된 경우에만 모델 등록
-        if (current_map > previous_map and current_inference_speed > previous_inference_speed) or force_register:
-            # ONNX 형식으로 모델 내보내기
-            onnx_path = self.model.export(format="onnx", dynamic=True)
-
-            # 현재 실행 중인 MLflow run에 아티팩트로 모델 저장
-            mlflow.log_artifact(local_path=onnx_path)
-
-            # Model Registry에 모델 등록 또는 업데이트
-            mlflow.register_model(
-                f"runs:/{mlflow.active_run().info.run_id}/{os.path.basename(onnx_path)}", self.run_name
-            )
-
+        if force_register:
+            print("force_register 옵션이 활성화되어 모델을 강제 등록합니다.")
+        elif current_map > previous_map and current_inference_speed > previous_inference_speed:
             print(
                 f"모델 성능 향상 확인 - mAP50-95: {previous_map:.3f} -> {current_map:.3f}, "
                 f"추론 속도: {previous_inference_speed:.3f} -> {current_inference_speed:.3f}"
             )
-            return True
         else:
             print("현재 모델의 성능이 이전 모델보다 낮아 등록을 건너뜁니다.")
             return False
+
+        # ONNX 형식으로 모델 내보내기
+        onnx_path = self.model.export(format="onnx", dynamic=True)
+
+        # 현재 실행 중인 MLflow run에 아티팩트로 모델 저장
+        mlflow.log_artifact(local_path=onnx_path)
+
+        # Model Registry에 모델 등록 또는 업데이트
+        mlflow.register_model(f"runs:/{mlflow.active_run().info.run_id}/{os.path.basename(onnx_path)}", self.run_name)
+        return True
 
 
 if __name__ == "__main__":
