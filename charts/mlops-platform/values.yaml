@@ -34,10 +34,12 @@ podAnnotations: {}
 # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
 podLabels: {}
 
-podSecurityContext: {}
+podSecurityContext:
+  {}
   # fsGroup: 2000
 
-securityContext: {}
+securityContext:
+  {}
   # capabilities:
   #   drop:
   #   - ALL
@@ -56,7 +58,8 @@ service:
 ingress:
   enabled: false
   className: ""
-  annotations: {}
+  annotations:
+    {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
@@ -69,7 +72,8 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
-resources: {}
+resources:
+  {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -164,6 +168,22 @@ airflow:
   env:
     - name: MLFLOW_TRACKING_URI
       value: "http://mlflow-tracking:80"
+  extraEnv: |
+    - name: GIT_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: github-credential
+          key: username
+    - name: GIT_EMAIL
+      valueFrom:
+        secretKeyRef:
+          name: github-credential
+          key: email
+    - name: GIT_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: github-credential
+          key: token
 
 # https://artifacthub.io/packages/helm/bitnami/mlflow
 mlflow:
@@ -206,7 +226,6 @@ prometheus:
     fullnameOverride: node-exporter
   prometheus-pushgateway:
     fullnameOverride: pushgateway
-    
 
 # https://artifacthub.io/packages/helm/grafana/grafana
 grafana:

@@ -6,6 +6,29 @@
 - helm 설치
 - kubectl 설치
 
+## Git config 관련 설정
+
+### Github 토큰 생성
+Airflow 및 Github actions에서 사용할 토큰을 생성합니다.
+https://github.com/settings/personal-access-tokens 에 접속하여 토큰을 생성합니다.
+
+필요 권한:
+- Read access to actions variables, metadata, and secrets
+- Read and Write access to actions and code
+
+### k8s 시크릿 생성
+- username: github 사용자 이름
+- email: github 사용자 이메일
+- token: 위에서 생성한 토큰
+
+```bash
+kubectl create secret generic github-credential \
+  --from-literal=username=<github_username> \
+  --from-literal=email=<github_email> \
+  --from-literal=token=<github_token> \
+  -n mlops-platform
+```
+
 ## Repository Clone 및 Helm Chart 설치
 이 레포의 charts/mlops-platform 폴더에 있는 helm chart를 설치합니다.
 airflow, mlflow, prometheus, grafana, triton 등의 서비스를 kubernetes에 배포합니다.
