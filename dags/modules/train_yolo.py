@@ -11,6 +11,7 @@ import requests
 import yaml
 from ultralytics import YOLO, settings
 
+MLFLOW_TRACKING_URI = os.environ.get("MLFLOW_TRACKING_URI", "http://localhost:5000")
 os.environ["MLFLOW_KEEP_RUN_ACTIVE"] = "true"
 
 
@@ -23,14 +24,12 @@ class YOLOModel:
         self.model_path = model_path
         self.mlflow_enabled = True
 
-        tracking_uri = os.environ.get("MLFLOW_TRACKING_URI", "http://localhost:5000")
-
         try:
             # 서버 상태 확인 (health check)
-            health_url = urljoin(tracking_uri, "health")
+            health_url = urljoin(MLFLOW_TRACKING_URI, "health")
             response = requests.get(health_url, timeout=5)
             if response.status_code == 200:
-                mlflow.set_tracking_uri(tracking_uri)
+                mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
                 print(f"mlflow artifact uri: {mlflow.get_artifact_uri()}")
                 mlflow.set_experiment(experiment_name)
                 mlflow.start_run(run_name=self.run_name, nested=True)

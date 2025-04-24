@@ -77,7 +77,21 @@ with DAG(
             --run_name {{ params.run_name }}",
     )
 
-    download_task >> validate_task >> split_task >> create_data_yaml_task >> train_yolo_task
+    update_triton_config_task = BashOperator(
+        task_id="update_triton_config",
+        bash_command="python {{ params.modules_dir }}/update_triton_config.py \
+            --branch test \
+            --model_name {{ params.run_name }}",
+    )
+
+    (
+        download_task
+        >> validate_task
+        >> split_task
+        >> create_data_yaml_task
+        >> train_yolo_task
+        >> update_triton_config_task
+    )
 
 
 if __name__ == "__main__":
