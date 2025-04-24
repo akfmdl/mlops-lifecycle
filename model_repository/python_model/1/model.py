@@ -8,7 +8,7 @@ import triton_python_backend_utils as pb_utils
 
 MLFLOW_MODEL_NAME = os.getenv("MLFLOW_MODEL_NAME", "yolo11n")
 MLFLOW_MODEL_VERSION = os.getenv("MLFLOW_MODEL_VERSION", "2")
-MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000")
+MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000")
 
 
 class TritonPythonModel:

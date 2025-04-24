@@ -23,7 +23,7 @@ class YOLOModel:
         self.model_path = model_path
         self.mlflow_enabled = True
 
-        tracking_uri = os.environ.get("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000")
+        tracking_uri = os.environ.get("MLFLOW_TRACKING_URI", "http://localhost:5000")
 
         try:
             # 서버 상태 확인 (health check)

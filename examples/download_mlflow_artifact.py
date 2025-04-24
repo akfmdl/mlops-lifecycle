@@ -5,7 +5,7 @@ from urllib.parse import urljoin
 import mlflow
 import requests
 
-MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000")
+MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000")
 
 
 def download_mlflow_artifact(model_name, model_version, output_dir):
