@@ -39,7 +39,7 @@ gitSync:
       value: "main"
    
 tritonServers:
-  - name: yolov11n-onnx
+  - name: yolo11n
     model:
       name: python_model
       repository: /git/mlops-lifecycle.git/model_repository
