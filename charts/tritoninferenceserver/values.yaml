@@ -47,15 +47,21 @@ tritonServers:
     image:
       imageName: goranidocker/tritonserver:python-v1
       pullPolicy: IfNotPresent
-    # resources:
-    #   limits:
-    #     nvidia.com/gpu: 1
+    resources:
+      requests:
+        cpu: "1"
+        memory: "2Gi"
+      limits:
+        cpu: "2"
+        memory: "4Gi"
     service:
       type: NodePort
     env:
       - name: MLFLOW_TRACKING_URI
-        value: "http://mlflow:5000"
+        value: "http://mlflow-tracking.mlops-platform.svc.cluster.local:80"
       - name: MLFLOW_MODEL_NAME
         value: "yolo11n"
       - name: MLFLOW_MODEL_VERSION
-        value: "2"
+        value: "1"
+      - name: CUDA_VISIBLE_DEVICES
+        value: ""  # Disable CUDA to force CPU usage

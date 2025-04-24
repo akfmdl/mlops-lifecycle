@@ -19,6 +19,8 @@ spec:
       labels:
         app: triton-{{ .name }}
     spec:
+      securityContext:
+        fsGroup: 1000
       containers:
         - name: triton
           image: {{ .image.imageName | default "nvcr.io/nvidia/tritonserver:25.03-py3" }}
@@ -42,19 +44,8 @@ spec:
               name: grpc
             - containerPort: 8002
               name: metrics
-          livenessProbe:
-            httpGet:
-              path: /api/health/live
-              port: http
-          readinessProbe:
-            initialDelaySeconds: 5
-            periodSeconds: 5
-            httpGet:
-              path: /api/health/ready
-              port: http
           securityContext:
             runAsUser: 1000
-            fsGroup: 1000
         {{- if $.Values.gitSync.enabled }}
         - name: git-sync
           image: {{ $.Values.gitSync.image.imageName }}
@@ -65,7 +56,6 @@ spec:
               mountPath: /git
           securityContext:
             runAsUser: 1000
-            fsGroup: 1000
         {{- end }}
       volumes:
         - name: model-repo
