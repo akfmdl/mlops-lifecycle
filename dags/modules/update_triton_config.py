@@ -82,7 +82,7 @@ def get_latest_model_version(model_name):
         print(f"MLflow tracking URI 설정: {MLFLOW_TRACKING_URI}")
 
         client = mlflow.tracking.MlflowClient()
-        versions = client.get_latest_versions(model_name)
+        versions = client.search_model_versions(f"name='{model_name}'")
         if versions:
             return max(int(v.version) for v in versions)
         return 1  # 기본값
@@ -104,14 +104,7 @@ if __name__ == "__main__":
         default="charts/tritoninferenceserver/values.yaml",
         help="values.yaml 파일의 상대 경로",
     )
-    parser.add_argument("--is_registered", type=str, default="True", help="모델 등록 여부 (True/False)")
-
     args = parser.parse_args()
-
-    # 모델이 등록되지 않았다면 종료
-    if args.is_registered.lower() != "true":
-        print("모델이 등록되지 않았습니다. 설정 업데이트를 건너뜁니다.")
-        sys.exit(0)
 
     # Git repository 클론
     temp_dir = clone_repo(args.repo_url, args.branch)
