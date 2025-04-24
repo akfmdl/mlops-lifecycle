@@ -97,7 +97,7 @@ class YOLOModel:
 
         return valid_results
 
-    def register_model(self, valid_results):
+    def register_model(self, valid_results, force_register=False):
         if not self.mlflow_enabled:
             print("MLflow 기능이 비활성화되어 모델 등록을 건너뜁니다.")
             return False
@@ -119,8 +119,7 @@ class YOLOModel:
             previous_inference_speed = 0
 
         # 성능이 향상된 경우에만 모델 등록
-        # if current_map > previous_map and current_inference_speed > previous_inference_speed:
-        if True:
+        if (current_map > previous_map and current_inference_speed > previous_inference_speed) or force_register:
             # ONNX 형식으로 모델 내보내기
             onnx_path = self.model.export(format="onnx", dynamic=True)
 
@@ -151,6 +150,7 @@ if __name__ == "__main__":
     parser.add_argument("--batch_size", type=int, default=16, help="배치 크기")
     parser.add_argument("--img_size", type=int, default=640, help="이미지 크기")
     parser.add_argument("--run_name", type=str, default="yolo11n", help="mlflow run name & model name")
+    parser.add_argument("--force_register", type=bool, default=False, help="모델 강제 등록 여부")
 
     args = parser.parse_args()
 
@@ -163,7 +163,7 @@ if __name__ == "__main__":
             img_size=args.img_size,
         )
         valid_results = yolo_model.validate()
-        is_registered = yolo_model.register_model(valid_results)
+        is_registered = yolo_model.register_model(valid_results, args.force_register)
         mlflow.end_run()
         print(f"XCOM_RETURN:{is_registered}")
     except Exception as e:

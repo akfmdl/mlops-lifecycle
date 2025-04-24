@@ -31,6 +31,7 @@ with DAG(
         "batch_size": 16,
         "img_size": 640,
         "run_name": "yolo11n",
+        "force_register": False,
         # Kubernetes 파라미터
         "work_dir_pvc_name": "data-volume",
         "dags_dir_pvc_name": "mlops-platform-dags",
@@ -172,6 +173,8 @@ with DAG(
             "{{ params.img_size }}",
             "--run_name",
             "{{ params.run_name }}",
+            "--force_register",
+            "{{ params.force_register }}",
         ],
         volumes=[work_dir_volume, dags_dir_volume, shm_volume],
         volume_mounts=[work_dir_volume_mount, dags_dir_volume_mount, shm_volume_mount],

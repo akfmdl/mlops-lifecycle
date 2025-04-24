@@ -29,6 +29,7 @@ with DAG(
         "batch_size": 16,
         "img_size": 640,
         "run_name": "yolo11n",
+        "force_register": False,
         # modules 디렉토리 경로
         "modules_dir": MODULES_DIR,
     },
@@ -74,7 +75,8 @@ with DAG(
             --epochs {{ params.epochs }} \
             --batch_size {{ params.batch_size }} \
             --img_size {{ params.img_size }} \
-            --run_name {{ params.run_name }}",
+            --run_name {{ params.run_name }} \
+            --force_register {{ params.force_register }}",
     )
 
     update_triton_config_task = BashOperator(
