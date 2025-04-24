@@ -22,6 +22,17 @@ spec:
       securityContext:
         fsGroup: 1000
       containers:
+        {{- if $.Values.gitSync.enabled }}
+        - name: git-sync
+          image: {{ $.Values.gitSync.image.imageName }}
+          env:
+            {{- toYaml $.Values.gitSync.env | nindent 12 }}
+          volumeMounts:
+            - name: model-repo
+              mountPath: /git
+          securityContext:
+            runAsUser: 1000
+        {{- end }}
         - name: triton
           image: {{ .image.imageName | default "nvcr.io/nvidia/tritonserver:25.03-py3" }}
           imagePullPolicy: {{ .image.pullPolicy }}
@@ -46,17 +57,6 @@ spec:
               name: metrics
           securityContext:
             runAsUser: 1000
-        {{- if $.Values.gitSync.enabled }}
-        - name: git-sync
-          image: {{ $.Values.gitSync.image.imageName }}
-          env:
-            {{- toYaml $.Values.gitSync.env | nindent 12 }}
-          volumeMounts:
-            - name: model-repo
-              mountPath: /git
-          securityContext:
-            runAsUser: 1000
-        {{- end }}
       volumes:
         - name: model-repo
           emptyDir: {}

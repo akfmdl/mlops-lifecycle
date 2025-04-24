@@ -266,4 +266,4 @@ argo-cd:
       type: NodePort
   configs:
     secret:
-      argocdServerAdminPassword: $2a$10$fYFgQiokT3Qm3uvzKgUHGu0gKOnHfFZ5J47UyV6wT46ag8H4YK.kS
+      argocdServerAdminPassword: $2a$10$fYFgQiokT3Qm3uvzKgUHGu0gKOnHfFZ5J47UyV6wT46ag8H4YK.kS # admin
