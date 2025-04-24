@@ -163,23 +163,31 @@ airflow:
       subPath: "dags"
   env:
     - name: MLFLOW_TRACKING_URI
-      value: "http://mlflow.mlops-platform.svc.cluster.local:5000"
+      value: "http://mlflow-tracking:80"
 
-# https://artifacthub.io/packages/helm/mlflow/mlflow
+# https://artifacthub.io/packages/helm/bitnami/mlflow
 mlflow:
   fullnameOverride: mlflow
   postgresql:
     enabled: false
-  backendStore:
-    postgres:
-      enabled: true
-      host: postgresql
-      port: 5432
-      database: mlflow
-      user: postgres
-      password: postgres
-  service:
-    type: NodePort
+  externalDatabase:
+    dialectDriver: "postgresql"
+    host: postgresql
+    port: 5432
+    database: mlflow
+    user: postgres
+    password: postgres
+  tracking:
+    service:
+      type: NodePort
+    auth:
+      enabled: false
+  minio:
+    auth:
+      rootUser: myminioadmin
+      rootPassword: myminioadminpassword
+    service:
+      type: NodePort
 
 # https://artifacthub.io/packages/helm/prometheus-community/prometheus
 prometheus:

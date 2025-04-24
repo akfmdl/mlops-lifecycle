@@ -7,7 +7,7 @@ from kubernetes.client import models as k8s
 
 DAGS_DIR = os.environ.get("DAGS_DIR", "/app/dags")
 WORK_DIR = os.environ.get("WORK_DIR", "/work_dir")
-MLFLOW_TRACKING_URI = os.environ.get("MLFLOW_TRACKING_URI", "http://mlflow-server:5000")
+MLFLOW_TRACKING_URI = os.environ.get("MLFLOW_TRACKING_URI", "http://mlflow-tracking:80")
 
 with DAG(
     "k8s_dag",
