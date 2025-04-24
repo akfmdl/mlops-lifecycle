@@ -195,6 +195,7 @@ with DAG(
             "{{ params.modules_dir }}/update_triton_config.py",
             "--model_name",
             "{{ params.run_name }}",
+            "--configure_git",
         ],
         volumes=[work_dir_volume, dags_dir_volume],
         volume_mounts=[work_dir_volume_mount, dags_dir_volume_mount],
