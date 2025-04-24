@@ -10,6 +10,9 @@ import mlflow
 import yaml
 
 MLFLOW_TRACKING_URI = os.environ.get("MLFLOW_TRACKING_URI", "http://localhost:5000")
+GIT_USERNAME = os.environ.get("GIT_USERNAME", "")
+GIT_EMAIL = os.environ.get("GIT_EMAIL", "")
+GIT_TOKEN = os.environ.get("GIT_TOKEN", "")
 
 
 def clone_repo(repo_url, branch="main", target_dir=None):
@@ -17,13 +20,50 @@ def clone_repo(repo_url, branch="main", target_dir=None):
     if target_dir is None:
         target_dir = tempfile.mkdtemp()
 
+    # Git 토큰이 있는 경우 URL에 인증 정보 추가
+    auth_repo_url = repo_url
+    if GIT_TOKEN:
+        # https://github.com/user/repo.git -> https://token@github.com/user/repo.git
+        if repo_url.startswith("https://"):
+            auth_repo_url = repo_url.replace("https://", f"https://{GIT_TOKEN}@")
+        print("Git 인증 정보가 URL에 추가되었습니다.")
+
     print(f"Git repository 클론 중: {repo_url} -> {target_dir}")
     try:
-        subprocess.run(["git", "clone", "-b", branch, repo_url, target_dir], check=True, capture_output=True, text=True)
+        subprocess.run(
+            ["git", "clone", "-b", branch, auth_repo_url, target_dir], check=True, capture_output=True, text=True
+        )
         return target_dir
     except subprocess.CalledProcessError as e:
         print(f"Git clone 실패: {e.stderr}")
         sys.exit(1)
+
+
+def configure_git(repo_dir):
+    """Git 사용자 정보를 설정합니다."""
+    try:
+        # 로컬 저장소에 Git 사용자 정보 설정
+        if GIT_USERNAME:
+            subprocess.run(
+                ["git", "-C", repo_dir, "config", "user.name", GIT_USERNAME], check=True, capture_output=True
+            )
+            print(f"Git 사용자 이름 설정: {GIT_USERNAME}")
+
+        if GIT_EMAIL:
+            subprocess.run(["git", "-C", repo_dir, "config", "user.email", GIT_EMAIL], check=True, capture_output=True)
+            print(f"Git 이메일 설정: {GIT_EMAIL}")
+
+        # Git 보안 설정 - credential.helper 설정 (필요한 경우)
+        if GIT_TOKEN:
+            subprocess.run(
+                ["git", "-C", repo_dir, "config", "credential.helper", "store"], check=True, capture_output=True
+            )
+            print("Git credential helper 설정 완료")
+
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"Git 설정 실패: {e.stderr}")
+        return False
 
 
 def get_current_model_version(values_path, model_name):
@@ -91,25 +131,78 @@ def get_latest_model_version(model_name):
         return 1  # 에러 발생 시 기본값
 
 
+def commit_and_push_changes(repo_dir, file_path, model_name, new_version):
+    """변경사항을 커밋하고 원격 저장소로 푸시합니다."""
+    try:
+        print("Git 변경사항 커밋 및 푸시 중...")
+
+        # 변경 사항 추가
+        result = subprocess.run(["git", "-C", repo_dir, "add", file_path], capture_output=True, text=True, check=False)
+        if result.returncode != 0:
+            print(f"Git add 실패: {result.stderr}")
+            return False
+
+        # 변경 사항 커밋
+        commit_message = f"Update {model_name} version to {new_version}"
+        result = subprocess.run(
+            ["git", "-C", repo_dir, "commit", "-m", commit_message], capture_output=True, text=True, check=False
+        )
+        if result.returncode != 0:
+            print(f"Git commit 실패: {result.stderr}")
+            return False
+
+        # 원격 저장소로 푸시
+        result = subprocess.run(["git", "-C", repo_dir, "push"], capture_output=True, text=True, check=False)
+        if result.returncode != 0:
+            print(f"Git push 실패: {result.stderr}")
+            return False
+
+        print("Git 변경사항 성공적으로 커밋 및 푸시 완료")
+        return True
+    except Exception as e:
+        print(f"Git 커밋/푸시 중 예외 발생: {str(e)}")
+        return False
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Triton Inference Server 설정 업데이트")
     parser.add_argument("--model_name", type=str, default="yolo11n", help="업데이트할 모델 이름")
     parser.add_argument(
         "--repo_url", type=str, default="https://github.com/akfmdl/mlops-lifecycle.git", help="Git repository URL"
     )
-    parser.add_argument("--branch", type=str, default="test", help="Git branch")
+    parser.add_argument("--branch", type=str, default="main", help="Git branch")
     parser.add_argument(
         "--values_path",
         type=str,
         default="charts/tritoninferenceserver/values.yaml",
         help="values.yaml 파일의 상대 경로",
     )
+    parser.add_argument("--configure_git", action="store_true", help="Git config 설정하기")
+
     args = parser.parse_args()
+
+    # Git 작업을 건너뛸 경우 Git credentials 없이도 진행 가능
+    if args.configure_git:
+        print("Git config 설정 옵션이 설정되어 있습니다.")
+
+    # Git 인증 정보 확인
+    if args.configure_git and not (GIT_USERNAME and GIT_EMAIL):
+        print("경고: Git 사용자 정보(GIT_USERNAME, GIT_EMAIL)가 설정되지 않았습니다.")
 
     # Git repository 클론
     temp_dir = clone_repo(args.repo_url, args.branch)
 
     try:
+        # Git 설정 (사용자 이름, 이메일 등)
+        if args.configure_git:
+            git_configured = configure_git(temp_dir)
+            if not git_configured and not (GIT_USERNAME and GIT_EMAIL):
+                print("다음 환경 변수를 설정하세요:")
+                print("  GIT_USERNAME: Git 사용자 이름")
+                print("  GIT_EMAIL: Git 이메일")
+                print("  GIT_TOKEN: (선택) Git 인증 토큰")
+                sys.exit(1)
+
         # values.yaml 파일 경로
         values_full_path = os.path.join(temp_dir, args.values_path)
 
@@ -134,17 +227,16 @@ if __name__ == "__main__":
         # values.yaml 파일 업데이트
         if update_values_yaml(values_full_path, args.model_name, mlflow_latest_version):
             # 변경사항 커밋 및 푸시
-            subprocess.run(["git", "-C", temp_dir, "add", args.values_path], check=True, capture_output=True)
-            subprocess.run(
-                ["git", "-C", temp_dir, "commit", "-m", f"Update {args.model_name} version to {mlflow_latest_version}"],
-                check=True,
-                capture_output=True,
-            )
-            subprocess.run(["git", "-C", temp_dir, "push"], check=True, capture_output=True)
-
-            print(
-                f"Triton Inference Server 설정이 성공적으로 업데이트되었습니다. 모델: {args.model_name}, 버전: {mlflow_latest_version}"
-            )
+            if commit_and_push_changes(temp_dir, args.values_path, args.model_name, mlflow_latest_version):
+                print(
+                    f"Triton Inference Server 설정이 성공적으로 업데이트되었습니다. 모델: {args.model_name}, 버전: {mlflow_latest_version}"
+                )
+            else:
+                print("Git 변경사항 적용 실패.")
+                print("다음 환경 변수가 올바르게 설정되었는지 확인하세요:")
+                print("  GIT_USERNAME: Git 사용자 이름")
+                print("  GIT_EMAIL: Git 이메일")
+                print("  GIT_TOKEN: Git 인증 토큰")
         else:
             print("values.yaml 업데이트 실패.")
     finally:
