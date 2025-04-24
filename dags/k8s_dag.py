@@ -35,7 +35,7 @@ with DAG(
         "work_dir_pvc_name": "data-volume",
         "dags_dir_pvc_name": "mlops-platform-dags",
         "namespace": "mlops-platform",
-        "image": "goranidocker/mlops:v3",
+        "image": "goranidocker/mlops:v4",
         # modules 디렉토리 경로
         "modules_dir": os.path.join(DAGS_DIR, "repo/dags/modules"),
     },
