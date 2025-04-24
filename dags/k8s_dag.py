@@ -8,6 +8,9 @@ from kubernetes.client import models as k8s
 DAGS_DIR = os.environ.get("DAGS_DIR", "/app/dags")
 WORK_DIR = os.environ.get("WORK_DIR", "/work_dir")
 MLFLOW_TRACKING_URI = os.environ.get("MLFLOW_TRACKING_URI", "http://mlflow-tracking:80")
+GIT_USERNAME = os.environ.get("GIT_USERNAME", "")
+GIT_EMAIL = os.environ.get("GIT_EMAIL", "")
+GIT_TOKEN = os.environ.get("GIT_TOKEN", "")
 
 with DAG(
     "k8s_dag",
@@ -58,7 +61,12 @@ with DAG(
     shm_volume_mount = k8s.V1VolumeMount(mount_path="/dev/shm", name="dshm")
 
     # Common environment variables for all pods
-    env_vars = [k8s.V1EnvVar(name="MLFLOW_TRACKING_URI", value=MLFLOW_TRACKING_URI)]
+    env_vars = [
+        k8s.V1EnvVar(name="MLFLOW_TRACKING_URI", value=MLFLOW_TRACKING_URI),
+        k8s.V1EnvVar(name="GIT_USERNAME", value=GIT_USERNAME),
+        k8s.V1EnvVar(name="GIT_EMAIL", value=GIT_EMAIL),
+        k8s.V1EnvVar(name="GIT_TOKEN", value=GIT_TOKEN),
+    ]
 
     # 데이터 다운로드 태스크
     download_task = KubernetesPodOperator(
@@ -202,6 +210,7 @@ with DAG(
         ],
         volumes=[work_dir_volume, dags_dir_volume],
         volume_mounts=[work_dir_volume_mount, dags_dir_volume_mount],
+        env_vars=env_vars,
         is_delete_operator_pod=True,
         in_cluster=True,
         get_logs=True,
