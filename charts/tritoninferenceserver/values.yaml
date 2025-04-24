@@ -15,7 +15,7 @@ tritonServers:
   - name: MLFLOW_MODEL_NAME
     value: yolo11n
   - name: MLFLOW_MODEL_VERSION
-    value: '7'
+    value: '9'
   - name: CUDA_VISIBLE_DEVICES
     value: ''
   image:
