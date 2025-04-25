@@ -6,6 +6,16 @@
 - helm 설치
 - kubectl 설치
 
+## Repository Clone 및 Helm Chart 설치
+이 레포의 charts/mlops-platform 폴더에 있는 helm chart를 설치합니다.
+airflow, mlflow, prometheus, grafana, triton 등의 서비스를 kubernetes에 배포합니다.
+
+```bash
+git clone https://github.com/akfmdl/mlops-lifecycle.git
+cd mlops-lifecycle
+helm upgrade --install mlops-platform charts/mlops-platform --namespace mlops-platform --create-namespace
+```
+
 ## Git config 관련 설정
 
 ### Github 토큰 생성
@@ -27,16 +37,6 @@ kubectl create secret generic github-credential \
   --from-literal=email=<github_email> \
   --from-literal=token=<github_token> \
   -n mlops-platform
-```
-
-## Repository Clone 및 Helm Chart 설치
-이 레포의 charts/mlops-platform 폴더에 있는 helm chart를 설치합니다.
-airflow, mlflow, prometheus, grafana, triton 등의 서비스를 kubernetes에 배포합니다.
-
-```bash
-git clone https://github.com/akfmdl/mlops-lifecycle.git
-cd mlops-lifecycle
-helm upgrade --install mlops-platform charts/mlops-platform --namespace mlops-platform --create-namespace
 ```
 
 ## Helm Chart 삭제
