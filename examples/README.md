@@ -8,7 +8,7 @@ mkdir tmp_model_repository
 ```
 
 컨테이너 실행
-* goranidocker/tritonserver:python-v1: model_repository/python_model/Dockerfile을 빌드한 커스텀 이미지
+* goranidocker/tritonserver:python-v1: model_repository/onnx_model/Dockerfile을 빌드한 커스텀 이미지
 * 기본 nvidia에서 제공하는 이미지는 https://catalog.ngc.nvidia.com/orgs/nvidia/containers/tritonserver/tags 참고
 
 ```bash
@@ -27,7 +27,7 @@ tritonserver --model-repository=/models --model-control-mode=poll --repository-p
 
 ONNX 모델 파일 얻기
 ```bash
-python3 examples/export_to_onnx.py --model-path yolo11n.pt
+python3 examples/export_yolo.py --model-path yolo11n.pt --format onnx
 ```
 
 Triton 모델 레포지토리 생성. 정상적으로 완료되면 model_repository 폴더 내에 yolo11n 폴더가 생성됨. 그리고 Triton 컨테이너 내에서 자동으로 모델을 로드함
@@ -57,17 +57,17 @@ mlflow server --host 127.0.0.1 --port 5000
 mlflow 모델 등록
 ```bash
 export MLFLOW_TRACKING_URI=http://localhost:5000
-python3 examples/register_to_mlflow.py --onnx-model yolo11n.onnx --model-name yolo11n
+python3 examples/register_to_mlflow.py --model-path yolo11n.onnx --model-name yolo11n-onnx
 ```
 
 python 백엔드 모델 폴더 복사
 ```bash
-cp -r model_repository/python_model tmp_model_repository
+cp -r model_repository/onnx_model tmp_model_repository
 ```
 
 모델 추론
 ```bash
-python3 examples/triton_yolo_inference.py --model-name python_model --output-name detections --output-image dog_detection.jpg
+python3 examples/triton_yolo_inference.py --model-name onnx_model --output-name detections --output-image dog_detection.jpg
 ```
 
 추론 결과 확인: dog_detection.jpg
