@@ -23,11 +23,9 @@ MLOps가 왜 필요한지, 그리고 어떤 방식으로 머신러닝 프로젝�
 - Python 3.10+
 - Kubernetes
 
-## Installation
+## 아키텍처 확인 방법
 Kubernetes는 주로 Linux 환경에서 사용되기 때문에, 이 튜토리얼은 Linux 환경(amd64)을 기준으로 작성되었습니다.
 Windows 환경에서는 WSL2를 사용하여 Linux 환경을 구축할 수 있습니다.
-
-### 아키텍처 확인 방법
 for linux and mac
 ```bash
 uname -m
@@ -44,6 +42,13 @@ echo %PROCESSOR_ARCHITECTURE%
 * ARM64일 경우: aarch64 -> 정상적으로 동작하지 않을 수 있음
 * 그 외: 32비트이므로 동작하지 않을 수 있음
 
+## 한번에 설치하기
+이 레포에는 k3s, kubectl, k9s, helm을 한번에 설치할 수 있는 스크립트가 있습니다.
+```bash
+./install.sh
+```
+
+## 각각 설치하기
 ### [k3s](https://k3s.io/): Lightweight Kubernetes
 k3s는 가볍고 쉽게 설치할 수 있는 Kubernetes 클러스터입니다. 가볍지만 이 튜토리얼에서 사용하는 모든 기능을 지원합니다. 또한, 튜토리얼만 진행하기 때문에 단일 노드로만 구성합니다.
 
