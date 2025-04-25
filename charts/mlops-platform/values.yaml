@@ -278,7 +278,6 @@ nvidia:
 
 # https://artifacthub.io/packages/helm/argoproj/argo-cd
 argo-cd:
-  enabled: true
   fullnameOverride: argo-cd
   server:
     service:
