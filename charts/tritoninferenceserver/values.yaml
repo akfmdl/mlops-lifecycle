@@ -13,7 +13,7 @@ tritonServers:
   - name: MLFLOW_TRACKING_URI
     value: http://mlflow-tracking.mlops-platform.svc.cluster.local:80
   - name: MLFLOW_MODEL_NAME
-    value: yolo11n
+    value: yolo11n-onnx
   - name: MLFLOW_MODEL_VERSION
     value: '9'
   - name: CUDA_VISIBLE_DEVICES
@@ -22,9 +22,9 @@ tritonServers:
     imageName: goranidocker/tritonserver:python-v1
     pullPolicy: IfNotPresent
   model:
-    name: python_model
+    name: onnx_model
     repository: /git/mlops-lifecycle.git/model_repository
-  name: yolo11n
+  name: yolo11n-onnx
   replicas: 1
   resources:
     limits:

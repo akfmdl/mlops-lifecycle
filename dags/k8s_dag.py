@@ -33,7 +33,7 @@ with DAG(
         "epochs": 10,
         "batch_size": 16,
         "img_size": 640,
-        "run_name": "yolo11n",
+        "run_name": "yolo11n-onnx",
         "force_register": False,
         # Kubernetes 파라미터
         "work_dir_pvc_name": "data-volume",
