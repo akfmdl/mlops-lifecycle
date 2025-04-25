@@ -187,6 +187,10 @@ with DAG(
         volumes=[work_dir_volume, dags_dir_volume, shm_volume],
         volume_mounts=[work_dir_volume_mount, dags_dir_volume_mount, shm_volume_mount],
         env_vars=env_vars,
+        container_resources=k8s.V1ResourceRequirements(
+            requests={"cpu": "1", "memory": "4Gi"},  # GPU가 있을 경우 nvidia.com/gpu 항목 추가
+            limits={"cpu": "2", "memory": "8Gi"},  # GPU가 있을 경우 nvidia.com/gpu 항목 추가
+        ),
         is_delete_operator_pod=True,
         in_cluster=True,
         get_logs=True,
