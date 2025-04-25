@@ -123,7 +123,14 @@ curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 brew install helm
 ```
 
-### [옵션] Helm Chart 삭제
+## Uninstall
+이 레포에는 k3s, kubectl, k9s, helm을 한번에 제거할 수 있는 스크립트가 있습니다.
+
+```bash
+./uninstall.sh
+```
+
+### [옵션] 특정 Helm Chart 삭제
 ```bash
 helm uninstall mlops-platform
 kubectl delete namespace mlops-platform

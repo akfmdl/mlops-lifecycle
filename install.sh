@@ -54,15 +54,14 @@ fi
 echo "Installing k3s..."
 curl -sfL https://get.k3s.io | sudo sh -s - --write-kubeconfig-mode 644
 
-# Wait for k3s to start
-echo "Waiting for k3s to start..."
-sleep 5
-
 # Set KUBECONFIG environment variable
 echo "Setting KUBECONFIG environment variable..."
 KUBECONFIG_LINE='export KUBECONFIG=/etc/rancher/k3s/k3s.yaml'
 grep -qF "$KUBECONFIG_LINE" ~/.bashrc || echo "$KUBECONFIG_LINE" >> ~/.bashrc
-source ~/.bashrc
+grep -qF "$KUBECONFIG_LINE" ~/.zshrc 2>/dev/null || echo "$KUBECONFIG_LINE" >> ~/.zshrc 2>/dev/null
+
+# Export the variable for the current session
+export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 
 # Install kubectl (k3s already includes it, but installing separately to be sure)
 echo "Installing kubectl..."
@@ -91,7 +90,9 @@ echo "========================================"
 echo "Installation Complete!"
 echo "========================================"
 echo "k3s, kubectl, k9s, and helm are now installed."
-echo "You may need to restart your shell or run 'source ~/.bashrc' to use kubectl."
+echo "You may need to restart your shell or run the following command to use kubectl:"
+echo "  export KUBECONFIG=/etc/rancher/k3s/k3s.yaml"
+echo "  source ~/.bashrc"
 echo "To verify the installation, run:"
 echo "  kubectl get nodes"
 echo "  k9s --version"
