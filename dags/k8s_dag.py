@@ -11,6 +11,7 @@ MLFLOW_TRACKING_URI = os.environ.get("MLFLOW_TRACKING_URI", "http://mlflow-track
 GIT_USERNAME = os.environ.get("GIT_USERNAME", "")
 GIT_EMAIL = os.environ.get("GIT_EMAIL", "")
 GIT_TOKEN = os.environ.get("GIT_TOKEN", "")
+K8S_DAG_IMAGE = os.environ.get("K8S_DAG_IMAGE", "")
 
 with DAG(
     "k8s_dag",
@@ -39,7 +40,7 @@ with DAG(
         "work_dir_pvc_name": "data-volume",
         "dags_dir_pvc_name": "mlops-platform-dags",
         "namespace": "mlops-platform",
-        "image": "goranidocker/mlops:v4",
+        "image": K8S_DAG_IMAGE,
         # modules 디렉토리 경로
         "modules_dir": os.path.join(DAGS_DIR, "repo/dags/modules"),
     },

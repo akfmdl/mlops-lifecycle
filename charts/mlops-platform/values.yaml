@@ -168,6 +168,8 @@ airflow:
   env:
     - name: MLFLOW_TRACKING_URI
       value: "http://mlflow-tracking:80"
+    - name: K8S_DAG_IMAGE
+      value: "goranidocker/mlops:v4"
   extraEnv: |
     - name: GIT_USERNAME
       valueFrom:
