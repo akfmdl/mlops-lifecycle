@@ -42,3 +42,6 @@ dependencies:
   - name: argo-cd
     version: "7.8.28"
     repository: "https://argoproj.github.io/argo-helm"
+  - name: harbor
+    version: "24.6.1"
+    repository: "https://charts.bitnami.com/bitnami"

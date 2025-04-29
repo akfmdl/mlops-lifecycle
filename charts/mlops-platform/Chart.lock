@@ -17,5 +17,8 @@ dependencies:
 - name: argo-cd
   repository: https://argoproj.github.io/argo-helm
   version: 7.8.28
-digest: sha256:771b4b02d381e0e208be8557589c7680536d945230a47c3329a1ae1865c609b9
-generated: "2025-04-23T21:07:41.594509372+09:00"
+- name: harbor
+  repository: https://charts.bitnami.com/bitnami
+  version: 24.6.1
+digest: sha256:04e95056f1336f01f73631488d7cb6e0ae131a09472ff1549543a76493f72d37
+generated: "2025-04-29T19:37:26.808150841+09:00"

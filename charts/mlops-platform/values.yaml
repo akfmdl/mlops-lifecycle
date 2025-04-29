@@ -263,6 +263,9 @@ postgresql:
           -- MLflow 데이터베이스 생성
           CREATE DATABASE mlflow;
           GRANT ALL PRIVILEGES ON DATABASE mlflow TO postgres;
+          -- Harbor 데이터베이스 생성
+          CREATE DATABASE harbor;
+          GRANT ALL PRIVILEGES ON DATABASE harbor TO postgres;
     persistence:
       enabled: true
       size: 1Gi
@@ -287,3 +290,23 @@ argo-cd:
   configs:
     secret:
       argocdServerAdminPassword: $2a$10$fYFgQiokT3Qm3uvzKgUHGu0gKOnHfFZ5J47UyV6wT46ag8H4YK.kS # admin
+
+# https://artifacthub.io/packages/helm/bitnami/harbor
+harbor:
+  fullnameOverride: harbor
+  postgresql:
+    enabled: false
+  trivy:
+    enabled: false
+  externalDatabase:
+    host: postgresql
+    port: 5432
+    user: postgres
+    password: postgres
+    coreDatabase: harbor
+  service:
+    type: NodePort
+  nginx:
+    tls:
+      enabled: false
+  adminPassword: admin
