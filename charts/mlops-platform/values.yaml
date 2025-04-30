@@ -310,6 +310,7 @@ harbor:
     tls:
       enabled: false
   adminPassword: admin
+  externalURL: http://harbor-core.mlops-platform.svc.cluster.local
 
 # https://github.com/actions/actions-runner-controller/charts/gha-runner-scale-set-controller
 gha-runner-scale-set-controller:
@@ -327,3 +328,68 @@ gha-runner-scale-set:
   githubConfigSecret: github-credential
   controllerServiceAccount:
     name: gha-runner-scale-set-controller
+  containerMode:
+    type: ""
+  template:
+    spec:
+      initContainers:
+        - name: init-dind-externals
+          image: ghcr.io/actions/actions-runner:latest
+          imagePullPolicy: Always
+          command:
+            ["cp", "-r", "-v", "/home/runner/externals/.", "/home/runner/tmpDir/"]
+          volumeMounts:
+            - mountPath: /home/runner/tmpDir
+              name: dind-externals
+      containers:
+        - name: runner
+          image: ghcr.io/actions/actions-runner:latest
+          command: ["/home/runner/run.sh"]
+          env:
+            - name: DOCKER_HOST
+              value: unix:///var/run/docker.sock
+          volumeMounts:
+            - name: work
+              mountPath: /home/runner/_work
+            - name: dind-sock
+              mountPath: /var/run
+          resources:
+            limits:
+              cpu: 4000m
+              memory: 4Gi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+        - name: dind
+          image: docker:24.0.5-dind
+          env:
+            - name: DOCKER_GROUP_GID
+              value: "123"
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: work
+              mountPath: /home/runner/_work
+            - name: dind-sock
+              mountPath: /var/run
+            - name: dind-externals
+              mountPath: /home/runner/externals
+          args:
+            - dockerd
+            - "--host=unix:///var/run/docker.sock"
+            - "--group=$(DOCKER_GROUP_GID)"
+            - "--insecure-registry=harbor-core.mlops-platform.svc.cluster.local"
+          resources:
+            limits:
+              cpu: 8000m
+              memory: 8Gi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+      volumes:
+        - name: work
+          emptyDir: {}
+        - name: dind-sock
+          emptyDir: {}
+        - name: dind-externals
+          emptyDir: {}
