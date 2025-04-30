@@ -9,10 +9,10 @@ on:
       - "dags/requirements.txt"
 
 env:
-  HARBOR_REGISTRY: harbor-registry.mlops-platform.svc.cluster.local
+  HARBOR_REGISTRY: harbor-core.mlops-platform.svc.cluster.local
   HARBOR_USERNAME: admin
   HARBOR_PASSWORD: admin
-  IMAGE_NAME: ${{ github.repository }}-airflow
+  IMAGE_NAME: mlops-lifecycle/airflow-dags
 
 jobs:
   build-and-push:
@@ -34,6 +34,10 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          install: true
+          buildkitd-flags: --debug
+          driver: kubernetes
 
       - name: Build and push
         uses: docker/build-push-action@v5
