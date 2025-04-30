@@ -20,11 +20,10 @@ helm upgrade --install mlops-platform charts/mlops-platform --namespace mlops-pl
 
 ### Github 토큰 생성
 Airflow 및 Github actions에서 사용할 토큰을 생성합니다.
-https://github.com/settings/personal-access-tokens 에 접속하여 토큰을 생성합니다.
+https://github.com/settings/tokens 에 접속하여 Personal access tokens (classic)을 생성합니다.
 
 필요 권한:
-- Read access to actions variables, metadata, and secrets
-- Read and Write access to actions and code
+- repo: 권한 전체
 
 ### k8s 시크릿 생성
 - username: github 사용자 이름
@@ -33,9 +32,9 @@ https://github.com/settings/personal-access-tokens 에 접속하여 토큰을 �
 
 ```bash
 kubectl create secret generic github-credential \
-  --from-literal=username=<github_username> \
-  --from-literal=email=<github_email> \
-  --from-literal=token=<github_token> \
+  --from-literal=github_username=<github_username> \
+  --from-literal=github_email=<github_email> \
+  --from-literal=github_token=<github_token> \
   -n mlops-platform
 ```
 

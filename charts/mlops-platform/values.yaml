@@ -175,17 +175,17 @@ airflow:
       valueFrom:
         secretKeyRef:
           name: github-credential
-          key: username
+          key: github_username
     - name: GIT_EMAIL
       valueFrom:
         secretKeyRef:
           name: github-credential
-          key: email
+          key: github_email
     - name: GIT_TOKEN
       valueFrom:
         secretKeyRef:
           name: github-credential
-          key: token
+          key: github_token
 
 # https://artifacthub.io/packages/helm/bitnami/mlflow
 mlflow:
@@ -310,3 +310,20 @@ harbor:
     tls:
       enabled: false
   adminPassword: admin
+
+# https://github.com/actions/actions-runner-controller/charts/gha-runner-scale-set-controller
+gha-runner-scale-set-controller:
+  fullnameOverride: gha-runner-scale-set-controller
+  serviceAccount:
+    name: gha-runner-scale-set-controller
+  flags:
+    watchSingleNamespace: ""
+
+# https://github.com/actions/actions-runner-controller/charts/gha-runner-scale-set
+gha-runner-scale-set:
+  fullnameOverride: gha-runner-scale-set
+  runnerScaleSetName: mlops-lifecycle-runner-scale-set
+  githubConfigUrl: https://github.com/akfmdl/mlops-lifecycle
+  githubConfigSecret: github-credential
+  controllerServiceAccount:
+    name: gha-runner-scale-set-controller

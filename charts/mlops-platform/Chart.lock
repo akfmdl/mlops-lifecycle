@@ -20,5 +20,11 @@ dependencies:
 - name: harbor
   repository: https://charts.bitnami.com/bitnami
   version: 24.6.1
-digest: sha256:04e95056f1336f01f73631488d7cb6e0ae131a09472ff1549543a76493f72d37
-generated: "2025-04-29T19:37:26.808150841+09:00"
+- name: gha-runner-scale-set-controller
+  repository: file://charts/gha-runner-scale-set-controller
+  version: 0.11.0
+- name: gha-runner-scale-set
+  repository: file://charts/gha-runner-scale-set
+  version: 0.11.0
+digest: sha256:ea7e52753f99d89964315145e36ec2554b4ea7441e02d027a73ff48f6d2b5cfd
+generated: "2025-04-30T10:40:48.590581899+09:00"
