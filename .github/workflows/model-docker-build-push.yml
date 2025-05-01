@@ -1,0 +1,132 @@
+name: 📦 Model Docker Build and Push
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "model_repository/*/Dockerfile"
+      - "model_repository/*/requirements.txt"
+
+env:
+  HARBOR_REGISTRY: harbor-core.mlops-platform.svc.cluster.local
+  HARBOR_USERNAME: admin
+  HARBOR_PASSWORD: admin
+  BASE_IMAGE_NAME: mlops-lifecycle/model-serving
+
+jobs:
+  detect-changes:
+    runs-on: mlops-lifecycle-runner-scale-set
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      has_changes: ${{ steps.set-matrix.outputs.has_changes }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history for detecting file changes
+
+      - name: Detect changed model folders
+        id: set-matrix
+        run: |
+          # Get the list of changed files
+          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD | grep -E 'model_repository/.+/(Dockerfile|requirements.txt)' || echo "")
+
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No model changes detected"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "matrix={\"model\":[]}" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Extract unique model folder names
+          MODELS=$(echo "$CHANGED_FILES" | sed -E 's|model_repository/([^/]+)/.*|\1|' | sort -u)
+
+          # Create JSON array for matrix
+          MODELS_JSON="["
+          for MODEL in $MODELS; do
+            if [ "$MODELS_JSON" != "[" ]; then
+              MODELS_JSON="$MODELS_JSON,"
+            fi
+            MODELS_JSON="$MODELS_JSON\"$MODEL\""
+          done
+          MODELS_JSON="$MODELS_JSON]"
+
+          echo "has_changes=true" >> $GITHUB_OUTPUT
+          echo "matrix={\"model\":$MODELS_JSON}" >> $GITHUB_OUTPUT
+          echo "Matrix: {\"model\":$MODELS_JSON}"
+
+  build-and-push:
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.has_changes == 'true' }}
+    runs-on: mlops-lifecycle-runner-scale-set
+    permissions:
+      contents: write
+      packages: write
+    strategy:
+      matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
+      fail-fast: false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: mr-smithers-excellent/docker-build-push@v6
+        name: Build & push Docker image
+        id: docker-build
+        with:
+          image: "${{ env.BASE_IMAGE_NAME }}/${{ matrix.model }}"
+          tags: ${{ github.sha }}, latest
+          registry: "${{ env.HARBOR_REGISTRY }}"
+          directory: ./model_repository/${{ matrix.model }}
+          dockerfile: ./model_repository/${{ matrix.model }}/Dockerfile
+          username: ${{ env.HARBOR_USERNAME }}
+          password: ${{ env.HARBOR_PASSWORD }}
+
+      - name: Install yq
+        run: |
+          echo "Installing yq..."
+          mkdir -p $HOME/bin
+          curl -L https://github.com/mikefarah/yq/releases/download/v4.34.1/yq_linux_amd64 -o $HOME/bin/yq
+          chmod +x $HOME/bin/yq
+          echo "$HOME/bin" >> $GITHUB_PATH
+
+      - name: Update image in values.yaml
+        run: |
+          # Update the image in tritonServers list where name matches the model name
+          MODEL="${{ matrix.model }}"
+          NEW_IMAGE="${{ env.HARBOR_REGISTRY }}/${{ env.BASE_IMAGE_NAME }}/${{ matrix.model }}:${{ github.sha }}"
+          yq e -i ".tritonServers[] |= select(.name == \"$MODEL\").image = \"$NEW_IMAGE\"" charts/tritoninferenceserver/values.yaml
+
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+
+      - name: Commit and push changes
+        run: |
+          if git diff --quiet charts/tritoninferenceserver/values.yaml; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git add charts/tritoninferenceserver/values.yaml
+          git commit -m "Update image for model: ${{ matrix.model }} to ${{ github.sha }}"
+
+          # Try to push with retries for potential conflicts
+          MAX_RETRIES=5
+          RETRY_COUNT=0
+
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            if git push; then
+              echo "Successfully pushed changes"
+              exit 0
+            else
+              echo "Push failed, retrying..."
+              git pull --rebase
+              RETRY_COUNT=$((RETRY_COUNT+1))
+            fi
+          done
+
+          echo "Failed to push after $MAX_RETRIES attempts"
+          exit 1
