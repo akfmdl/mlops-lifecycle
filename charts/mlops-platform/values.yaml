@@ -334,7 +334,7 @@ gha-runner-scale-set:
     spec:
       initContainers:
         - name: init-dind-externals
-          image: ghcr.io/actions/actions-runner:latest
+          image: ghcr.io/actions/actions-runner:2.323.0
           imagePullPolicy: Always
           command:
             ["cp", "-r", "-v", "/home/runner/externals/.", "/home/runner/tmpDir/"]
@@ -343,7 +343,7 @@ gha-runner-scale-set:
               name: dind-externals
       containers:
         - name: runner
-          image: ghcr.io/actions/actions-runner:latest
+          image: ghcr.io/actions/actions-runner:2.323.0
           command: ["/home/runner/run.sh"]
           env:
             - name: DOCKER_HOST
