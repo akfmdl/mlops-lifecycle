@@ -12,16 +12,16 @@ tritonServers:
   - name: MLFLOW_TRACKING_URI
     value: http://mlflow-tracking.mlops-platform.svc.cluster.local:80
   - name: MLFLOW_MODEL_NAME
-    value: onnx_model
+    value: onnx-model
   - name: MLFLOW_MODEL_VERSION
     value: '9'
   - name: CUDA_VISIBLE_DEVICES
     value: ''
   image: goranidocker/tritonserver:python-v1
   model:
-    name: onnx_model
+    name: onnx-model
     repository: /git/mlops-lifecycle.git/model_repository
-  name: onnx_model
+  name: onnx-model
   replicas: 1
   resources:
     limits:
