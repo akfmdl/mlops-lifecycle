@@ -28,7 +28,11 @@ jobs:
       - uses: mr-smithers-excellent/docker-build-push@v6
         name: Build & push Docker image
         with:
-          registry: ${{ env.HARBOR_REGISTRY }}
+          image: "${{ env.IMAGE_NAME }}"
+          tags: ${{ github.sha }}, latest
+          registry: "${{ env.HARBOR_REGISTRY }}"
+          directory: ./dags
+          dockerfile: ./dags/Dockerfile
           username: ${{ env.HARBOR_USERNAME }}
           password: ${{ env.HARBOR_PASSWORD }}
 
@@ -43,7 +47,8 @@ jobs:
       - name: Update K8S_DAG_IMAGE in values.yaml
         run: |
           # Find and update the K8S_DAG_IMAGE in the airflow.env array
-          yq -i '.airflow.env |= map(if .name == "K8S_DAG_IMAGE" then .value = "${{ env.HARBOR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}" else . end)' charts/mlops-platform/values.yaml
+          NEW_IMAGE="${{ env.HARBOR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+          yq e -i ".airflow.env[] |= select(.name == \"K8S_DAG_IMAGE\").value = \"$NEW_IMAGE\"" charts/mlops-platform/values.yaml
 
       - name: Configure Git
         run: |
