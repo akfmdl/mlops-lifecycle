@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: '🌍 배포 환경을 선택하세요 (dev, staging, prod)'
+        description: "🌍 배포 환경을 선택하세요 (dev, staging, prod)"
         required: true
-        default: 'dev'
+        default: "dev"
       version:
-        description: '🏷️ 배포할 버전 태그를 입력하세요 (예: v1.2.3)'
+        description: "🏷️ 배포할 버전 태그를 입력하세요 (예: v1.2.3)"
         required: false
 
 jobs:
@@ -40,5 +40,7 @@ jobs:
         run: echo "🎉 배포가 성공적으로 완료되었습니다!"
 
       - name: 📢 슬랙 알림 보내기 (옵션)
-        if: ${{ success() }}
-        run: echo "슬랙 알림: 배포 성공 🎉"
+        run: |
+          if [[ $? -eq 0 ]]; then
+            echo "슬랙 알림: 배포 성공 🎉"
+          fi
