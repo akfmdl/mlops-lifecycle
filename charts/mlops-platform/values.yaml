@@ -323,7 +323,7 @@ gha-runner-scale-set-controller:
 # https://github.com/actions/actions-runner-controller/charts/gha-runner-scale-set
 gha-runner-scale-set:
   fullnameOverride: gha-runner-scale-set
-  runnerScaleSetName: mlops-lifecycle-runner-scale-set
+  runnerScaleSetName: self-hosted
   githubConfigUrl: https://github.com/akfmdl/mlops-lifecycle
   githubConfigSecret: github-credential
   controllerServiceAccount:
@@ -337,7 +337,13 @@ gha-runner-scale-set:
           image: ghcr.io/actions/actions-runner:2.323.0
           imagePullPolicy: Always
           command:
-            ["cp", "-r", "-v", "/home/runner/externals/.", "/home/runner/tmpDir/"]
+            [
+              "cp",
+              "-r",
+              "-v",
+              "/home/runner/externals/.",
+              "/home/runner/tmpDir/",
+            ]
           volumeMounts:
             - mountPath: /home/runner/tmpDir
               name: dind-externals

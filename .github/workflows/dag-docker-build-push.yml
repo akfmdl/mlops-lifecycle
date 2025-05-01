@@ -16,7 +16,7 @@ env:
 
 jobs:
   build-and-push:
-    runs-on: mlops-lifecycle-runner-scale-set
+    runs-on: self-hosted
     permissions:
       contents: write
       packages: write

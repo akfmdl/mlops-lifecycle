@@ -14,7 +14,7 @@ on:
 jobs:
   deploy:
     name: 📦 Deploy to ${{ github.event.inputs.environment }}
-    runs-on: mlops-lifecycle-runner-scale-set
+    runs-on: self-hosted
 
     steps:
       - name: 🔧 환경 설정
