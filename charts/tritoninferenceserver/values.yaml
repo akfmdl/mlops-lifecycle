@@ -5,26 +5,23 @@ gitSync:
     value: https://github.com/akfmdl/mlops-lifecycle.git
   - name: GITSYNC_REF
     value: main
-  image:
-    imageName: registry.k8s.io/git-sync/git-sync:v4.3.0
+  image: registry.k8s.io/git-sync/git-sync:v4.3.0
   subPath: model_repository
 tritonServers:
 - env:
   - name: MLFLOW_TRACKING_URI
     value: http://mlflow-tracking.mlops-platform.svc.cluster.local:80
   - name: MLFLOW_MODEL_NAME
-    value: yolo11n-onnx
+    value: onnx_model
   - name: MLFLOW_MODEL_VERSION
     value: '9'
   - name: CUDA_VISIBLE_DEVICES
     value: ''
-  image:
-    imageName: goranidocker/tritonserver:python-v1
-    pullPolicy: IfNotPresent
+  image: goranidocker/tritonserver:python-v1
   model:
     name: onnx_model
     repository: /git/mlops-lifecycle.git/model_repository
-  name: yolo11n-onnx
+  name: onnx_model
   replicas: 1
   resources:
     limits:

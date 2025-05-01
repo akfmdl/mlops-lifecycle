@@ -24,7 +24,7 @@ spec:
       containers:
         {{- if $.Values.gitSync.enabled }}
         - name: git-sync
-          image: {{ $.Values.gitSync.image.imageName }}
+          image: {{ $.Values.gitSync.image }}
           env:
             {{- toYaml $.Values.gitSync.env | nindent 12 }}
           volumeMounts:
@@ -34,8 +34,7 @@ spec:
             runAsUser: 1000
         {{- end }}
         - name: triton
-          image: {{ .image.imageName | default "nvcr.io/nvidia/tritonserver:25.03-py3" }}
-          imagePullPolicy: {{ .image.pullPolicy }}
+          image: {{ .image }}
           resources:
             {{- if .resources }}
             {{- toYaml .resources | nindent 12 }}
