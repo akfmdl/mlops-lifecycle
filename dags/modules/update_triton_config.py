@@ -166,7 +166,7 @@ def commit_and_push_changes(repo_dir, file_path, model_name, new_version):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Triton Inference Server 설정 업데이트")
-    parser.add_argument("--model_name", type=str, default="yolo11n", help="업데이트할 모델 이름")
+    parser.add_argument("--model_name", type=str, default="onnx-model", help="업데이트할 모델 이름")
     parser.add_argument(
         "--repo_url", type=str, default="https://github.com/akfmdl/mlops-lifecycle.git", help="Git repository URL"
     )

@@ -44,7 +44,7 @@ class TritonPythonModel:
             results = self.session.run(self.output_names, {self.input_name: input_tensor})
 
             # Create output tensor
-            output_tensor = pb_utils.Tensor("detections", results[0])
+            output_tensor = pb_utils.Tensor("output0", results[0])
             responses.append(pb_utils.InferenceResponse([output_tensor]))
 
         self.logger.log_info("Inference completed successfully.")

@@ -37,7 +37,7 @@ python3 examples/convert_to_triton.py --onnx-model yolo11n.onnx --output-dir tmp
 
 모델 추론
 ```bash
-python3 examples/triton_yolo_inference.py --model-name yolo11n --output-name output0 --output-image dog_detection.jpg
+python3 examples/triton_yolo_inference.py --model-name yolo11n --output-image dog_detection.jpg
 ```
 
 추론 결과 확인: dog_detection.jpg
@@ -67,7 +67,7 @@ cp -r model_repository/onnx_model tmp_model_repository
 
 모델 추론
 ```bash
-python3 examples/triton_yolo_inference.py --model-name onnx_model --output-name detections --output-image dog_detection.jpg
+python3 examples/triton_yolo_inference.py --model-name onnx_model --output-image dog_detection.jpg
 ```
 
 추론 결과 확인: dog_detection.jpg

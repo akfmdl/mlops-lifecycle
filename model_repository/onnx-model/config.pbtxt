@@ -12,7 +12,7 @@ input [
 
 output [
   {
-    name: "detections"
+    name: "output0"
     data_type: TYPE_FP32
     dims: [-1, 6]  # (N, [x1, y1, x2, y2, conf, class])
   }
