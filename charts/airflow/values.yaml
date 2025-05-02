@@ -340,6 +340,14 @@ env:
   - name: K8S_DAG_IMAGE
     value: "harbor-core.mlops-platform.svc.cluster.local/mlops-lifecycle/airflow-dags:0c29620890346735871a4f22ddbd073b6f1d27c8"
 
+# Persistent Volumes to be created
+persistentVolumes:
+  data-volume:
+    accessModes:
+      - ReadWriteOnce
+    size: 1Gi
+    annotations: {}
+
 # Volumes for all airflow containers
 volumes: []
 
@@ -2764,7 +2772,7 @@ dags:
     # Annotations for dags PVC
     annotations: {}
     # Enable persistent volume for storing dags
-    enabled: false
+    enabled: true
     # Volume size for dags
     size: 1Gi
     # If using a custom storageClass, pass name here

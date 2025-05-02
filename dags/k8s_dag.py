@@ -40,7 +40,7 @@ with DAG(
         "git_branch": "main",
         # Kubernetes 파라미터
         "work_dir_pvc_name": "data-volume",
-        "dags_dir_pvc_name": "mlops-platform-dags",
+        "dags_dir_pvc_name": "airflow-dags",
         "namespace": "mlops-platform",
         "image": K8S_DAG_IMAGE,
         # modules 디렉토리 경로

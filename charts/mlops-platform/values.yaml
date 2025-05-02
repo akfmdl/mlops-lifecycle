@@ -103,14 +103,6 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
-persistentVolumes:
-  data-volume:
-    enabled: true
-    accessModes:
-      - ReadWriteOnce
-    size: 1Gi
-    annotations: {}
-
 # Additional volumes on the output Deployment definition.
 volumes: []
 # - name: foo

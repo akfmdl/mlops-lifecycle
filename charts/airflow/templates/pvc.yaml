@@ -1,12 +1,9 @@
 {{- range $name, $pvc := .Values.persistentVolumes }}
-{{- if $pvc.enabled }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: {{ $name }}
-  labels:
-    {{- include "mlops-platform.labels" $ | nindent 4 }}
   {{- with $pvc.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -21,4 +18,3 @@ spec:
     requests:
       storage: {{ $pvc.size }}
 {{- end }}
-{{- end }} 
