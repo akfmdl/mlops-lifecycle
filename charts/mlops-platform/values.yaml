@@ -130,63 +130,6 @@ tolerations: []
 
 affinity: {}
 
-# https://artifacthub.io/packages/helm/apache-airflow/airflow
-airflow:
-  fullnameOverride: airflow
-  webserver:
-    service:
-      type: NodePort
-  postgresql:
-    enabled: false
-  redis:
-    enabled: true
-  data:
-    metadataConnection:
-      user: postgres
-      pass: postgres
-      host: postgresql
-      port: 5432
-      db: airflow
-      protocol: postgresql
-  triggerer:
-    persistence:
-      enabled: true
-      size: 1Gi
-  workers:
-    persistence:
-      enabled: true
-      size: 1Gi
-  dags:
-    persistence:
-      enabled: true
-      size: 1Gi
-    gitSync:
-      enabled: true
-      repo: https://github.com/akfmdl/mlops-lifecycle.git
-      branch: main
-      subPath: "dags"
-  env:
-    - name: MLFLOW_TRACKING_URI
-      value: "http://mlflow-tracking:80"
-    - name: K8S_DAG_IMAGE
-      value: "goranidocker/mlops:v4"
-  extraEnv: |
-    - name: GIT_USERNAME
-      valueFrom:
-        secretKeyRef:
-          name: github-credential
-          key: github_username
-    - name: GIT_EMAIL
-      valueFrom:
-        secretKeyRef:
-          name: github-credential
-          key: github_email
-    - name: GIT_TOKEN
-      valueFrom:
-        secretKeyRef:
-          name: github-credential
-          key: github_token
-
 # https://artifacthub.io/packages/helm/bitnami/mlflow
 mlflow:
   fullnameOverride: mlflow

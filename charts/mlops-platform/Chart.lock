@@ -1,7 +1,4 @@
 dependencies:
-- name: airflow
-  repository: https://airflow.apache.org
-  version: 1.16.0
 - name: mlflow
   repository: https://charts.bitnami.com/bitnami
   version: 3.0.1
@@ -26,5 +23,5 @@ dependencies:
 - name: gha-runner-scale-set
   repository: file://charts/gha-runner-scale-set
   version: 0.11.0
-digest: sha256:ea7e52753f99d89964315145e36ec2554b4ea7441e02d027a73ff48f6d2b5cfd
-generated: "2025-04-30T10:40:48.590581899+09:00"
+digest: sha256:46c415be300ebc9cd6b4d3873325e2b8c72a4732621916085196823c020c2e23
+generated: "2025-05-02T11:17:12.589571922+09:00"
