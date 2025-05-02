@@ -16,7 +16,7 @@ os.environ["MLFLOW_KEEP_RUN_ACTIVE"] = "true"
 
 
 class YOLOModel:
-    def __init__(self, experiment_name="yolo", run_name="yolo11n", model_path="yolo11n.pt"):
+    def __init__(self, experiment_name="yolo", run_name="onnx-model", model_path="yolo11n.pt"):
         print("YOLO 모델 로드 중...")
         self.model = YOLO(model_path)
         self.run_name = run_name
@@ -149,7 +149,7 @@ if __name__ == "__main__":
     parser.add_argument("--epochs", type=int, default=1, help="학습 에포크 수")
     parser.add_argument("--batch_size", type=int, default=16, help="배치 크기")
     parser.add_argument("--img_size", type=int, default=640, help="이미지 크기")
-    parser.add_argument("--run_name", type=str, default="yolo11n", help="mlflow run name & model name")
+    parser.add_argument("--run_name", type=str, default="onnx-model", help="mlflow run name & model name")
     parser.add_argument("--force_register", type=str, default="False", help="모델 강제 등록 여부")
 
     args = parser.parse_args()

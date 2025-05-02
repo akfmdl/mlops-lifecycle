@@ -26,8 +26,8 @@ def download_mlflow_artifact(model_name, model_version, output_dir):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model_name", type=str, default="yolo11n")
-    parser.add_argument("--model_version", type=str, default="2")
+    parser.add_argument("--model_name", type=str, default="onnx-model")
+    parser.add_argument("--model_version", type=str, default="1")
     parser.add_argument("--output_dir", type=str, default=".")
     args = parser.parse_args()
 

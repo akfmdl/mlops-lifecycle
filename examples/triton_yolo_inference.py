@@ -314,7 +314,7 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Triton Inference Client")
     parser.add_argument("--triton-url", type=str, default="localhost:8000", help="Triton server URL")
-    parser.add_argument("--model-name", type=str, default="yolo11n", help="Model name registered in Triton")
+    parser.add_argument("--model-name", type=str, default="onnx-model", help="Model name registered in Triton")
     parser.add_argument("--model-version", type=str, default="1", help="Model version (empty string means latest version)")
     parser.add_argument("--image-path", type=str, default="examples/dog.jpg", help="Path to the input image")
     parser.add_argument("--input-size", type=int, nargs=2, default=[640, 640], help="Input image size (width, height)")

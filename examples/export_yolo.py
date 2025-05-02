@@ -13,7 +13,7 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model-path", type=str, default="yolo11n.pt")
-    parser.add_argument("--format", type=str, default="engine", choices=["onnx", "engine"])
+    parser.add_argument("--format", type=str, default="onnx", choices=["onnx", "engine"])
     parser.add_argument(
         "--int8",
         action="store_true",

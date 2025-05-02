@@ -6,7 +6,7 @@ import onnxruntime as ort
 import requests
 import triton_python_backend_utils as pb_utils
 
-MLFLOW_MODEL_NAME = os.getenv("MLFLOW_MODEL_NAME", "yolo11n-onnx")
+MLFLOW_MODEL_NAME = os.getenv("MLFLOW_MODEL_NAME", "onnx-model")
 MLFLOW_MODEL_VERSION = os.getenv("MLFLOW_MODEL_VERSION", "1")
 MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000")
 

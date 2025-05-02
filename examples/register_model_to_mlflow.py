@@ -73,7 +73,7 @@ def register_model(model_path, model_name, run_name=None, description=None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="모델을 MLflow 레지스트리에 등록합니다")
     parser.add_argument("--model-path", type=str, default="yolo11n.onnx", help="모델 파일 경로")
-    parser.add_argument("--model-name", type=str, default="yolo11n-onnx", help="레지스트리에 등록할 모델 이름")
+    parser.add_argument("--model-name", type=str, default="onnx-model", help="레지스트리에 등록할 모델 이름")
     parser.add_argument("--run-name", type=str, help="MLflow 실행 이름. 빈 문자열이면 모델 이름 + 타임스탬프로 설정됨")
     parser.add_argument("--description", type=str, help="모델 설명")
 
