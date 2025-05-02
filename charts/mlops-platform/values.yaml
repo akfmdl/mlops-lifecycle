@@ -9,6 +9,46 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 
+# Extra secrets that will be managed by the chart
+# (You can use them with extraEnv or extraEnvFrom or some of the extraVolumes values).
+# The format for secret data is "key/value" where
+#    * key (templated) is the name of the secret that will be created
+#    * value: an object with the standard 'data' or 'stringData' key (or both).
+#          The value associated with those keys must be a string (templated)
+extraSecrets:
+  "harbor-credentials":
+    type: "kubernetes.io/dockerconfigjson"
+    stringData: |
+      .dockerconfigjson: |-
+        {
+          "auths": {
+            "harbor-core.mlops-platform.svc.cluster.local": {
+              "username": "admin",
+              "password": "admin",
+              "auth": "YWRtaW46YWRtaW4="
+            }
+          }
+        }
+# eg:
+# extraSecrets:
+#   '{{ .Release.Name }}-airflow-connections':
+#     type: 'Opaque'
+#     labels:
+#       my.custom.label/v1: my_custom_label_value_1
+#     data: |
+#       AIRFLOW_CONN_GCP: 'base64_encoded_gcp_conn_string'
+#       AIRFLOW_CONN_AWS: 'base64_encoded_aws_conn_string'
+#     stringData: |
+#       AIRFLOW_CONN_OTHER: 'other_conn'
+#   '{{ .Release.Name }}-other-secret-name-suffix':
+#     data: |
+#        ...
+#   'proxy-config':
+#     stringData: |
+#        HTTP_PROXY: http://proxy_user:proxy_password@192.168.0.10:2080
+#        HTTPS_PROXY: http://proxy_user:proxy_password@192.168.0.10:2080
+#        NO_PROXY: "localhost,127.0.0.1,.svc.cluster.local,kubernetes.default.svc"
+
 # This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []
 # This is to override the chart name.
