@@ -12,7 +12,7 @@ tritonServers:
   - name: MLFLOW_TRACKING_URI
     value: http://mlflow-tracking.mlops-platform.svc.cluster.local:80
   - name: MLFLOW_MODEL_NAME
-    value: onnx-model
+    value: yolo11n-onnx
   - name: MLFLOW_MODEL_VERSION
     value: '9'
   - name: CUDA_VISIBLE_DEVICES

@@ -73,12 +73,18 @@ def get_current_model_version(values_path, model_name):
             values = yaml.safe_load(f)
 
         for server in values.get("tritonServers", []):
-            if server.get("name") == model_name:
-                for env_var in server.get("env", []):
-                    if env_var.get("name") == "MLFLOW_MODEL_VERSION":
-                        return env_var.get("value")
+            # MLFLOW_MODEL_NAME 환경 변수의 값이 model_name과 일치하는지 확인
+            for env_var in server.get("env", []):
+                if env_var.get("name") == "MLFLOW_MODEL_NAME" and env_var.get("value") == model_name:
+                    # 일치하는 서버를 찾았으면, 해당 서버의 MLFLOW_MODEL_VERSION 환경 변수 값 반환
+                    for version_env in server.get("env", []):
+                        if version_env.get("name") == "MLFLOW_MODEL_VERSION":
+                            return version_env.get("value")
 
-        print(f"경고: {model_name} 모델을 위한 MLFLOW_MODEL_VERSION 환경 변수를 찾을 수 없습니다.")
+                    print(f"경고: {model_name} 모델을 위한 MLFLOW_MODEL_VERSION 환경 변수를 찾을 수 없습니다.")
+                    return None
+
+        print(f"경고: MLFLOW_MODEL_NAME이 {model_name}인 서버를 찾을 수 없습니다.")
         return None
     except Exception as e:
         print(f"values.yaml에서 현재 버전 조회 실패: {str(e)}")
@@ -95,15 +101,21 @@ def update_values_yaml(values_path, model_name, new_version):
 
         updated = False
         for server in values.get("tritonServers", []):
-            if server.get("name") == model_name:
-                for env_var in server.get("env", []):
-                    if env_var.get("name") == "MLFLOW_MODEL_VERSION":
-                        env_var["value"] = str(new_version)
-                        updated = True
-                        break
+            # MLFLOW_MODEL_NAME 환경 변수의 값이 model_name과 일치하는지 확인
+            for env_var in server.get("env", []):
+                if env_var.get("name") == "MLFLOW_MODEL_NAME" and env_var.get("value") == model_name:
+                    # 일치하는 서버를 찾았으면, 해당 서버의 MLFLOW_MODEL_VERSION 환경 변수 업데이트
+                    for version_env in server.get("env", []):
+                        if version_env.get("name") == "MLFLOW_MODEL_VERSION":
+                            version_env["value"] = str(new_version)
+                            updated = True
+                            break
+                    break  # 해당 서버에 대한 처리 완료
 
         if not updated:
-            print(f"경고: {model_name} 모델을 위한 MLFLOW_MODEL_VERSION 환경 변수를 찾을 수 없습니다.")
+            print(
+                f"경고: MLFLOW_MODEL_NAME이 {model_name}인 서버를 찾을 수 없거나, MLFLOW_MODEL_VERSION 환경 변수가 없습니다."
+            )
             return False
 
         with open(values_path, "w", encoding="utf-8") as f:
@@ -166,7 +178,7 @@ def commit_and_push_changes(repo_dir, file_path, model_name, new_version):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Triton Inference Server 설정 업데이트")
-    parser.add_argument("--model_name", type=str, default="onnx-model", help="업데이트할 모델 이름")
+    parser.add_argument("--model_name", type=str, default="yolo11n-onnx", help="업데이트할 모델 이름")
     parser.add_argument(
         "--repo_url", type=str, default="https://github.com/akfmdl/mlops-lifecycle.git", help="Git repository URL"
     )

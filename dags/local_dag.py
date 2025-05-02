@@ -28,7 +28,7 @@ with DAG(
         "epochs": 10,
         "batch_size": 16,
         "img_size": 640,
-        "run_name": "onnx-model",
+        "run_name": "yolo11n-onnx",
         "force_register": False,
         # modules 디렉토리 경로
         "modules_dir": MODULES_DIR,
