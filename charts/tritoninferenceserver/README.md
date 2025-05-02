@@ -1,4 +1,4 @@
-# mlops-platform Helm Chart
+# Triton Inference Server Helm Chart
 이 Helm Chart는 Triton Inference Server를 배포하기 위한 차트입니다.
 
 ## Prerequisites
