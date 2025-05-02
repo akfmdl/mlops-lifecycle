@@ -48,7 +48,7 @@ jobs:
         run: |
           # Find and update the K8S_DAG_IMAGE in the airflow.env array
           NEW_IMAGE="${{ env.HARBOR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
-          yq e -i ".airflow.env[] |= select(.name == \"K8S_DAG_IMAGE\").value = \"$NEW_IMAGE\"" charts/mlops-platform/values.yaml
+          yq e -i ".env[] |= select(.name == \"K8S_DAG_IMAGE\").value = \"$NEW_IMAGE\"" charts/airflow/values.yaml
 
       - name: Configure Git
         run: |
@@ -57,6 +57,28 @@ jobs:
 
       - name: Commit and push changes
         run: |
-          git add charts/mlops-platform/values.yaml
+          if git diff --quiet charts/airflow/values.yaml; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git add charts/airflow/values.yaml
           git commit -m "Update K8S_DAG_IMAGE to ${{ github.sha }}"
-          git push
+
+          # Try to push with retries for potential conflicts
+          MAX_RETRIES=5
+          RETRY_COUNT=0
+
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            if git push; then
+              echo "Successfully pushed changes"
+              exit 0
+            else
+              echo "Push failed, retrying..."
+              git pull --rebase
+              RETRY_COUNT=$((RETRY_COUNT+1))
+            fi
+          done
+
+          echo "Failed to push after $MAX_RETRIES attempts"
+          exit 1
