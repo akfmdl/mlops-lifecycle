@@ -43,7 +43,6 @@ with DAG(
         "dags_dir_pvc_name": "airflow-dags",
         "namespace": "mlops-platform",
         "image": K8S_DAG_IMAGE,
-        "image_pull_secret": "harbor-credentials",
         # modules 디렉토리 경로
         "modules_dir": os.path.join(DAGS_DIR, "repo/dags/modules"),
     },
@@ -65,7 +64,7 @@ with DAG(
     shm_volume_mount = k8s.V1VolumeMount(mount_path="/dev/shm", name="dshm")
 
     # Image pull secrets configuration
-    image_pull_secrets = [k8s.V1LocalObjectReference(name="{{ params.image_pull_secret }}")]
+    image_pull_secrets = [k8s.V1LocalObjectReference(name="harbor-credentials")]
 
     # Common environment variables for all pods
     env_vars = [
