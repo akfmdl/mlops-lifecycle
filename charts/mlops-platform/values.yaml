@@ -272,7 +272,7 @@ gha-runner-scale-set:
   controllerServiceAccount:
     name: gha-runner-scale-set-controller
     # Will be replaced by .Release.Namespace during installation
-    namespace: "${NAMESPACE}"
+    # namespace: "${NAMESPACE}"
   containerMode:
     type: ""
   template:
@@ -330,6 +330,7 @@ gha-runner-scale-set:
             - "--host=unix:///var/run/docker.sock"
             - "--group=$(DOCKER_GROUP_GID)"
             - "--insecure-registry=harbor-core.mlops-platform.svc.cluster.local"
+            - "--mtu=1450"
           resources:
             limits:
               cpu: 8000m
