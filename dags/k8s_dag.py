@@ -36,6 +36,8 @@ with DAG(
         "img_size": 640,
         "run_name": "yolo11n-onnx",
         "force_register": False,
+        # 모델 버전 등 정보를 업데이트할 git 정보
+        "git_branch": "main",
         # Kubernetes 파라미터
         "work_dir_pvc_name": "data-volume",
         "dags_dir_pvc_name": "mlops-platform-dags",
@@ -207,6 +209,8 @@ with DAG(
             "{{ params.modules_dir }}/update_triton_config.py",
             "--model_name",
             "{{ params.run_name }}",
+            "--git_branch",
+            "{{ params.git_branch }}",
             "--configure_git",
         ],
         volumes=[work_dir_volume, dags_dir_volume],

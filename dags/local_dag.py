@@ -30,6 +30,8 @@ with DAG(
         "img_size": 640,
         "run_name": "yolo11n-onnx",
         "force_register": False,
+        # 모델 버전 등 정보를 업데이트할 git 정보
+        "git_branch": "main",
         # modules 디렉토리 경로
         "modules_dir": MODULES_DIR,
     },
@@ -82,7 +84,7 @@ with DAG(
     update_triton_config_task = BashOperator(
         task_id="update_triton_config",
         bash_command="python {{ params.modules_dir }}/update_triton_config.py \
-            --branch test \
+            --branch {{ params.git_branch }} \
             --model_name {{ params.run_name }}",
     )
 
