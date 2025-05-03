@@ -15,20 +15,7 @@ image:
 #    * key (templated) is the name of the secret that will be created
 #    * value: an object with the standard 'data' or 'stringData' key (or both).
 #          The value associated with those keys must be a string (templated)
-extraSecrets:
-  "harbor-credentials":
-    type: "kubernetes.io/dockerconfigjson"
-    stringData: |
-      .dockerconfigjson: |-
-        {
-          "auths": {
-            "harbor-core.mlops-platform.svc.cluster.local": {
-              "username": "admin",
-              "password": "admin",
-              "auth": "YWRtaW46YWRtaW4="
-            }
-          }
-        }
+extraSecrets: {}
 # eg:
 # extraSecrets:
 #   '{{ .Release.Name }}-airflow-connections':
@@ -285,7 +272,7 @@ harbor:
     tls:
       enabled: false
   adminPassword: admin
-  externalURL: http://harbor-core.mlops-platform.svc.cluster.local
+  externalURL: http://harbor.mlops-platform.svc.cluster.local
 
 # https://github.com/actions/actions-runner-controller/charts/gha-runner-scale-set-controller
 gha-runner-scale-set-controller:
@@ -304,7 +291,7 @@ gha-runner-scale-set:
   controllerServiceAccount:
     name: gha-runner-scale-set-controller
     # Will be replaced by .Release.Namespace during installation
-    # namespace: "${NAMESPACE}"
+    namespace: "${NAMESPACE}"
   containerMode:
     type: ""
   template:

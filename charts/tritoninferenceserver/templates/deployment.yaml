@@ -59,5 +59,9 @@ spec:
       volumes:
         - name: model-repo
           emptyDir: {}
+      {{- if .imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .imagePullSecrets | nindent 12 }}
+      {{- end }}
 ---
 {{- end }}

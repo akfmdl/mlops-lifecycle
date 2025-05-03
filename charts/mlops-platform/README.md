@@ -62,3 +62,31 @@ k9s에서 각 서비스의 포트 번호를 확인하거나 kubectl get svc -n m
 
 ## admin 비밀번호
 모든 서비스들의 초기 비밀번호는 admin입니다. 서비스들을 외부로 노출시킬 땐 복잡한 비밀번호로 변경해야 합니다.
+
+## harbor에 저장된 이미지를 pod의 컨테이너에서 사용하기
+harbor에 저장된 이미지를 pod의 컨테이너에서 사용하기 위해서는 다음과 같은 설정이 필요합니다. (이 방법은 테스트용이므로 운영환경에서는 사용하지 않는 것을 권장합니다.)
+
+1. 먼저, harbor service ip를 확인합니다.
+```bash
+kubectl get svc harbor -n mlops-platform
+```
+
+2. 각 노드의 /etc/hosts 파일에 다음과 같이 추가합니다.
+```bash
+sudo vi /etc/hosts
+```
+```bash
+10.43.77.36 harbor.mlops-platform.svc.cluster.local
+```
+
+3. 다음과 같이 파드의 컨테이너에서 이미지를 사용합니다.
+```bash
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+  - name: my-container
+    image: harbor.mlops-platform.svc.cluster.local/<project>/<image>:<tag>
+```
