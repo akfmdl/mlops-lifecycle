@@ -290,8 +290,8 @@ gha-runner-scale-set:
   githubConfigSecret: github-credential
   controllerServiceAccount:
     name: gha-runner-scale-set-controller
-    # Will be replaced by .Release.Namespace during installation
-    namespace: "${NAMESPACE}"
+    # Replace this with the namespace of the controller service account
+    namespace: mlops-platform
   containerMode:
     type: ""
   template:
