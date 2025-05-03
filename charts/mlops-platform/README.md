@@ -90,3 +90,19 @@ spec:
   - name: my-container
     image: harbor.mlops-platform.svc.cluster.local/<project>/<image>:<tag>
 ```
+
+4. k3s의 registry.yaml 파일에 mirror 관련 설정을 추가합니다.
+
+```bash
+sudo tee /etc/rancher/k3s/registries.yaml > /dev/null <<EOF
+mirrors:
+  "harbor.mlops-platform.svc.cluster.local":
+    endpoint:
+      - "http://harbor.mlops-platform.svc.cluster.local"
+EOF
+```
+
+k3s 재시작
+```bash
+sudo systemctl restart k3s
+```
