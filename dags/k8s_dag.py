@@ -63,9 +63,6 @@ with DAG(
     dags_dir_volume_mount = k8s.V1VolumeMount(name=dags_dir_volume.name, mount_path=DAGS_DIR)
     shm_volume_mount = k8s.V1VolumeMount(mount_path="/dev/shm", name="dshm")
 
-    # Image pull secrets configuration
-    image_pull_secrets = [k8s.V1LocalObjectReference(name="harbor-credentials")]
-
     # Common environment variables for all pods
     env_vars = [
         k8s.V1EnvVar(name="MLFLOW_TRACKING_URI", value=MLFLOW_TRACKING_URI),
@@ -90,7 +87,6 @@ with DAG(
         ],
         volumes=[work_dir_volume, dags_dir_volume],
         volume_mounts=[work_dir_volume_mount, dags_dir_volume_mount],
-        image_pull_secrets=image_pull_secrets,
         is_delete_operator_pod=True,
         in_cluster=True,
         get_logs=True,
@@ -110,7 +106,6 @@ with DAG(
         ],
         volumes=[work_dir_volume, dags_dir_volume],
         volume_mounts=[work_dir_volume_mount, dags_dir_volume_mount],
-        image_pull_secrets=image_pull_secrets,
         is_delete_operator_pod=True,
         in_cluster=True,
         get_logs=True,
@@ -138,7 +133,6 @@ with DAG(
         ],
         volumes=[work_dir_volume, dags_dir_volume],
         volume_mounts=[work_dir_volume_mount, dags_dir_volume_mount],
-        image_pull_secrets=image_pull_secrets,
         is_delete_operator_pod=True,
         in_cluster=True,
         get_logs=True,
@@ -166,7 +160,6 @@ with DAG(
         ],
         volumes=[work_dir_volume, dags_dir_volume],
         volume_mounts=[work_dir_volume_mount, dags_dir_volume_mount],
-        image_pull_secrets=image_pull_secrets,
         is_delete_operator_pod=True,
         in_cluster=True,
         get_logs=True,
@@ -197,7 +190,6 @@ with DAG(
         volumes=[work_dir_volume, dags_dir_volume, shm_volume],
         volume_mounts=[work_dir_volume_mount, dags_dir_volume_mount, shm_volume_mount],
         env_vars=env_vars,
-        image_pull_secrets=image_pull_secrets,
         container_resources=k8s.V1ResourceRequirements(
             requests={"cpu": "1", "memory": "4Gi", "nvidia.com/gpu": 1},  # GPU가 없을 경우 nvidia.com/gpu 항목 제거
             limits={"cpu": "2", "memory": "8Gi", "nvidia.com/gpu": 1},  # GPU가 없을 경우 nvidia.com/gpu 항목 제거
@@ -224,7 +216,6 @@ with DAG(
         volumes=[work_dir_volume, dags_dir_volume],
         volume_mounts=[work_dir_volume_mount, dags_dir_volume_mount],
         env_vars=env_vars,
-        image_pull_secrets=image_pull_secrets,
         is_delete_operator_pod=True,
         in_cluster=True,
         get_logs=True,
