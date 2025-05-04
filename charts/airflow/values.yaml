@@ -2481,7 +2481,7 @@ redis:
   # Else, if password is set, create secret with it,
   # Otherwise a new password will be generated on install
   # Note: password can only be set during install, not upgrade.
-  password: ~
+  password: "redis"
 
   # This setting tells kubernetes that its ok to evict
   # when it wants to scale a node down.

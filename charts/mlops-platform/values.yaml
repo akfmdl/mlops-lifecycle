@@ -166,6 +166,8 @@ mlflow:
       type: NodePort
     auth:
       enabled: false
+    persistence:
+      size: 1Gi
   minio:
     auth:
       rootUser: myminioadmin
@@ -183,7 +185,7 @@ prometheus:
       enabled: true
       size: 1Gi
   alertmanager:
-    fullnameOverride: alertmanager
+    enabled: false
   kube-state-metrics:
     fullnameOverride: kube-state-metrics
   prometheus-node-exporter:
