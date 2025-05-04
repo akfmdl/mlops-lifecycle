@@ -117,15 +117,16 @@ class YOLOModel:
             # 모델이 레지스트리에 없는 경우
             previous_map = 0
             previous_inference_speed = 0
+        print(
+            f"모델 성능 비교 - mAP50-95: {previous_map:.3f} -> {current_map:.3f}, "
+            f"추론 속도 비교 - inference_speed: {previous_inference_speed:.3f} -> {current_inference_speed:.3f}"
+        )
 
         # 성능이 향상된 경우에만 모델 등록
         if force_register.lower() == "true":
             print("force_register 옵션이 활성화되어 모델을 강제 등록합니다.")
         elif current_map > previous_map and current_inference_speed > previous_inference_speed:
-            print(
-                f"모델 성능 향상 확인 - mAP50-95: {previous_map:.3f} -> {current_map:.3f}, "
-                f"추론 속도: {previous_inference_speed:.3f} -> {current_inference_speed:.3f}"
-            )
+            print("현재 모델의 성능이 이전 모델보다 향상되어 등록을 진행합니다.")
         else:
             print("현재 모델의 성능이 이전 모델보다 낮아 등록을 건너뜁니다.")
             return False
