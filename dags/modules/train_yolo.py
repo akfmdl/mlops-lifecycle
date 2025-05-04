@@ -117,6 +117,7 @@ class YOLOModel:
             # 모델이 레지스트리에 없는 경우
             previous_map = 0
             previous_inference_speed = 0
+
         print(
             f"모델 성능 비교 - mAP50-95: {previous_map:.3f} -> {current_map:.3f}, "
             f"추론 속도 비교 - inference_speed: {previous_inference_speed:.3f} -> {current_inference_speed:.3f}"
