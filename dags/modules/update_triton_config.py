@@ -230,11 +230,11 @@ if __name__ == "__main__":
         # 버전이 같으면 업데이트하지 않음
         if str(mlflow_latest_version) == str(current_version):
             print(
-                f"현재 버전({current_version})이 MLflow의 최신 버전({mlflow_latest_version})과 동일합니다. 업데이트가 필요하지 않습니다."
+                f"{args.model_name} 현재 버전({current_version})이 MLflow의 최신 버전({mlflow_latest_version})과 동일합니다. 업데이트가 필요하지 않습니다."
             )
             sys.exit(0)
 
-        print(f"업데이트 필요: 현재 버전({current_version}) -> 최신 버전({mlflow_latest_version})")
+        print(f"{args.model_name} 업데이트 필요: 현재 버전({current_version}) -> 최신 버전({mlflow_latest_version})")
 
         # values.yaml 파일 업데이트
         if update_values_yaml(values_full_path, args.model_name, mlflow_latest_version):
