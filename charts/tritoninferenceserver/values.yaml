@@ -14,7 +14,7 @@ tritonServers:
   - name: MLFLOW_MODEL_NAME
     value: yolo11n-onnx
   - name: MLFLOW_MODEL_VERSION
-    value: '1'
+    value: '2'
   - name: CUDA_VISIBLE_DEVICES
     value: ''
   image: goranidocker/tritonserver:python-v1
