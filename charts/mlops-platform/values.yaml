@@ -348,7 +348,7 @@ gha-runner-scale-set:
             - dockerd
             - "--host=unix:///var/run/docker.sock"
             - "--group=$(DOCKER_GROUP_GID)"
-            - "--insecure-registry=harbor-core.mlops-platform.svc.cluster.local"
+            - "--insecure-registry=harbor.mlops-platform.svc.cluster.local"
             - "--mtu=1450"
           resources:
             limits:

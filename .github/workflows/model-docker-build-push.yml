@@ -9,7 +9,7 @@ on:
       - "model_repository/*/requirements.txt"
 
 env:
-  HARBOR_REGISTRY: harbor-core.mlops-platform.svc.cluster.local
+  HARBOR_REGISTRY: harbor.mlops-platform.svc.cluster.local
   HARBOR_USERNAME: admin
   HARBOR_PASSWORD: admin
   BASE_IMAGE_NAME: mlops-lifecycle
