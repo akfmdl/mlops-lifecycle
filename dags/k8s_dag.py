@@ -209,7 +209,7 @@ with DAG(
             "{{ params.modules_dir }}/update_triton_config.py",
             "--model_name",
             "{{ params.run_name }}",
-            "--git_branch",
+            "--branch",
             "{{ params.git_branch }}",
             "--configure_git",
         ],

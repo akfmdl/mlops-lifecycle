@@ -84,8 +84,8 @@ with DAG(
     update_triton_config_task = BashOperator(
         task_id="update_triton_config",
         bash_command="python {{ params.modules_dir }}/update_triton_config.py \
-            --branch {{ params.git_branch }} \
-            --model_name {{ params.run_name }}",
+            --model_name {{ params.run_name }} \
+            --branch {{ params.git_branch }}",
     )
 
     (
