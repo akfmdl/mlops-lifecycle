@@ -6,7 +6,7 @@ from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from middleware import log_request_middleware
-from router import router
+from mlmodels.router import router
 from starlette.requests import Request
 from starlette_context.middleware import ContextMiddleware
 
