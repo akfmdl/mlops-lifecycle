@@ -187,3 +187,9 @@ mlruns/
 *.engine
 *.onnx
 *.pt
+
+# Static folder images
+apis/static/*.jpg
+apis/static/*.jpeg
+apis/static/*.png
+apis/static/*.gif
