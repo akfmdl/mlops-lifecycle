@@ -22,5 +22,5 @@ spec:
       targetPort: metrics
       name: metrics-inference-server
   selector:
-    app: triton-{{ .name }}
+    app: {{ .name }}
 {{- end }}
