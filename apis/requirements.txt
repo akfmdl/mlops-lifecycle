@@ -1,0 +1,9 @@
+fastapi[standard]==0.115.12
+uvicorn[standard]==0.34.1
+starlette-context==0.4.0
+pydantic-settings==2.9.1
+loguru==0.7.3
+kubernetes==31.0.0
+tritonclient[http]==2.56.0
+opencv-python==4.11.0.86
+numpy==1.26.4
