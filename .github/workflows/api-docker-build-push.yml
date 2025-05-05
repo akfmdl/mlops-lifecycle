@@ -1,0 +1,85 @@
+name: 📦 API Docker Build and Push
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "apis/**"
+
+env:
+  HARBOR_REGISTRY: harbor.mlops-platform.svc.cluster.local
+  HARBOR_USERNAME: admin
+  HARBOR_PASSWORD: admin
+  IMAGE_NAME: mlops-lifecycle/api-server
+  TARGET_FILE: charts/api-server/values.yaml
+
+jobs:
+  build-and-push:
+    runs-on: self-hosted
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build & push Docker image
+        uses: mr-smithers-excellent/docker-build-push@v6
+        with:
+          image: "${{ env.IMAGE_NAME }}"
+          tags: ${{ github.sha }}, latest
+          registry: "${{ env.HARBOR_REGISTRY }}"
+          directory: ./apis
+          dockerfile: ./apis/Dockerfile
+          username: ${{ env.HARBOR_USERNAME }}
+          password: ${{ env.HARBOR_PASSWORD }}
+
+      - name: Install yq
+        run: |
+          echo "Installing yq..."
+          mkdir -p $HOME/bin
+          curl -L https://github.com/mikefarah/yq/releases/download/v4.34.1/yq_linux_amd64 -o $HOME/bin/yq
+          chmod +x $HOME/bin/yq
+          echo "$HOME/bin" >> $GITHUB_PATH
+
+      - name: Update image in values.yaml
+        run: |
+          # Update the deployment.image in the API server values.yaml
+          NEW_IMAGE="${{ env.HARBOR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+          yq e -i '.deployment.image = "'"$NEW_IMAGE"'"' ${{ env.TARGET_FILE }}
+          echo "Updated image to $NEW_IMAGE in ${{ env.TARGET_FILE }}"
+
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+
+      - name: Commit and push changes
+        run: |
+          if git diff --quiet ${{ env.TARGET_FILE }}; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git add ${{ env.TARGET_FILE }}
+          git commit -m "Update API server image to ${{ github.sha }}"
+
+          # Try to push with retries for potential conflicts
+          MAX_RETRIES=5
+          RETRY_COUNT=0
+
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            if git push; then
+              echo "Successfully pushed changes"
+              exit 0
+            else
+              echo "Push failed, retrying..."
+              git pull --rebase
+              RETRY_COUNT=$((RETRY_COUNT+1))
+            fi
+          done
+
+          echo "Failed to push after $MAX_RETRIES attempts"
+          exit 1
