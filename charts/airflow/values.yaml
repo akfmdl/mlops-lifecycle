@@ -338,7 +338,7 @@ env:
   - name: MLFLOW_TRACKING_URI
     value: "http://mlflow-tracking:80"
   - name: K8S_DAG_IMAGE
-    value: "harbor-core.mlops-platform.svc.cluster.local/mlops-lifecycle/airflow-dags:0c29620890346735871a4f22ddbd073b6f1d27c8"
+    value: "goranidocker/mlops:v4"
 
 # Persistent Volumes to be created
 persistentVolumes:
