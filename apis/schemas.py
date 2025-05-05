@@ -25,8 +25,3 @@ class PredictResponse(BaseModel):
         description="result_image_url",
         default="",
     )
-    prediction: str = Field(
-        title="prediction",
-        description="prediction",
-        default="",
-    )
