@@ -1,0 +1,110 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "apiserver.fullname" . }}
+  labels:
+    {{- include "apiserver.labels" . | nindent 4 }}
+  {{- with .Values.deployment.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      {{- include "apiserver.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "apiserver.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "apiserver.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if .Values.deployment.initContainer.enabled }}
+      initContainers:
+      - name: {{ .Chart.Name }}-init
+        image: {{ .Values.deployment.initContainer.image }}
+        command: ["/bin/sh", "-c", "--"]
+        args: ["{{ .Values.deployment.initContainer.args }}"]
+        securityContext:
+          {{- toYaml .Values.deployment.initContainer.securityContext | nindent 12 }}
+        {{- if .Values.deployment.env }}
+        env:
+          {{- toYaml .Values.deployment.env | nindent 12 }}
+        {{- end  }}
+        {{- if .Values.deployment.envSecretName }}
+        envFrom:
+        - secretRef:
+            name: {{ .Values.deployment.envSecretName }}
+        {{- end  }}
+        volumeMounts:
+          {{- if .Values.deployment.initContainer.extraVolumeMounts }}
+          {{- toYaml .Values.deployment.initContainer.extraVolumeMounts | nindent 12 }}
+          {{- end  }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.deployment.securityContext | nindent 12 }}
+          image: {{ .Values.deployment.image }}
+          command: ["/bin/sh", "-c", "--"]
+          args: ["{{ .Values.deployment.args }}"]
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - name: http
+              containerPort: {{ .Values.deployment.containerPort }}
+              protocol: TCP
+          livenessProbe:
+            initialDelaySeconds: {{ .Values.deployment.initialDelaySeconds }}
+            httpGet:
+              path: {{ .Values.deployment.healthCheckPath }}
+              port: http
+          readinessProbe:
+            initialDelaySeconds: {{ .Values.deployment.initialDelaySeconds }}
+            httpGet:
+              path: {{ .Values.deployment.healthCheckPath }}
+              port: http
+          volumeMounts:
+            {{- if .Values.deployment.extraVolumeMounts }}
+            {{- toYaml .Values.deployment.extraVolumeMounts | nindent 12 }}
+            {{- end  }}
+          resources:
+            {{- toYaml .Values.deployment.resources | nindent 12 }}
+          {{- if .Values.deployment.env }}
+          env:
+            {{- toYaml .Values.deployment.env | nindent 12 }}
+          {{- end  }}
+          {{- if .Values.deployment.envSecretName }}
+          envFrom:
+          - secretRef:
+              name: {{ .Values.deployment.envSecretName }}
+          {{- end  }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        {{- if .Values.pvc.enabled }}
+        - name: {{ include "apiserver.fullname" . }}
+          persistentVolumeClaim:
+            claimName: {{ include "apiserver.fullname" . }}
+        {{- end }}
+        {{- if .Values.deployment.extraVolumes }}
+        {{- toYaml .Values.deployment.extraVolumes | nindent 8 }}
+        {{- end }}
