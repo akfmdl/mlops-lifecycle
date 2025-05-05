@@ -107,7 +107,7 @@ def predict(request: PredictRequest):
         cv2.imwrite(result_path, result_image)
 
         # 결과 URL 생성
-        result_url = f"http://{settings.UVICORN_HOST}:{settings.UVICORN_PORT}/static/{result_filename}"
+        result_url = f"http://{settings.SERVICE_HOST}:{settings.SERVICE_PORT}/static/{result_filename}"
         return PredictResponse(result_image_url=result_url)
 
     except InferenceServerException as e:

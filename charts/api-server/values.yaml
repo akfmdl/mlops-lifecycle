@@ -101,6 +101,8 @@ deployment:
   env:
     - name: MODEL_NAMESPACE
       value: "mlops-platform"
+    - name: SERVICE_PORT
+      value: "31615"
   # Environment from secret to use in pod
   envSecretName: ""
   # Security context to add to the container
