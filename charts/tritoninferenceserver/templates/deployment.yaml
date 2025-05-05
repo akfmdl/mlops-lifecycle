@@ -2,10 +2,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: triton-{{ .name }}
+  name: {{ .name }}
   namespace: {{ $.Release.Namespace | default "default" }}
   labels:
-    app: triton-{{ .name }}
+    app: {{ .name }}
     chart: {{ template "tritoninferenceserver.chart" $ }}
     release: {{ $.Release.Name }}
     heritage: {{ $.Release.Service }}
@@ -13,11 +13,11 @@ spec:
   replicas: {{ .replicas | default 1 }}
   selector:
     matchLabels:
-      app: triton-{{ .name }}
+      app:  {{ .name }}
   template:
     metadata:
       labels:
-        app: triton-{{ .name }}
+        app: {{ .name }}
     spec:
       securityContext:
         fsGroup: 1000
