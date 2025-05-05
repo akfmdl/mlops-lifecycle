@@ -69,6 +69,8 @@ def predict(request: PredictRequest):
             else f"{request.model_name}.{settings.MODEL_NAMESPACE}.svc.cluster.local:8000"
         )
 
+        print(f"triton_url: {triton_url}")
+
         # Triton 클라이언트 초기화
         triton_client = httpclient.InferenceServerClient(url=triton_url)
 

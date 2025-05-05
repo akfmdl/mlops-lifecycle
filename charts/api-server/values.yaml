@@ -84,7 +84,7 @@ deployment:
   # Liveness and readiness probes routes
   healthCheckPath: /health
   # Liveness and readiness probes initial delay
-  initialDelaySeconds: 3
+  initialDelaySeconds: 30
   # Resources to request and limit
   resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
