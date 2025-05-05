@@ -13,6 +13,7 @@ env:
   HARBOR_USERNAME: admin
   HARBOR_PASSWORD: admin
   BASE_IMAGE_NAME: mlops-lifecycle
+  TARGET_FILE: charts/tritoninferenceserver/values.yaml
 
 jobs:
   detect-changes:
@@ -95,7 +96,7 @@ jobs:
           # Update the image in tritonServers list where name matches the model name
           MODEL="${{ matrix.model }}"
           NEW_IMAGE="${{ env.HARBOR_REGISTRY }}/${{ env.BASE_IMAGE_NAME }}/${{ matrix.model }}:${{ github.sha }}"
-          yq e -i ".tritonServers[] |= select(.name == \"$MODEL\").image = \"$NEW_IMAGE\"" charts/tritoninferenceserver/values.yaml
+          yq e -i ".tritonServers[] |= select(.name == \"$MODEL\").image = \"$NEW_IMAGE\"" ${{ env.TARGET_FILE }}
 
       - name: Configure Git
         run: |
@@ -104,12 +105,12 @@ jobs:
 
       - name: Commit and push changes
         run: |
-          if git diff --quiet charts/tritoninferenceserver/values.yaml; then
+          if git diff --quiet ${{ env.TARGET_FILE }}; then
             echo "No changes to commit"
             exit 0
           fi
 
-          git add charts/tritoninferenceserver/values.yaml
+          git add ${{ env.TARGET_FILE }}
           git commit -m "Update image for model: ${{ matrix.model }} to ${{ github.sha }}"
 
           # Try to push with retries for potential conflicts

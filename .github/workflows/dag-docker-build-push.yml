@@ -13,7 +13,7 @@ env:
   HARBOR_USERNAME: admin
   HARBOR_PASSWORD: admin
   IMAGE_NAME: mlops-lifecycle/airflow-dags
-
+  TARGET_FILE: charts/airflow/values.yaml
 jobs:
   build-and-push:
     runs-on: self-hosted
@@ -48,7 +48,7 @@ jobs:
         run: |
           # Find and update the K8S_DAG_IMAGE in the airflow.env array
           NEW_IMAGE="${{ env.HARBOR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
-          yq e -i ".env[] |= select(.name == \"K8S_DAG_IMAGE\").value = \"$NEW_IMAGE\"" charts/airflow/values.yaml
+          yq e -i ".env[] |= select(.name == \"K8S_DAG_IMAGE\").value = \"$NEW_IMAGE\"" ${{ env.TARGET_FILE }}
 
       - name: Configure Git
         run: |
@@ -57,12 +57,12 @@ jobs:
 
       - name: Commit and push changes
         run: |
-          if git diff --quiet charts/airflow/values.yaml; then
+          if git diff --quiet ${{ env.TARGET_FILE }}; then
             echo "No changes to commit"
             exit 0
           fi
 
-          git add charts/airflow/values.yaml
+          git add ${{ env.TARGET_FILE }}
           git commit -m "Update K8S_DAG_IMAGE to ${{ github.sha }}"
 
           # Try to push with retries for potential conflicts
