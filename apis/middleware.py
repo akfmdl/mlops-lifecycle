@@ -1,17 +1,16 @@
-import sys
+import datetime
+import logging
+import logging.config
 
-from loguru import logger
+import pytz
+import yaml
 from config import settings
+from opentelemetry import trace
 from starlette.background import BackgroundTask
 from starlette.requests import Request
 from starlette.responses import Response
 
-logger.remove()
-logger.add(
-    sys.stdout,
-    colorize=True,
-    format="<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | {level} | <level>{message}</level>",
-)
+IGNORED_PATHS = ["/metrics", "/health"]
 
 
 async def set_request_body(request: Request, body: bytes):
@@ -21,28 +20,29 @@ async def set_request_body(request: Request, body: bytes):
     request._receive = receive
 
 
-def log_response_body(response_body):
-    logger.info(response_body)
+def load_logging_config(path: str):
+    with open(path, "r", encoding="utf-8") as f:
+        config = yaml.safe_load(f.read())
+    logging.config.dictConfig(config)
 
 
-async def log_request_middleware(request, call_next):
-    # skip logging for health check by probe call
-    user_agent = request.headers.get("user-agent", "")
-    health_check_paths = ["/health"]
-    if request.url.path in health_check_paths and "kube-probe" in user_agent:
-        return await call_next(request)
+def log_request(status_code, message):
+    if status_code >= 400:
+        logging.error(message)
+        span = trace.get_current_span()
+        trace_id = trace.format_trace_id(span.get_span_context().trace_id)
+        span_id = trace.format_span_id(span.get_span_context().span_id)
+        now_kst = datetime.datetime.now(pytz.timezone("Asia/Seoul"))
+        logging.error(
+            f"[{settings.APP_NAME} error] [{now_kst.strftime('%Y-%m-%d %H:%M:%S')}] [trace id: {trace_id} span id: {span_id}]"
+        )
+    else:
+        logging.info(message)
 
-    trace_id = request.headers.get("trace_id", "")
 
-    if request.headers.get("accept") == "text/event-stream":
-        logger.info(f"[{trace_id}] {request.method} {request.url} - SSE request (Stream)")
-        return await call_next(request)
-
+async def log_request_middleware(request: Request, call_next):
     request_body = await request.body()
     decoded_request_body = request_body.decode("utf-8")
-
-    request_log_message = f"[{trace_id}] {request.method} {request.url} {decoded_request_body}"
-    logger.info(request_log_message)
     await set_request_body(request, request_body)
 
     response = await call_next(request)
@@ -50,16 +50,20 @@ async def log_request_middleware(request, call_next):
     response_body = b""
     async for chunk in response.body_iterator:
         response_body += chunk
-    decoded_response_body = ""
-    if not request.url.path.startswith("/static"):
-        decoded_response_body = response_body.decode("utf-8")
-    response_log_message = f"[{trace_id}] {response.status_code} {request.method} {request.url} {decoded_response_body}"
 
-    task = BackgroundTask(log_response_body, response_log_message)
+    background_task = None
+    if request.url.path not in IGNORED_PATHS:
+        decoded_response_body = response_body.decode("utf-8")
+        message = f"\n Request url: {request.url} \
+                    \n Status code: {response.status_code} \
+                    \n Request: {decoded_request_body} \
+                    \n Response: {decoded_response_body}"
+        background_task = BackgroundTask(log_request, response.status_code, message)
+
     return Response(
         content=response_body,
         status_code=response.status_code,
         headers=dict(response.headers),
         media_type=response.media_type,
-        background=task,
+        background=background_task,
     )

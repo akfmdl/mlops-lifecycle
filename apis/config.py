@@ -4,6 +4,7 @@ from pydantic_settings import BaseSettings
 
 
 class Config(BaseSettings):
+    APP_NAME: str = os.getenv("APP_NAME", "mlops-lifecycle-api")
     MODEL_NAMESPACE: str = os.getenv("MODEL_NAMESPACE", "mlops-platform")
     SERVICE_HOST: str = os.getenv("SERVICE_HOST", "localhost")
     SERVICE_PORT: int = int(os.getenv("SERVICE_PORT", "8888"))

@@ -1,3 +1,4 @@
+from config import settings
 from fastapi import FastAPI, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
@@ -9,11 +10,12 @@ from middleware import log_request_middleware
 from mlmodels.router import router
 from starlette.requests import Request
 from starlette_context.middleware import ContextMiddleware
+from tracing import PrometheusMiddleware, metrics, setting_otlp
 
 __version__ = "0.0.1"
 
 app = FastAPI(
-    title="MLOps Lifecycle API",
+    title=settings.APP_NAME,
     openapi_url="/openapi.json",
     docs_url=None,
     redoc_url=None,
@@ -22,6 +24,7 @@ app = FastAPI(
 )
 app.include_router(router)
 app.middleware("http")(log_request_middleware)
+app.add_middleware(PrometheusMiddleware, app_name=settings.APP_NAME)
 app.add_middleware(ContextMiddleware)
 app.add_middleware(
     CORSMiddleware,
@@ -30,7 +33,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_route("/metrics", metrics)
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+setting_otlp(app, settings.APP_NAME)
 
 
 @app.exception_handler(RequestValidationError)
