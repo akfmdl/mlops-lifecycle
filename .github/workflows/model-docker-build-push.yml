@@ -3,7 +3,7 @@ name: 📦 Model Docker Build and Push
 on:
   push:
     branches:
-      - main
+      - test
     paths:
       - "model_repository/*/Dockerfile"
       - "model_repository/*/requirements.txt"

@@ -3,7 +3,7 @@ name: 📦 API Docker Build and Push
 on:
   push:
     branches:
-      - main
+      - test
     paths:
       - "apis/**"
 
