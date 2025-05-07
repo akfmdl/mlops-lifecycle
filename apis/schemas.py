@@ -2,11 +2,6 @@ from pydantic import BaseModel, Field
 
 
 class PredictRequest(BaseModel):
-    model_name: str = Field(
-        title="model_name",
-        description="model_name",
-        default="onnx-model",
-    )
     model_version: str = Field(
         title="model_version",
         description="model_version",

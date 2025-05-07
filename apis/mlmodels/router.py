@@ -39,7 +39,7 @@ def get_models():
 
 
 @router.post(
-    "/predict",
+    "/onnx-model/predict",
     description="모델 추론",
     response_model=PredictResponse,
     tags=["Models"],
@@ -63,11 +63,7 @@ def predict(request: PredictRequest):
         input_data = utils.preprocess_image(image, input_size)
 
         # Triton 서버 URL 설정 (model_name이 triton 서버 호스트와 포트를 포함할 수 있음)
-        triton_url = (
-            settings.TRITON_URL
-            if settings.TRITON_URL
-            else f"{request.model_name}.{settings.MODEL_NAMESPACE}.svc.cluster.local:8000"
-        )
+        triton_url = settings.ONNX_MODEL_TRITON_URL
 
         print(f"triton_url: {triton_url}")
 
@@ -84,7 +80,7 @@ def predict(request: PredictRequest):
 
         # 추론 요청
         response = triton_client.infer(
-            model_name=request.model_name, inputs=inputs, model_version=request.model_version
+            model_name="onnx-model", inputs=inputs, model_version=request.model_version
         )
 
         # 출력 결과 가져오기

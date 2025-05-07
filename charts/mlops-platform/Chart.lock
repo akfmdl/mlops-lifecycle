@@ -2,12 +2,12 @@ dependencies:
 - name: mlflow
   repository: https://charts.bitnami.com/bitnami
   version: 3.0.1
-- name: prometheus
-  repository: https://prometheus-community.github.io/helm-charts
-  version: 27.8.0
-- name: grafana
+- name: loki-stack
   repository: https://grafana.github.io/helm-charts
-  version: 8.11.3
+  version: 2.10.2
+- name: tempo
+  repository: https://grafana.github.io/helm-charts
+  version: 1.21.1
 - name: postgresql
   repository: https://charts.bitnami.com/bitnami
   version: 16.6.3
@@ -23,5 +23,5 @@ dependencies:
 - name: gha-runner-scale-set
   repository: file://charts/gha-runner-scale-set
   version: 0.11.0
-digest: sha256:46c415be300ebc9cd6b4d3873325e2b8c72a4732621916085196823c020c2e23
-generated: "2025-05-02T11:17:12.589571922+09:00"
+digest: sha256:91e5b35826844f19124ed4827786f365f865994175cee1e3b9c23a1746109327
+generated: "2025-05-07T11:43:18.079424075+09:00"

@@ -23,43 +23,176 @@ mlflow:
       rootPassword: myminioadminpassword
     service:
       type: NodePort
+    persistence:
+      enabled: true
+      size: 5Gi
 
-# https://artifacthub.io/packages/helm/prometheus-community/prometheus
-prometheus:
-  server:
-    fullnameOverride: prometheus-server
-    service:
-      type: NodePort
-    persistentVolume:
+# https://grafana.github.io/helm-charts
+loki-stack:
+  prometheus:
+    enabled: true
+    server:
+      fullnameOverride: prometheus-server
+      service:
+        type: NodePort
+      persistentVolume:
+        enabled: true
+        size: 1Gi
+    alertmanager:
+      enabled: false
+    kube-state-metrics:
+      fullnameOverride: kube-state-metrics
+    prometheus-node-exporter:
+      fullnameOverride: node-exporter
+    prometheus-pushgateway:
+      fullnameOverride: pushgateway
+    extraScrapeConfigs: |
+      - job_name: api-server
+        scrape_interval: 5s
+        static_configs:
+          - targets:
+            - api-server.mlops-platform.svc.cluster.local:80
+  grafana:
+    enabled: true
+    fullnameOverride: grafana
+    persistence:
       enabled: true
       size: 1Gi
-  alertmanager:
-    enabled: false
-  kube-state-metrics:
-    fullnameOverride: kube-state-metrics
-  prometheus-node-exporter:
-    fullnameOverride: node-exporter
-  prometheus-pushgateway:
-    fullnameOverride: pushgateway
-
-# https://artifacthub.io/packages/helm/grafana/grafana
-grafana:
-  fullnameOverride: grafana
-  persistence:
+    service:
+      type: NodePort
+    datasources:
+      datasources.yaml:
+        apiVersion: 1
+        datasources:
+          - uid: prometheus
+            orgId: 1
+            name: Prometheus
+            type: prometheus
+            typeName: Prometheus
+            access: proxy
+            url: http://prometheus-server:80
+            password: ""
+            user: ""
+            database: ""
+            basicAuth: false
+            isDefault: true
+            jsonData:
+              exemplarTraceIdDestinations:
+                - datasourceUid: tempo
+                  name: TraceID
+              httpMethod: POST
+            readOnly: false
+            editable: true
+          - uid: tempo
+            orgId: 1
+            name: Tempo
+            type: tempo
+            typeName: Tempo
+            access: proxy
+            url: http://tempo:3100
+            password: ""
+            user: ""
+            database: ""
+            basicAuth: false
+            isDefault: false
+            jsonData:
+              nodeGraph:
+                enabled: true
+              search:
+                hide: false
+              lokiSearch:
+                datasourceUid: loki
+              tracesToLogs:
+                datasourceUid: loki
+                filterBySpanID: false
+                filterByTraceID: true
+                mapTagNamesEnabled: false
+                tags:
+                  - compose_service
+            readOnly: false
+            editable: true
+          - uid: loki
+            orgId: 1
+            name: Loki
+            type: loki
+            typeName: Loki
+            access: proxy
+            url: http://loki:3100
+            password: ""
+            user: ""
+            database: ""
+            basicAuth: false
+            isDefault: false
+            jsonData:
+              derivedFields:
+                - datasourceUid: tempo
+                  matcherRegex: (?:trace_id)=(\w+)
+                  name: TraceID
+                  url: $${__value.raw}
+            readOnly: false
+            editable: true
+    dashboardProviders:
+      dashboardproviders.yaml:
+        apiVersion: 1
+        providers:
+          - name: "default"
+            orgId: 1
+            folder: ""
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/default
+    sidecar:
+      dashboards:
+        enabled: true
+        label: grafana_dashboard
+        folder: /var/lib/grafana/dashboards/default
+      datasources:
+        enabled: false
+    adminPassword: admin
+  promtail:
     enabled: true
-    size: 1Gi
+    fullnameOverride: promtail
+    configmap:
+      enabled: true
+    config:
+      clients:
+        - url: http://loki:3100/loki/api/v1/push
+          batchwait: 2s
+          batchsize: 1048576
+      snippets:
+        pipelineStages:
+          - cri: {}
+          - multiline:
+              firstline: '^\d{4}-\d{2}-\d{2} \d{1,2}:\d{2}:\d{2}'
+              max_wait_time: 3s
+          - regex:
+              expression: '^(?P<time>\d{4}-\d{2}-\d{2} \d{1,2}:\d{2}:\d{2},\d{3}) .*trace_id=(?P<trace_id>[a-fA-F0-9]+) .*resource\.service\.name=(?P<compose_service>[^\]]+)] .* (?P<message>(?s:.*))$$'
+          - labels:
+              trace_id:
+              compose_service:
+  loki:
+    enabled: true
+    fullnameOverride: loki
+    service:
+      type: NodePort
+    config:
+      limits_config:
+        ingestion_rate_mb: 10
+        ingestion_burst_size_mb: 20
+    extraArgs:
+      config.expand-env: true
+    server:
+      grpc_server_max_recv_msg_size: 8388608
+      grpc_server_max_send_msg_size: 8388608
+
+# https://grafana.github.io/helm-charts
+tempo:
+  enabled: true
+  fullnameOverride: tempo
   service:
     type: NodePort
-  datasources:
-    datasources.yaml:
-      apiVersion: 1
-      datasources:
-        - name: Prometheus
-          type: prometheus
-          url: http://prometheus-server:80
-          access: proxy
-          isDefault: true
-  adminPassword: admin
 
 # https://artifacthub.io/packages/helm/bitnami/postgresql
 postgresql:
@@ -122,6 +255,12 @@ harbor:
   nginx:
     tls:
       enabled: false
+  redis:
+    enabled: true
+    master:
+      persistence:
+        enabled: true
+        size: 1Gi
   adminPassword: admin
   externalURL: http://harbor.mlops-platform.svc.cluster.local
 

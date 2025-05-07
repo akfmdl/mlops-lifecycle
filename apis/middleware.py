@@ -29,13 +29,6 @@ def load_logging_config(path: str):
 def log_request(status_code, message):
     if status_code >= 400:
         logging.error(message)
-        span = trace.get_current_span()
-        trace_id = trace.format_trace_id(span.get_span_context().trace_id)
-        span_id = trace.format_span_id(span.get_span_context().span_id)
-        now_kst = datetime.datetime.now(pytz.timezone("Asia/Seoul"))
-        logging.error(
-            f"[{settings.APP_NAME} error] [{now_kst.strftime('%Y-%m-%d %H:%M:%S')}] [trace id: {trace_id} span id: {span_id}]"
-        )
     else:
         logging.info(message)
 

@@ -8,6 +8,7 @@ tritonclient[http]==2.56.0
 opencv-python==4.11.0.86
 numpy==1.26.4
 prometheus-client==0.21.1
-opentelemetry-sdk==3.21.0
-opentelemetry-instrumentation-fastapi==0.53b1
-opentelemetry-instrumentation-logging==0.53b1
+opentelemetry-exporter-otlp==1.31.1
+opentelemetry-instrumentation-fastapi==0.52b1
+opentelemetry-instrumentation-logging==0.52b1
+pytz==2025.2

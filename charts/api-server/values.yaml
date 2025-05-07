@@ -23,7 +23,6 @@ podSecurityContext: {}
 # readOnlyRootFilesystem: true
 # runAsNonRoot: true
 # runAsUser: 1000
-
 service:
   enabled: true
   name: ""
@@ -36,18 +35,14 @@ virtualService:
 ingress:
   enabled: false
   ingressClassName: ""
-  annotations:
-    {}
-    # kubernetes.io/ingress.class: nginx-dev
-    # cert-manager.io/cluster-issuer: letsencrypt-dev
-    # nginx.ingress.kubernetes.io/rewrite-target: /
+  annotations: {}
+  # kubernetes.io/ingress.class: nginx-dev
+  # cert-manager.io/cluster-issuer: letsencrypt-dev
+  # nginx.ingress.kubernetes.io/rewrite-target: /
   path: /
   pathType: Prefix
   hosts: []
   tls: []
-#    - hosts:
-#       - dev-mlops-gateway.koreacentral.cloudapp.azure.com
-#      secretName: tls-secret
 autoscaling:
   enabled: false
   minReplicas: 1
@@ -103,6 +98,10 @@ deployment:
       value: "mlops-platform"
     - name: SERVICE_PORT
       value: "31615"
+    - name: OTLP_GRPC_ENDPOINT
+      value: "http://tempo.mlops-platform.svc.cluster.local:4317"
+    - name: ONNX_MODEL_TRITON_URL
+      value: "onnx-model.mlops-platform.svc.cluster.local:8000"
   # Environment from secret to use in pod
   envSecretName: ""
   # Security context to add to the container
