@@ -1,11 +1,7 @@
-import datetime
 import logging
 import logging.config
 
-import pytz
 import yaml
-from config import settings
-from opentelemetry import trace
 from starlette.background import BackgroundTask
 from starlette.requests import Request
 from starlette.responses import Response
