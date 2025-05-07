@@ -65,7 +65,7 @@ deployment:
     args: ""
     securityContext: {}
     extraVolumeMounts: []
-  image: goranidocker/fastapi:v3
+  image: goranidocker/fastapi:v4
   # Extra annotations to add to the deployment
   annotations: {}
   # Extra Volume Mounts variabels to add to the deployment
