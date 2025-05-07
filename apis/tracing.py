@@ -65,7 +65,9 @@ class PrometheusMiddleware(BaseHTTPMiddleware):
         try:
             response = await call_next(request)
             status_code = response.status_code
-        except BaseException as e:
+            if status_code == HTTP_500_INTERNAL_SERVER_ERROR:
+                EXCEPTIONS.labels(method=method, path=path, exception_type="HTTP_500", app_name=self.app_name).inc()
+        except Exception as e:
             EXCEPTIONS.labels(method=method, path=path, exception_type=type(e).__name__, app_name=self.app_name).inc()
             raise e
 
