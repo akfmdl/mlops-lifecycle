@@ -13,6 +13,7 @@ mlflow:
   tracking:
     service:
       type: NodePort
+      nodePort: 30402
     auth:
       enabled: false
     persistence:
@@ -35,6 +36,7 @@ loki-stack:
       fullnameOverride: prometheus-server
       service:
         type: NodePort
+        nodePort: 30403
       persistentVolume:
         enabled: true
         size: 1Gi
@@ -241,6 +243,7 @@ argo-cd:
   server:
     service:
       type: NodePort
+      nodePort: 30080
   configs:
     secret:
       argocdServerAdminPassword: $2a$10$fYFgQiokT3Qm3uvzKgUHGu0gKOnHfFZ5J47UyV6wT46ag8H4YK.kS # admin
@@ -260,6 +263,7 @@ harbor:
     coreDatabase: harbor
   service:
     type: NodePort
+    nodePort: 31459
   nginx:
     tls:
       enabled: false

@@ -1559,6 +1559,7 @@ webserver:
     ports:
       - name: airflow-ui
         port: "{{ .Values.ports.airflowUI }}"
+        nodePort: 30380
     # To change the port used to access the webserver:
     # ports:
     #   - name: airflow-ui
