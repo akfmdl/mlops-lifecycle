@@ -62,6 +62,7 @@ loki-stack:
       size: 1Gi
     service:
       type: NodePort
+      nodePort: 30404
     datasources:
       datasources.yaml:
         apiVersion: 1
