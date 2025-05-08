@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: mlops-lifecycle
+  namespace: mlops-platform
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/akfmdl/mlops-lifecycle.git
+        revision: main
+        directories:
+          - path: charts/*
+          - path: charts/mlops-platform
+            exclude: true
+  template:
+    metadata:
+      name: "{{path.basename}}"
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/akfmdl/mlops-lifecycle.git
+        targetRevision: main
+        path: "{{path}}"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: mlops-platform
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
