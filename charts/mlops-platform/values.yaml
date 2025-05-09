@@ -13,7 +13,8 @@ mlflow:
   tracking:
     service:
       type: NodePort
-      nodePort: 30402
+      nodePorts:
+        http: "30402"
     auth:
       enabled: false
     persistence:
