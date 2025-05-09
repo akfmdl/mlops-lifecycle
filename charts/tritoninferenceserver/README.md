@@ -7,22 +7,6 @@
 - kubectl 설치
 - docker 설치
 
-## Repository Clone 및 Helm Chart 설치
-이 레포의 charts/tritoninferenceserver 폴더에 있는 helm chart를 설치합니다.
-triton 서버를 kubernetes에 배포합니다.
-
-```bash
-git clone https://github.com/akfmdl/mlops-lifecycle.git
-cd mlops-lifecycle
-helm upgrade --install tritoninferenceserver charts/tritoninferenceserver --namespace mlops-platform --create-namespace
-```
-
-## Helm Chart 삭제
-```bash
-helm uninstall tritoninferenceserver -n mlops-platform
-kubectl delete namespace mlops-platform
-```
-
 ## 튜토리얼
 
 ### 로컬에서 모델 추론해보기
@@ -146,7 +130,14 @@ ENDPOINT="localhost:$NODE_PORT"
 python examples/triton_yolo_inference.py --triton-url $ENDPOINT --model-name onnx-model --image-path examples/dog.jpg
 ```
 
-### Airflow를 통해 새로운 모델 등록
+정리하기
+
+```bash
+helm uninstall $TRITON_SERVER_NAME -n $NAMESPACE
+kubectl delete namespace $NAMESPACE
+```
+
+### Airflow를 통해 모델 배포 자동화 경험하기
 
 dags폴더에 있는 k8s_dag는 모델을 학습 -> 새로운 모델을 mlflow에 등록 -> values.yaml에 등록 -> ArgoCD를 통해 triton 서버에 새로운 mlflow 모델 등록 까지 자동화 하는 파이프라인입니다. 직접 실행해보고 확인해보세요.
 
