@@ -1,4 +1,3 @@
-name: "onnx-model"
 backend: "python"
 max_batch_size: 8
 
