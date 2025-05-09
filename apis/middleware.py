@@ -6,7 +6,7 @@ from starlette.background import BackgroundTask
 from starlette.requests import Request
 from starlette.responses import Response
 
-IGNORED_PATHS = ["/metrics", "/health"]
+IGNORED_PATHS = ["/metrics", "/health", "/docs", "/static"]
 
 
 async def set_request_body(request: Request, body: bytes):
@@ -41,7 +41,7 @@ async def log_request_middleware(request: Request, call_next):
         response_body += chunk
 
     background_task = None
-    if request.url.path not in IGNORED_PATHS:
+    if not any(request.url.path.startswith(path) for path in IGNORED_PATHS):
         decoded_response_body = response_body.decode("utf-8")
         message = f"\n Request url: {request.url} \
                     \n Status code: {response.status_code} \
