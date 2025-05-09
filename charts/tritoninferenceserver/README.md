@@ -13,13 +13,13 @@
 
 local에 mlflow 서버를 띄워보고, 모델을 등록해보자.
 
-1. mlflow 서버 띄우기
+mlflow 서버 띄우기
 
 ```bash
 mlflow server --host 127.0.0.1 --port 5000
 ```
 
-2. mlflow 서버에 모델 등록
+mlflow 서버에 모델 등록
 
 모델이 로컬에 없다면 다음 명령어로 모델을 다운받을 수 있습니다.
 
@@ -33,7 +33,8 @@ python examples/export_yolo.py --model-path yolo11n.pt --format onnx
 python examples/register_model_to_mlflow.py --model-path yolo11n.onnx --model-name yolo11n-onnx
 ```
 
-3. triton 컨테이너 띄우기
+triton 컨테이너 띄우기
+
 * --network="host": 로컬에서 실행되고 있는 mlflow에 접근할 수 있도록 호스트 네트워크 사용   
 * -v $(pwd)/model_repository:/models: 모델 레포지토리 마운트 -> model_repository 폴더는 이 레포지토리에 있습니다.
 
@@ -41,7 +42,7 @@ python examples/register_model_to_mlflow.py --model-path yolo11n.onnx --model-na
 sudo docker run -it --network="host" --rm -p 8000:8000 -p 8001:8001 -p 8002:8002 -v $(pwd)/model_repository:/models goranidocker/tritonserver:python-v1
 ```
 
-4. triton 컨테이너 내에서 서버 실행
+triton 컨테이너 내에서 서버 실행
 
 * --model-control-mode=poll: 모델 추론 서버가 모델 레포지토리를 주기적으로 폴링하도록 설정
 * --repository-poll-secs=3: 3초마다 모델 레포지토리를 폴링
@@ -50,18 +51,18 @@ sudo docker run -it --network="host" --rm -p 8000:8000 -p 8001:8001 -p 8002:8002
 tritonserver --model-repository=/models --model-control-mode=poll --repository-poll-secs=3
 ```
 
-5. 추론해보기
+추론해보기
 
 ```bash
 python examples/triton_yolo_inference.py --triton-url localhost:8000 --model-name onnx-model --image-path examples/dog.jpg
 ```
 
-6. 추론 결과 확인
+추론 결과 확인
 
 dog_detection.jpg 파일이 생성되었는지 확인합니다.
 
 
-7. model_repository 폴더에 있는 모델의 이름을 바꾸고 추론해보기
+model_repository 폴더에 있는 모델의 이름을 바꾸고 추론해보기
 
 ```bash
 mv model_repository/onnx-model model_repository/python-model
@@ -81,7 +82,7 @@ python examples/triton_yolo_inference.py --triton-url localhost:8000 --model-nam
 mv model_repository/python-model model_repository/onnx-model
 ```
 
-8. mlflow 모델명을 바꾸고 추론해보기
+mlflow 모델명을 바꾸고 추론해보기
 
 동일한 모델 파일을 새로운 모델로 등록
 
@@ -106,7 +107,7 @@ python examples/triton_yolo_inference.py --triton-url localhost:8000 --model-nam
 
 ### Kubernetes에서 모델 추론해보기
 
-1. Triton Inference Server 배포
+Triton Inference Server 배포
 
 ```bash
 TRITON_SERVER_NAME="your_triton_server_name"

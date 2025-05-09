@@ -2,13 +2,14 @@
 
 ## Local Airflow 시작하기
 
-1. DAG를 실행하기 위한 패키지 설치
+DAG를 실행하기 위한 패키지 설치
 
 ```bash
 pip install -r dags/requirements.txt
 ```
 
-2. AIRFLOW_HOME 설정하기
+AIRFLOW_HOME 설정하기
+
 AIRFLOW_HOME을 설정하지 않으면 기본적으로 ~/airflow 디렉토리에 설치됩니다.
 
 각종 airflow 설정 파일들이 저장될 디렉토리를 생성합니다.
@@ -17,7 +18,7 @@ AIRFLOW_HOME=./airflow
 mkdir -p $AIRFLOW_HOME
 ```
 
-3. DAG 폴더 설정하기
+DAG 폴더 설정하기
 
 Airflow에서 이 프로젝트의 DAG들을 인식하기 위해서는 심볼릭 링크(symbolic link)를 생성해야 합니다.
 ```bash
@@ -29,7 +30,7 @@ ln -s $(pwd)/dags $AIRFLOW_HOME/dags
 ls -la $AIRFLOW_HOME/dags
 ```
 
-4. Airflow 시작:
+Airflow 시작:
 ```bash
 airflow standalone
 ```
@@ -49,21 +50,21 @@ standalone | Airflow Standalone is for development purposes only. Do not use thi
 
 - admin 비밀번호를 까먹었을 경우, ~/airflow/standalone_admin_password.txt 에서 확인 가능
 
-5. DAG 활성화:
+DAG 활성화:
 ```bash
 airflow dags unpause local_dag
 ```
 
-6. DAG가 Airflow에 인식되는지 확인:
+DAG가 Airflow에 인식되는지 확인:
 ```bash
 airflow dags list | grep local_dag
 ```
 
-7. 혹은 Airflow Web UI에서 DAG 목록 확인:
+혹은 Airflow Web UI에서 DAG 목록 확인:
    - Airflow Web UI에 접속(Local 환경에서는 http://localhost:8080)
    - DAG 목록에서 `local_dag` 확인
 
-## mlfow 실행
+mlfow 실행
 
 이 프로젝트의 DAG 실행 시 mlflow 서버를 실행해야 합니다.
 
@@ -71,26 +72,28 @@ airflow dags list | grep local_dag
 mlflow server --host 0.0.0.0 --port 5000
 ```
 
-## DAG 실행
+DAG 실행
 
-1. [방법 1] CLI를 이용한 방법
+- [방법 1] CLI를 이용한 방법
 ```bash
 airflow dags trigger local_dag
 ```
 
-2. [방법 2] Web UI를 이용한 방법
+- [방법 2] Web UI를 이용한 방법
    - Airflow Web UI에 접속(Local 환경에서는 http://localhost:8080)
    - DAG 목록에서 `local_dag` 클릭
    - 실행할 태스크 클릭
    - 태스크 실행 버튼 클릭
 
-3. [방법 3] Python 파일을 이용한 방법
+- [방법 3] Python 파일을 이용한 방법
 ```bash
 python dags/local_dag.py
 ```
 
-## 태스크 실행 확인
+태스크 실행 확인
 
 ```bash
 airflow tasks list | grep local_dag
 ```
+
+Airflow Web UI에서도 태스크 실행 확인 가능합니다.
