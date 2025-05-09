@@ -141,4 +141,4 @@ kubectl delete namespace $NAMESPACE
 
 dags폴더에 있는 k8s_dag는 모델을 학습 -> 새로운 모델을 mlflow에 등록 -> values.yaml에 등록 -> ArgoCD를 통해 triton 서버에 새로운 mlflow 모델 등록 까지 자동화 하는 파이프라인입니다. 직접 실행해보고 확인해보세요.
 
-[Go to Airflow tutorial page](https://github.com/akfmdl/mlops-lifecycle/blob/main/charts/airflow/README.md)
+[Go to Airflow tutorial page](https://github.com/akfmdl/mlops-lifecycle/blob/main/dags/README.md)

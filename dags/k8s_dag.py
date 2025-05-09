@@ -31,7 +31,7 @@ with DAG(
         "val_ratio": 0.2,
         "test_ratio": 0.1,
         # YOLO 학습 DAG에 필요한 파라미터
-        "epochs": 10,
+        "epochs": 1,
         "batch_size": 16,
         "img_size": 640,
         "run_name": "yolo11n-onnx",
