@@ -1,34 +1,36 @@
 gitSync:
   enabled: true
   env:
-  - name: GITSYNC_REPO
-    value: https://github.com/akfmdl/mlops-lifecycle.git
-  - name: GITSYNC_REF
-    value: main
+    - name: GITSYNC_REPO
+      value: https://github.com/akfmdl/mlops-lifecycle.git
+    - name: GITSYNC_REF
+      value: main
   image: registry.k8s.io/git-sync/git-sync:v4.3.0
   subPath: model_repository
 tritonServers:
-- env:
-  - name: MLFLOW_TRACKING_URI
-    value: http://mlflow-tracking.mlops-platform.svc.cluster.local:80
-  - name: MLFLOW_MODEL_NAME
-    value: yolo11n-onnx
-  - name: MLFLOW_MODEL_VERSION
-    value: '1'
-  - name: CUDA_VISIBLE_DEVICES
-    value: ''
-  image: goranidocker/tritonserver:python-v1
-  model:
+  - env:
+      - name: MLFLOW_TRACKING_URI
+        value: http://mlflow-tracking.mlops-platform.svc.cluster.local:80
+      - name: MLFLOW_MODEL_NAME
+        value: yolo11n-onnx
+      - name: MLFLOW_MODEL_VERSION
+        value: "1"
+      - name: CUDA_VISIBLE_DEVICES
+        value: ""
+    image: goranidocker/tritonserver:python-v1
+    args:
+      - tritonserver
+      - --model-repository=/git/mlops-lifecycle.git/model_repository
+      - --model-control-mode=explicit
+      - --load-model=onnx-model
     name: onnx-model
-    repository: /git/mlops-lifecycle.git/model_repository
-  name: onnx-model
-  replicas: 1
-  resources:
-    limits:
-      cpu: '2'
-      memory: 4Gi
-    requests:
-      cpu: '1'
-      memory: 2Gi
-  service:
-    type: NodePort
+    replicas: 1
+    resources:
+      limits:
+        cpu: "2"
+        memory: 4Gi
+      requests:
+        cpu: "1"
+        memory: 2Gi
+    service:
+      type: NodePort

@@ -39,7 +39,8 @@ spec:
             {{- if .resources }}
             {{- toYaml .resources | nindent 12 }}
             {{- end }}
-          args: ["tritonserver", "--model-repository={{ .model.repository }}", "--model-control-mode=explicit", "--load-model={{ .model.name }}"]
+          args:
+            {{- toYaml .args | nindent 12 }}
           volumeMounts:
             - name: model-repo
               mountPath: /git
