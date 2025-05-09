@@ -49,6 +49,14 @@ echo %PROCESSOR_ARCHITECTURE%
 ```
 
 ## 각각 설치하기
+
+### GPU 사용 설정
+1. 노드에 NVIDIA 드라이버와 관련 패키지를 설치합니다.
+```bash
+./install_nvidia_driver.sh
+```
+2. nvidia-smi를 실행해봤을 때 GPU 정보가 잘 뜨는지 확인이 되어야 합니다.
+
 ### [k3s](https://k3s.io/): Lightweight Kubernetes
 k3s는 가볍고 쉽게 설치할 수 있는 Kubernetes 클러스터입니다. 가볍지만 이 튜토리얼에서 사용하는 모든 기능을 지원합니다. 또한, 튜토리얼만 진행하기 때문에 단일 노드로만 구성합니다.
 
@@ -72,6 +80,19 @@ source ~/.bashrc
 #### for mac
 https://coding-groot.tistory.com/236 참고
 
+#### k3s 설치 후 Container runtime이 nvidia-container-runtime인지 확인
+
+```bash
+grep nvidia /var/lib/rancher/k3s/agent/etc/containerd/config.toml
+```
+
+출력 결과
+```bash
+    default_runtime_name = "nvidia"
+[plugins.'io.containerd.cri.v1.runtime'.containerd.runtimes.'nvidia']
+[plugins.'io.containerd.cri.v1.runtime'.containerd.runtimes.'nvidia'.options]
+    BinaryName = "/usr/bin/nvidia-container-runtime"
+```
 
 ### [kubectl](https://kubernetes.io/docs/reference/kubectl/): Kubernetes CLI
 kubectl은 쿠버네티스 클러스터에 리소스들을 배포/관리하기 위한 CLI 도구입니다.
@@ -130,12 +151,6 @@ brew install helm
 ./uninstall.sh
 ```
 
-### [옵션] 특정 Helm Chart 삭제
-```bash
-helm uninstall mlops-platform
-kubectl delete namespace mlops-platform
-```
-
 ### [옵션] Cluster 제거
 cluster를 제거하면 설치된 모든 리소스들을 한번에 제거할 수 있습니다.
 
@@ -148,3 +163,16 @@ k3s-uninstall.sh 파일은 위에서 찾은 경로와 같은 디렉토리에 있
 ```bash
 sudo /usr/local/bin/k3s-uninstall.sh
 ```
+
+### [Tip] Airflow, API Server, Triton Inference Server 한번에 ArgoCD에 등록하기
+charts/mlops-platform를 배포한 상태에서 다음 명령어를 실행합니다.
+```bash
+kubectl apply -f argocd-apps/applicationset.yaml
+```
+ArgoCD에 Airflow, API Server, Triton Inference Server helm chart들이 application으로 등록됩니다.
+
+
+## [Tip] Local-path-provisioner
+k3s로 k8s 클러스터를 설치하면 기본 local-path-provisioner가 설치됩니다.
+이 프로비저너는 로컬 디스크에 볼륨을 만들어서 사용합니다.
+/var/lib/rancher/k3s/storage/ 폴더에서 모든 볼륨을 확인할 수 있습니다.

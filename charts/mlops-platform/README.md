@@ -48,7 +48,7 @@ kubectl delete namespace mlops-platform
 이 경우, kubectl get all -n mlops-platform 명령어로 리소스를 확인하고, kubectl patch <resource> <resource-name> -n mlops-platform --type json -p '[{"op": "remove", "path": "/metadata/finalizers"}]' 명령어로 finalizer를 제거합니다.
 해당 namespace에 속한 모든 리소스가 제거되어야 namespace를 완전히 삭제할 수 있습니다.
 
-## airflow, mlflow, argocd, prometheus, grafana 등의 서비스를 브라우저에서 접근해보기
+## mlflow, argocd, prometheus, grafana 등의 서비스를 브라우저에서 접근해보기
 mlops-platform 차트의 values.yaml 파일에서 일부 서비스들의 서비스 타입을 아래와 같이 NodePort로 설정해두었습니다.
 
 ```bash
