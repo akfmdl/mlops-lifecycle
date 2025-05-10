@@ -63,3 +63,7 @@ echo "http://localhost:$NODE_PORT"
 http://localhost:$NODE_PORT/docs 에 접속합니다.
 
 동일하게 /onnx-model/predict 라우터를 테스트합니다. Kubernetes에서 api-server와 onnx-model pod의 로그를 확인해보며 진행 동작을 확인합니다.
+
+### 심화
+
+새로운 triton model을 배포하고 이를 사용하는 라우터를 추가해보세요.
