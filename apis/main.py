@@ -16,9 +16,6 @@ __version__ = "0.0.1"
 
 app = FastAPI(
     title=settings.APP_NAME,
-    openapi_url="/openapi.json",
-    docs_url=None,
-    redoc_url=None,
     version=__version__,
     swagger_ui_parameters={"syntaxHighlight.theme": "obsidian", "deepLinking": True},
 )
