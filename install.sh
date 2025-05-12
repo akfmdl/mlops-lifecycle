@@ -12,18 +12,18 @@ install_package() {
     local package_name=$1
     echo "Checking for $package_name..."
     
-    if ! command -v $package_name &> /dev/null; then
+    if command -v "$package_name" >/dev/null 2>&1; then
+        echo "$package_name is already installed: $(which $package_name)"
+    else
         echo "$package_name not found, installing..."
         # Try apt-get (Debian/Ubuntu)
-        if command -v apt-get &> /dev/null; then
+        if command -v apt-get >/dev/null 2>&1; then
             sudo apt-get update
             sudo apt-get install -y $package_name
         else
             echo "Cannot install $package_name automatically. Please install $package_name manually and try again."
             exit 1
         fi
-    else
-        echo "$package_name is already installed: $(which $package_name)"
     fi
 }
 
