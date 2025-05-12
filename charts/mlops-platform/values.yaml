@@ -229,7 +229,7 @@ postgresql:
       size: 1Gi
 
 nvidia:
-  enabled: true
+  enabled: false
   image:
     repository: nvcr.io/nvidia/k8s-device-plugin
     tag: "v0.17.1"
