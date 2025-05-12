@@ -18,10 +18,6 @@ install_package() {
         if command -v apt-get &> /dev/null; then
             sudo apt-get update
             sudo apt-get install -y $package_name
-        # Try yum (CentOS/RHEL)
-        elif command -v yum &> /dev/null; then
-            sudo yum update -y
-            sudo yum install -y $package_name
         else
             echo "Cannot install $package_name automatically. Please install $package_name manually and try again."
             exit 1
@@ -52,7 +48,13 @@ fi
 
 # Install k3s
 echo "Installing k3s..."
-curl -sfL https://get.k3s.io | sudo sh -s - --write-kubeconfig-mode 644
+if command -v nvidia-smi &> /dev/null; then
+    echo "NVIDIA driver is installed, using nvidia runtime"
+    curl -sfL https://get.k3s.io | sudo sh -s - --write-kubeconfig-mode 644 --default-runtime nvidia
+else
+    echo "NVIDIA driver is not installed, using default runtime"
+    curl -sfL https://get.k3s.io | sudo sh -s - --write-kubeconfig-mode 644
+fi
 
 # Set KUBECONFIG environment variable
 echo "Setting KUBECONFIG environment variable..."
@@ -89,11 +91,12 @@ curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 echo "========================================"
 echo "Installation Complete!"
 echo "========================================"
-echo "k3s, kubectl, k9s, and helm are now installed."
+echo "NVIDIA driver, NVIDIA Container Toolkit, k3s, kubectl, k9s, and helm are now installed."
 echo "You may need to restart your shell or run the following command to use kubectl:"
 echo "  export KUBECONFIG=/etc/rancher/k3s/k3s.yaml"
 echo "  source ~/.bashrc"
 echo "To verify the installation, run:"
+echo "  nvidia-smi"
 echo "  kubectl get nodes"
 echo "  k9s --version"
 echo "  helm version"
