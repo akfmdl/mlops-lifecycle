@@ -48,7 +48,15 @@ fi
 
 # Install k3s
 echo "Installing k3s..."
-if command -v nvidia-smi &> /dev/null; then
+NVIDIA_AVAILABLE=false
+if command -v nvidia-smi >/dev/null 2>&1; then
+    if nvidia-smi >/dev/null 2>&1; then
+        NVIDIA_AVAILABLE=true
+    fi
+fi
+echo "Check NVIDIA driver: $NVIDIA_AVAILABLE"
+
+if [ "$NVIDIA_AVAILABLE" = true ]; then
     echo "NVIDIA driver is installed, using nvidia runtime"
     curl -sfL https://get.k3s.io | sudo sh -s - --write-kubeconfig-mode 644 --default-runtime nvidia
 else
