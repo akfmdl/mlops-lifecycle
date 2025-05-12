@@ -50,7 +50,7 @@ echo %PROCESSOR_ARCHITECTURE%
 
 ## 각각 설치하기
 
-### GPU 사용 설정
+### (옵션) GPU 사용 설정
 1. 노드에 NVIDIA 드라이버와 관련 패키지를 설치합니다.
 ```bash
 ./install_nvidia_driver.sh
@@ -62,9 +62,10 @@ k3s는 가볍고 쉽게 설치할 수 있는 Kubernetes 클러스터입니다. �
 
 #### for linux
 * --write-kubeconfig-mode 644: kubeconfig 파일의 권한을 644로 설정
-* --default-runtime nvidia: GPU 사용 설정(GPU가 없는 경우 무시)
+* (옵션) --kubelet-arg="max-pods=250": 최대 파드 수를 250개로 설정(기본값은 110개)
+* (옵션) --default-runtime nvidia: GPU 사용 설정(GPU가 없는 경우 무시)
 ```bash
-curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 --default-runtime nvidia
+curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 --kubelet-arg="max-pods=250" --default-runtime nvidia
 ```
 확인
 ```bash
@@ -80,7 +81,7 @@ source ~/.bashrc
 #### for mac
 https://coding-groot.tistory.com/236 참고
 
-#### k3s 설치 후 Container runtime이 nvidia-container-runtime인지 확인
+#### k3s 설치 후 Container runtime이 nvidia-container-runtime인지 확인(GPU 사용 설정 시)
 
 ```bash
 grep nvidia /var/lib/rancher/k3s/agent/etc/containerd/config.toml
