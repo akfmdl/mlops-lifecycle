@@ -152,7 +152,7 @@ brew install helm
 ./uninstall.sh
 ```
 
-### [옵션] Cluster 제거
+#### Cluster만 제거하려면?
 cluster를 제거하면 설치된 모든 리소스들을 한번에 제거할 수 있습니다.
 
 k3s-uninstall.sh 파일 위치 찾기
