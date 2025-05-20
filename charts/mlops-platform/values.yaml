@@ -290,7 +290,7 @@ gha-runner-scale-set-controller:
 # https://github.com/actions/actions-runner-controller/charts/gha-runner-scale-set
 gha-runner-scale-set:
   fullnameOverride: gha-runner-scale-set
-  runnerScaleSetName: self-hosted
+  runnerScaleSetName: mlops-lifecycle
   githubConfigUrl: https://github.com/akfmdl/mlops-lifecycle
   githubConfigSecret: github-credential
   controllerServiceAccount:

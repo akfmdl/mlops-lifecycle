@@ -16,7 +16,7 @@ env:
 
 jobs:
   build-and-push:
-    runs-on: self-hosted
+    runs-on: mlops-lifecycle
     permissions:
       contents: write
       packages: write

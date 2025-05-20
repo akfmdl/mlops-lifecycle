@@ -17,7 +17,7 @@ env:
 
 jobs:
   detect-changes:
-    runs-on: self-hosted
+    runs-on: mlops-lifecycle
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
       has_changes: ${{ steps.set-matrix.outputs.has_changes }}
@@ -60,7 +60,7 @@ jobs:
   build-and-push:
     needs: detect-changes
     if: ${{ needs.detect-changes.outputs.has_changes == 'true' }}
-    runs-on: self-hosted
+    runs-on: mlops-lifecycle
     permissions:
       contents: write
       packages: write
