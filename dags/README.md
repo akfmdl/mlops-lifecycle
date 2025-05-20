@@ -6,6 +6,13 @@
 
 ## Local에서 DAG 실행해보기
 
+가상환경 만들기
+
+```bash
+python3.12 -m venv venv
+source venv/bin/activate
+```
+
 DAG를 실행하기 위한 패키지 설치
 
 ```bash
