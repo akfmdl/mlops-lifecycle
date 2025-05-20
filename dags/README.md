@@ -18,7 +18,7 @@ AIRFLOW_HOME을 설정하지 않으면 기본적으로 ~/airflow 디렉토리에
 
 각종 airflow 설정 파일들이 저장될 디렉토리를 생성합니다.
 ```bash
-export AIRFLOW_HOME="$(pwd)/test"
+export AIRFLOW_HOME="$(pwd)/airflow"
 mkdir -p $AIRFLOW_HOME
 ```
 
