@@ -18,7 +18,7 @@ AIRFLOW_HOME을 설정하지 않으면 기본적으로 ~/airflow 디렉토리에
 
 각종 airflow 설정 파일들이 저장될 디렉토리를 생성합니다.
 ```bash
-export AIRFLOW_HOME="$(pwd)/airflow"
+export AIRFLOW_HOME="$(pwd)/test"
 mkdir -p $AIRFLOW_HOME
 ```
 
@@ -36,11 +36,13 @@ ls -la $AIRFLOW_HOME/dags
 
 아래와 같이 출력되면 정상입니다.
 ```bash
-./airflow/dags -> ../mlops-lifecycle/dags
+../test/dags -> ../mlops-lifecycle/dags
 ```
 
 Airflow 시작:
+* AIRFLOW__WEBSERVER__WEB_SERVER_PORT를 지정해주지 않으면 포트는 기본 값인 8080으로 실행됩니다.
 ```bash
+export AIRFLOW__WEBSERVER__WEB_SERVER_PORT="your_port"
 airflow standalone
 ```
 위 명령어를 실행하면 다음과 같은 메시지가 출력됩니다.
@@ -61,7 +63,7 @@ standalone | Airflow Standalone is for development purposes only. Do not use thi
 
 airflow CLI를 사용하는 터미널에도 AIRFLOW_HOME 설정이 필요합니다.
 ```bash
-export AIRFLOW_HOME="$(pwd)/airflow"
+export AIRFLOW_HOME="$(pwd)/test"
 ```
 
 DAG 활성화(Airflow Web UI에서도 가능):
@@ -75,7 +77,7 @@ airflow dags list | grep local_dag
 ```
 
 혹은 Airflow Web UI에서 DAG 목록 확인:
-   - Airflow Web UI에 접속(Local 환경에서는 http://localhost:8080)
+   - Airflow Web UI에 접속(Local 환경에서는 http://localhost:$AIRFLOW__WEBSERVER__WEB_SERVER_PORT)
    - DAG 목록에서 `local_dag` 확인
 
 mlfow 실행
@@ -94,7 +96,7 @@ DAG 실행(Pause 상태인 경우, Queue에 넣어놓고 실행 안함)
    ```
 
 - [방법 2] Web UI를 이용한 방법
-   - Airflow Web UI에 접속(Local 환경에서는 http://localhost:8080)
+   - Airflow Web UI에 접속(Local 환경에서는 http://localhost:$AIRFLOW__WEBSERVER__WEB_SERVER_PORT)
    - DAG 목록에서 `local_dag` 클릭
    - 실행할 태스크 클릭
    - 태스크 실행 버튼 클릭

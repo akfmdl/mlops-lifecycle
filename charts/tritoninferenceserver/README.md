@@ -48,7 +48,9 @@ triton 컨테이너 띄우기
 * -v $(pwd)/model_repository:/models: 모델 레포지토리 마운트 -> model_repository 폴더는 이 레포지토리에 있습니다.
 
 ```bash
-sudo docker run -it --network="host" --rm -p 8000:8000 -p 8001:8001 -p 8002:8002 -v $(pwd)/model_repository:/models goranidocker/tritonserver:python-v1
+TRITON_PORT="8000"
+echo "your triton port: $TRITON_PORT"
+sudo docker run -it --network="host" --rm -p $TRITON_PORT:8000 -v $(pwd)/model_repository:/models goranidocker/tritonserver:python-v1
 ```
 
 triton 컨테이너 내에서 서버 실행
@@ -63,7 +65,7 @@ tritonserver --model-repository=/models --model-control-mode=poll --repository-p
 추론해보기
 
 ```bash
-python examples/triton_yolo_inference.py --triton-url localhost:8000 --model-name onnx-model --image-path examples/dog.jpg
+python examples/triton_yolo_inference.py --triton-url localhost:$TRITON_PORT --model-name onnx-model --image-path examples/dog.jpg
 ```
 
 추론 결과 확인
@@ -82,7 +84,7 @@ triton 서버는 config.pbtxt 파일에 명시적으로 name을 지정해주지 
 변경된 모델 이름으로 추론해보기
 
 ```bash
-python examples/triton_yolo_inference.py --triton-url localhost:8000 --model-name python-model --image-path examples/dog.jpg
+python examples/triton_yolo_inference.py --triton-url localhost:$TRITON_PORT --model-name python-model --image-path examples/dog.jpg
 ```
 
 복구하기
@@ -111,7 +113,7 @@ MLFLOW_MODEL_VERSION = os.getenv("MLFLOW_MODEL_VERSION", "1")
 변경된 모델 이름으로 추론해보기
 
 ```bash
-python examples/triton_yolo_inference.py --triton-url localhost:8000 --model-name onnx-model --image-path examples/dog.jpg
+python examples/triton_yolo_inference.py --triton-url localhost:$TRITON_PORT --model-name onnx-model --image-path examples/dog.jpg
 ```
 
 ### Kubernetes에서 모델 추론해보기

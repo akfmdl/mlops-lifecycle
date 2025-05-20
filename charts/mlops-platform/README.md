@@ -104,6 +104,19 @@ mirrors:
 EOF
 ```
 
+/etc/hosts 파일에 harbor.mlops-platform.svc.cluster.local 도메인과 service ip를 추가합니다.
+```bash
+HARBOR_SERVICE_IP=$(kubectl get svc harbor -n mlops-platform -o jsonpath='{.spec.clusterIP}')
+echo $HARBOR_SERVICE_IP
+```
+
+```bash
+sudo vi /etc/hosts
+```
+```bash
+<여기에 위에서 확인한 HARBOR_SERVICE_IP> harbor.mlops-platform.svc.cluster.local
+```
+
 k3s 재시작
 ```bash
 sudo systemctl restart k3s

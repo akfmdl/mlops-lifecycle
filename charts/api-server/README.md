@@ -29,7 +29,12 @@ pip install -r apis/requirements.txt
 
 [triton inference server 실행](../tritoninferenceserver/README.md) 을 참고해서 로컬에서 mlflow 실행 및 onnx-model 모델을 서빙해주시기 바랍니다.
 
-apis/config.py 파일에는 ONNX_MODEL_TRITON_URL의 기본 주소가 localhost:8000 으로 설정되어 있습니다. 그리고 apis/mlmodels/router.py 파일에서 이 주소를 사용하여 triton inference server에 접근합니다.
+apis/config.py 파일에는 ONNX_MODEL_TRITON_URL의 기본 주소가 localhost:8000 으로 설정되어 있습니다. 그리고 apis/mlmodels/router.py 파일에서 이 주소를 사용하여 triton inference server에 접근합니다. onnx model이 8000 포트로 실행되고 있지 않을 경우 변경해야 합니다.
+
+```bash
+class Config(BaseSettings):
+    ONNX_MODEL_TRITON_URL: str = os.getenv("ONNX_MODEL_TRITON_URL", "localhost:<TRITON_PORT>")
+```
 
 FastAPI를 실행합니다.
 ```bash
