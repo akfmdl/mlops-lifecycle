@@ -89,9 +89,11 @@ airflow dags list | grep local_dag
 
 mlfow 실행
 
-이 프로젝트의 DAG 실행 시 mlflow 서버를 실행해야 합니다.
+이 프로젝트의 DAG 실행 시 mlflow 서버를 실행해야 합니다. 기본 포트는 5000입니다. 포트를 변경하고 싶으시면 아래 명령어에서 포트를 변경해주세요.
+포트가 변경될 경우, airflow standalone 명령어를 실행하는 터미널에 export MLFLOW_TRACKING_URI="http://localhost:<변경될 포트>" 명령어를 추가하신 후 실행해주세요.
 
 ```bash
+export MLFLOW_TRACKING_URI="http://localhost:5000"
 mlflow server --host 0.0.0.0 --port 5000
 ```
 
