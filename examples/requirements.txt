@@ -1,0 +1,2 @@
+tritonclient[http]==2.56.0
+opencv-python==4.11.0.86
