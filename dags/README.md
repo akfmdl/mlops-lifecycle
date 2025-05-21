@@ -6,20 +6,20 @@
 
 ## Local에서 DAG 실행해보기
 
-가상환경 만들기
+### 가상환경 만들기
 
 ```bash
 python3.12 -m venv venv
 source venv/bin/activate
 ```
 
-DAG를 실행하기 위한 패키지 설치
+### DAG를 실행하기 위한 패키지 설치
 
 ```bash
 pip install -r dags/requirements.txt
 ```
 
-AIRFLOW_HOME 설정하기
+### AIRFLOW_HOME 설정하기
 
 AIRFLOW_HOME을 설정하지 않으면 기본적으로 ~/airflow 디렉토리에 설치됩니다.
 
@@ -29,7 +29,7 @@ export AIRFLOW_HOME="$(pwd)/airflow"
 mkdir -p $AIRFLOW_HOME
 ```
 
-DAG 폴더 설정하기
+### DAG 폴더 설정하기
 
 Airflow에서 이 프로젝트의 DAG들을 인식하기 위해서는 심볼릭 링크(symbolic link)를 생성해야 합니다.
 ```bash
@@ -46,7 +46,7 @@ ls -la $AIRFLOW_HOME/dags
 ../test/dags -> ../mlops-lifecycle/dags
 ```
 
-Airflow 시작:
+### Airflow 시작
 * AIRFLOW__WEBSERVER__WEB_SERVER_PORT를 지정해주지 않으면 포트는 기본 값인 8080으로 실행됩니다.
 ```bash
 export AIRFLOW__WEBSERVER__WEB_SERVER_PORT="your_port"
@@ -73,7 +73,7 @@ airflow CLI를 사용하는 터미널에도 AIRFLOW_HOME 설정이 필요합니�
 export AIRFLOW_HOME="$(pwd)/test"
 ```
 
-DAG 활성화(Airflow Web UI에서도 가능):
+### DAG 활성화(Airflow Web UI에서도 가능)
 ```bash
 airflow dags unpause local_dag
 ```
@@ -87,7 +87,7 @@ airflow dags list | grep local_dag
    - Airflow Web UI에 접속(Local 환경에서는 http://localhost:$AIRFLOW__WEBSERVER__WEB_SERVER_PORT)
    - DAG 목록에서 `local_dag` 확인
 
-mlfow 실행
+### mlfow 실행
 
 이 프로젝트의 DAG 실행 시 mlflow 서버를 실행해야 합니다. 기본 포트는 5000입니다. 포트를 변경하고 싶으시면 아래 명령어에서 포트를 변경해주세요.
 포트가 변경될 경우, airflow standalone 명령어를 실행하는 터미널에 export MLFLOW_TRACKING_URI="http://localhost:<변경될 포트>" 명령어를 추가하신 후 실행해주세요.
@@ -97,7 +97,7 @@ export MLFLOW_TRACKING_URI="http://localhost:5000"
 mlflow server --host 0.0.0.0 --port 5000
 ```
 
-DAG 실행(Pause 상태인 경우, Queue에 넣어놓고 실행 안함)
+### DAG 실행(Pause 상태인 경우, Queue에 넣어놓고 실행 안함)
 
 - [방법 1] CLI를 이용한 방법
    ```bash
@@ -115,13 +115,20 @@ DAG 실행(Pause 상태인 경우, Queue에 넣어놓고 실행 안함)
    python dags/local_dag.py
    ```
 
+### 확인
 Airflow Web UI에서 태스크 실행과정을 확인해보시기 바랍니다.
-
 MLFlow 서버에서 등록된 모델을 확인하시기 바랍니다.
+
+### 정리하기
+airflow와 mlflow 관련 폴더를 삭제하고 싶으시면 아래 명령어를 실행해주세요.
+```bash
+rm -rf $AIRFLOW_HOME
+rm -rf mlruns mlartifacts
+```
 
 ## Kubernetes에서 DAG 실행해보기
 
-Kubernetes에 배포된 Airflow 서비스의 NodePort를 확인합니다.
+### Kubernetes에 배포된 Airflow 서비스의 NodePort를 확인
 
 ```bash
 NODE_PORT=$(kubectl get svc -n mlops-platform airflow-webserver -o jsonpath='{.spec.ports[0].nodePort}')
@@ -129,23 +136,35 @@ echo $NODE_PORT
 echo "http://localhost:$NODE_PORT"
 ```
 
-Airflow Web UI에 접속하여 DAGs 목록에서 k8s_dag 확인 및 Trigger 버튼 클릭, 태스크 실행 확인
+이 url을 통해 Airflow Web UI에 접속할 수 있습니다.
 - id: admin, password: admin
 
+### k8s_dag DAG 실행
+Airflow Web UI에 접속하여 DAGs 목록에서 k8s_dag 확인합니다. 그리고 Trigger 버튼을 이용하여 DAG를 실행합니다.
 k9s를 이용하여 Kubernetes cluster에서 실행되는 k8s_dag의 각 Task pod들이 어떻게 동작하는지 확인해보시기 바랍니다.
 
-airflow helm chart는 아래와 같은 설정을 통해 mlops-platform helm chart를 통해 배포된 mlflow와 연동되어있습니다. (같은 namespace에 있어야 함)
+### Kubernetes에 배포된 mlflow 서비스와 연동
 
+mlops-platform helm chart를 통해 이미 mlflow가 배포되어있습니다.
+[./charts/mlops-platform/values.yaml](./charts/mlops-platform/values.yaml) 파일에서 아래 설정을 통해 mlflow와 연동되어있습니다.
+```yaml
+mlflow:
+  ...
+```
+
+그리고 이 mlflow를 바라보도록 [./charts/airflow/values.yaml](./charts/airflow/values.yaml) 파일에 아래와 같이 설정되어 있습니다. 이를 통해 airflow dag에서는 이 환경변수가 주입되어 같은 kubernetes cluster에 있는 mlflow 서버에 접근할 수 있습니다.
 ```yaml
 env:
   - name: MLFLOW_TRACKING_URI
     value: "http://mlflow-tracking:80"
 ```
 
-이 mlflow 서버에서 등록된 모델을 확인해보시기 바랍니다.
+mlflow 서비스의 NodePort를 확인합니다.
 
 ```bash
 NODE_PORT=$(kubectl get svc -n mlops-platform mlflow-tracking -o jsonpath='{.spec.ports[0].nodePort}')
 echo $NODE_PORT
 echo "http://localhost:$NODE_PORT"
 ```
+
+이 mlflow 서버에서 등록된 모델을 확인해보시기 바랍니다.
