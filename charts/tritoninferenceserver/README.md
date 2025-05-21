@@ -72,10 +72,18 @@ triton 서버를 실행합니다.
 * --model-control-mode=poll: 모델 추론 서버가 모델 레포지토리를 주기적으로 폴링하도록 설정
 * --repository-poll-secs=3: 3초마다 모델 레포지토리를 폴링
 * --http-port=$TRITON_PORT: HTTP 포트 지정
+* --allow-grpc=false: GRPC 서비스 비활성화
+* --allow-metrics=false: Metrics 서비스 비활성화
 
 ```bash
-TRITON_PORT=$(comm -23 <(seq 30000 32767 | sort) <(ss -Htan | awk '{print $4}' | cut -d':' -f2 | sort -u; kubectl get svc -A -o jsonpath='{.items[*].spec.ports[*].nodePort}' 2>/dev/null | tr ' ' '\n' | sort -u) | head -n 1)
-tritonserver --model-repository=/models --model-control-mode=poll --repository-poll-secs=3 --http-port=$TRITON_PORT
+TRITON_PORT=30000
+while [ $TRITON_PORT -le 32767 ]; do
+    if ! timeout 1 bash -c ">/dev/tcp/localhost/$TRITON_PORT" 2>/dev/null && ! kubectl get svc -A -o jsonpath='{.items[*].spec.ports[*].nodePort}' 2>/dev/null | grep -q "$TRITON_PORT"; then
+        break
+    fi
+    TRITON_PORT=$((TRITON_PORT + 1))
+done
+tritonserver --model-repository=/models --model-control-mode=poll --repository-poll-secs=3 --http-port=$TRITON_PORT --allow-grpc=false --allow-metrics=false
 ```
 
 위 명령어를 통해 triton server를 실행하면 [model.py](../../model_repository/onnx-model/1/model.py) 파일에서 initialize 함수에 명시한 것처럼 mlflow로부터 모델을 다운받고 컨테이너 내에 배포합니다.
