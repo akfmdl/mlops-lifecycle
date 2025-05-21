@@ -440,6 +440,8 @@ extraConfigMaps: {}
 # a string is expected (templated).
 # TODO: difference from `env`? This is a templated string. Probably should template `env` and remove this.
 extraEnv: |
+  - name: GIT_BRANCH
+    value: "main"
   - name: GIT_USERNAME
     valueFrom:
       secretKeyRef:

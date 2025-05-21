@@ -7,7 +7,10 @@ from kubernetes.client import models as k8s
 
 DAGS_DIR = os.environ.get("DAGS_DIR", "/app/dags")
 WORK_DIR = os.environ.get("WORK_DIR", "/work_dir")
-MLFLOW_TRACKING_URI = os.environ.get("MLFLOW_TRACKING_URI", "http://mlflow-tracking.mlops-platform.svc.cluster.local:80")
+MLFLOW_TRACKING_URI = os.environ.get(
+    "MLFLOW_TRACKING_URI", "http://mlflow-tracking.mlops-platform.svc.cluster.local:80"
+)
+GIT_BRANCH = os.environ.get("GIT_BRANCH", "main")
 GIT_USERNAME = os.environ.get("GIT_USERNAME", "")
 GIT_EMAIL = os.environ.get("GIT_EMAIL", "")
 GIT_TOKEN = os.environ.get("GIT_TOKEN", "")
@@ -37,7 +40,7 @@ with DAG(
         "run_name": "yolo11n-onnx",
         "force_register": False,
         # 모델 버전 등 정보를 업데이트할 git 정보
-        "git_branch": "main",
+        "git_branch": GIT_BRANCH,
         # Kubernetes 파라미터
         "work_dir_pvc_name": "data-volume",
         "dags_dir_pvc_name": "airflow-dags",
@@ -50,17 +53,28 @@ with DAG(
     # 공통 볼륨 마운트 설정
     work_dir_volume = k8s.V1Volume(
         name="work-dir",
-        persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name="{{ params.work_dir_pvc_name }}"),
+        persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(
+            claim_name="{{ params.work_dir_pvc_name }}"
+        ),
     )
     dags_dir_volume = k8s.V1Volume(
         name="dags-dir",
-        persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name="{{ params.dags_dir_pvc_name }}"),
+        persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(
+            claim_name="{{ params.dags_dir_pvc_name }}"
+        ),
     )
     # shared memory 볼륨 정의 for Training
-    shm_volume = k8s.V1Volume(name="dshm", empty_dir=k8s.V1EmptyDirVolumeSource(medium="Memory", size_limit="2Gi"))
+    shm_volume = k8s.V1Volume(
+        name="dshm",
+        empty_dir=k8s.V1EmptyDirVolumeSource(medium="Memory", size_limit="2Gi"),
+    )
 
-    work_dir_volume_mount = k8s.V1VolumeMount(name=work_dir_volume.name, mount_path=WORK_DIR)
-    dags_dir_volume_mount = k8s.V1VolumeMount(name=dags_dir_volume.name, mount_path=DAGS_DIR)
+    work_dir_volume_mount = k8s.V1VolumeMount(
+        name=work_dir_volume.name, mount_path=WORK_DIR
+    )
+    dags_dir_volume_mount = k8s.V1VolumeMount(
+        name=dags_dir_volume.name, mount_path=DAGS_DIR
+    )
     shm_volume_mount = k8s.V1VolumeMount(mount_path="/dev/shm", name="dshm")
 
     # Common environment variables for all pods
@@ -191,8 +205,14 @@ with DAG(
         volume_mounts=[work_dir_volume_mount, dags_dir_volume_mount, shm_volume_mount],
         env_vars=env_vars,
         container_resources=k8s.V1ResourceRequirements(
-            requests={"cpu": "1", "memory": "4Gi"},  # GPU가 있을 경우 nvidia.com/gpu 항목 추가
-            limits={"cpu": "2", "memory": "8Gi"},  # GPU가 있을 경우 nvidia.com/gpu 항목 추가
+            requests={
+                "cpu": "1",
+                "memory": "4Gi",
+            },  # GPU가 있을 경우 nvidia.com/gpu 항목 추가
+            limits={
+                "cpu": "2",
+                "memory": "8Gi",
+            },  # GPU가 있을 경우 nvidia.com/gpu 항목 추가
         ),
         is_delete_operator_pod=True,
         in_cluster=True,
