@@ -7,7 +7,7 @@ from kubernetes.client import models as k8s
 
 DAGS_DIR = os.environ.get("DAGS_DIR", "/app/dags")
 WORK_DIR = os.environ.get("WORK_DIR", "/work_dir")
-MLFLOW_TRACKING_URI = os.environ.get("MLFLOW_TRACKING_URI", "http://mlflow-tracking:80")
+MLFLOW_TRACKING_URI = os.environ.get("MLFLOW_TRACKING_URI", "http://mlflow-tracking.mlops-platform.svc.cluster.local:80")
 GIT_USERNAME = os.environ.get("GIT_USERNAME", "")
 GIT_EMAIL = os.environ.get("GIT_EMAIL", "")
 GIT_TOKEN = os.environ.get("GIT_TOKEN", "")

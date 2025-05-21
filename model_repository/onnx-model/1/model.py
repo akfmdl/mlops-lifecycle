@@ -14,7 +14,7 @@ MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000")
 class TritonPythonModel:
     def initialize(self, args):
         self.logger = pb_utils.Logger
-        self.logger.log_info("Initializing model...")
+        self.logger.log_info(f"Initializing model {MLFLOW_MODEL_NAME} version {MLFLOW_MODEL_VERSION}...")
 
         health_url = urljoin(MLFLOW_TRACKING_URI, "health")
         response = requests.get(health_url, timeout=5)

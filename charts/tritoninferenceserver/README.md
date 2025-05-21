@@ -139,22 +139,32 @@ mv model_repository/python-model model_repository/onnx-model
 
 mlflow 모델명을 바꾸고 추론해보기
 
-동일한 모델 파일을 새로운 모델로 등록
+동일한 모델 파일을 새로운 모델로 등록하고 mlflow에서 모델이 잘 등록되었는 지 확인합니다.
 
 ```bash
 python examples/register_model_to_mlflow.py --model-path yolo11n.onnx --model-name mymodel-onnx
 ```
 
-model_repository/onnx-model/1/model.py 파일에서 모델 이름을 바꾸기
+model_repository/onnx-model/1/model.py 파일에서 모델 이름을 직접 바꾸거나
 
 ```python
 MLFLOW_MODEL_NAME = os.getenv("MLFLOW_MODEL_NAME", "mymodel-onnx")
 MLFLOW_MODEL_VERSION = os.getenv("MLFLOW_MODEL_VERSION", "1")
 ```
 
+triton 컨테이너 내에서 MLFLOW_MODEL_NAME 환경 변수를 통해 모델 이름을 바꿀 수 있습니다.
+
+```bash
+export MLFLOW_MODEL_NAME="mymodel-onnx"
+```
+
 역시 triton 서버가 자동으로 모델을 unload하고 load합니다.
 
-변경된 모델 이름으로 추론해보기
+```bash
+I0521 05:14:15.013902 1106 model.py:17] "Initializing model mymodel-onnx version 1..."
+```
+
+변경된 모델 이름으로 추론해봅니다. --model-name 인자는 mlflow의 모델 이름이 아니라 triton 서버에 등록된 모델 이름(디렉토리명)이니 헷갈리지 않도록 주의합니다.
 
 ```bash
 python examples/triton_yolo_inference.py --triton-url localhost:<할당된 포트> --model-name onnx-model --image-path examples/dog.jpg

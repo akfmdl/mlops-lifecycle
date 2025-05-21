@@ -336,7 +336,7 @@ allowPodLaunching: true
 # Environment variables for all airflow containers
 env:
   - name: MLFLOW_TRACKING_URI
-    value: "http://mlflow-tracking:80"
+    value: "http://mlflow-tracking.mlops-platform.svc.cluster.local:80"
   - name: K8S_DAG_IMAGE
     value: "goranidocker/mlops:v4"
 

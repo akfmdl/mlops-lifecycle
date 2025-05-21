@@ -152,11 +152,11 @@ mlflow:
   ...
 ```
 
-그리고 이 mlflow를 바라보도록 [./charts/airflow/values.yaml](./charts/airflow/values.yaml) 파일에 아래와 같이 설정되어 있습니다. 이를 통해 airflow dag에서는 이 환경변수가 주입되어 같은 kubernetes cluster에 있는 mlflow 서버에 접근할 수 있습니다.
+그리고 이 mlflow를 바라보도록 [./charts/airflow/values.yaml](./charts/airflow/values.yaml) 파일에 아래와 같이 설정되어 있습니다. 이를 통해 airflow dag에서는 이 환경변수가 주입되어 같은 kubernetes cluster에 있는 mlflow 서버에 fqdn(fully qualified domain name)을 통해 접근할 수 있습니다.
 ```yaml
 env:
   - name: MLFLOW_TRACKING_URI
-    value: "http://mlflow-tracking:80"
+    value: "http://mlflow-tracking.mlops-platform.svc.cluster.local:80"
 ```
 
 mlflow 서비스의 NodePort를 확인합니다.
