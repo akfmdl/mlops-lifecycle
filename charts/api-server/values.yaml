@@ -94,8 +94,6 @@ deployment:
   #   memory: 128Mi
   # Environment to use in pod
   env:
-    - name: MODEL_NAMESPACE
-      value: "mlops-platform"
     - name: SERVICE_PORT
       value: "31615"
     - name: OTLP_GRPC_ENDPOINT
