@@ -93,10 +93,10 @@ api server의 NodePort를 확인합니다.
 ```bash
 NODE_PORT=$(kubectl get svc -n mlops-platform api-server -o jsonpath='{.spec.ports[0].nodePort}')
 echo $NODE_PORT
-echo "http://localhost:$NODE_PORT"
+echo "http://$SERVICE_HOST:$NODE_PORT"
 ```
 
-http://localhost:$NODE_PORT/docs 에 접속합니다.
+http://$SERVICE_HOST:$NODE_PORT/docs 에 접속합니다.
 
 동일하게 /onnx-model/predict 라우터를 테스트합니다. Kubernetes에서 api-server와 onnx-model pod의 로그를 확인해보며 진행 동작을 확인합니다.
 
