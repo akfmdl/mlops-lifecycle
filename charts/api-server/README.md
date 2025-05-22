@@ -70,17 +70,17 @@ FastAPI를 실행합니다.
 
 ```bash
 cd apis
-uvicorn main:app --host $SERVICE_HOST --port $SERVICE_PORT
+uvicorn main:app --host 0.0.0.0 --port $SERVICE_PORT
 ```
 
-http://$SERVICE_HOST:$SERVICE_PORT/docs 에 접속하시면 Swagger UI를 확인할 수 있습니다.
+http://localhost:$SERVICE_PORT/docs 에 접속하시면 Swagger UI를 확인할 수 있습니다.
 
 /onnx-model/predict 라우터는 image_url 파라미터를 받아서 이미지를 다운로드 받고, triton inference server에 추론 요청을 보냅니다. 추론 결과는 이미지 파일로 저장된 후, FastAPI 서버의 static url로 접근할 수 있도록 반환합니다.
 
 예시: result_image_url를 클릭해서 결과 이미지를 확인할 수 있습니다.
 ```bash
 {
-  "result_image_url": "http://$SERVICE_HOST:$SERVICE_PORT/static/6b7b8d8e-cbd7-4a87-bcb4-0c946d17baea.jpg"
+  "result_image_url": "http://localhost:$SERVICE_PORT/static/6b7b8d8e-cbd7-4a87-bcb4-0c946d17baea.jpg"
 }
 ```
 
@@ -93,10 +93,10 @@ api server의 NodePort를 확인합니다.
 ```bash
 NODE_PORT=$(kubectl get svc -n mlops-platform api-server -o jsonpath='{.spec.ports[0].nodePort}')
 echo $NODE_PORT
-echo "http://$SERVICE_HOST:$NODE_PORT"
+echo "http://localhost:$NODE_PORT"
 ```
 
-http://$SERVICE_HOST:$NODE_PORT/docs 에 접속합니다.
+http://localhost:$NODE_PORT/docs 에 접속합니다.
 
 동일하게 /onnx-model/predict 라우터를 테스트합니다. Kubernetes에서 api-server와 onnx-model pod의 로그를 확인해보며 진행 동작을 확인합니다.
 
