@@ -16,16 +16,70 @@ cd mlops-lifecycle
 helm upgrade --install tritoninferenceserver charts/tritoninferenceserver --namespace mlops-platform --create-namespace
 ```
 
+## 이 레포의 model_repository 설명
+
+* onnx-model 모델: MLFlow로부터 모델을 다운받아 로드하고 추론합니다.
+  * config.pbtxt 파일 설명
+    ```
+    backend: "python"  # Python backend를 사용하여 Python 코드로 유연하게 모델 서빙
+
+    max_batch_size: 8  # 한 번에 처리할 수 있는 최대 배치 크기 (동시 추론 요청 최적화)
+
+    input [
+    {
+        name: "images"             # 입력 텐서 이름 (추론 요청 시 사용할 키)
+        data_type: TYPE_FP32       # 입력 데이터 타입 (32-bit float)
+        dims: [3, 640, 640]        # 입력 텐서의 차원: (채널, 높이, 너비)
+    }
+    ]
+
+    output [
+    {
+        name: "output0"            # 출력 텐서 이름
+        data_type: TYPE_FP32       # 출력 데이터 타입 (32-bit float)
+        dims: [-1, 6]              # 출력 차원: (N, 6), N은 가변 길이 (디텍션 결과 수)
+                                # 각 row는 [x1, y1, x2, y2, confidence, class]
+    }
+    ]
+    ```
+
 ## 로컬에서 모델 추론해보기
 
 ### local에 mlflow 서버를 띄우기
 
-mlops-lifecycle/model_repository/onnx-model 모델을 triton inference server로 배포하려면 먼저, mlflow 서버를 실행해야 합니다. 기본 포트는 5000입니다. 포트를 변경하고 싶으시면 아래 명령어에서 포트를 변경해주세요.
+mlops-lifecycle/model_repository/onnx-model 모델은 MLFlow로부터 모델을 다운받아 저장합니다. [models.py](../../model_repository/onnx-model/1/model.py) 파일에서 initialize 함수에 명시한 것처럼 mlflow로부터 모델을 다운받고 컨테이너 내에 배포합니다. 그리고 MLFLOW_TRACKING_URI 환경변수를 통해 mlflow 서버에 접근합니다. 기본 값은 http://localhost:5000 입니다.
+
+```python
+MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000")
+```
+
+따라서 triton inference server로 배포하려면 먼저, mlflow 서버를 실행해야 합니다.
+* MLFLOW_TRACKING_PORT: 30000-32767 범위 내에서 사용 가능한 포트 중 하나를 선택합니다. 이 포트는 k8s nodeport 포트 포함 모든 사용 중인 포트를 제외한 포트입니다.
+
+```bash
+MLFLOW_TRACKING_PORT=30000
+while [ $MLFLOW_TRACKING_PORT -le 32767 ]; do
+    if ! timeout 1 bash -c ">/dev/tcp/localhost/$MLFLOW_TRACKING_PORT" 2>/dev/null && ! kubectl get svc -A -o jsonpath='{.items[*].spec.ports[*].nodePort}' 2>/dev/null | grep -q "$MLFLOW_TRACKING_PORT"; then
+        break
+    fi
+    MLFLOW_TRACKING_PORT=$((MLFLOW_TRACKING_PORT + 1))
+done
+```
+
+어떤 포트로 할당될지 확인합니다.
+```bash
+echo $MLFLOW_TRACKING_PORT
+```
+
+mlflow 서버 실행
+```bash
+mlflow server --host 0.0.0.0 --port $MLFLOW_TRACKING_PORT
+```
+
 포트가 변경될 경우, 모든 명령어를 실행하는 터미널에 export MLFLOW_TRACKING_URI="http://localhost:<변경될 포트>" 명령어를 추가하신 후 실행해주세요.
 
 ```bash
-export MLFLOW_TRACKING_URI="http://localhost:5000"
-mlflow server --host 0.0.0.0 --port 5000
+export MLFLOW_TRACKING_URI="http://localhost:$MLFLOW_TRACKING_PORT"
 ```
 
 ### mlflow 서버에 모델 등록
@@ -66,14 +120,7 @@ echo $MLFLOW_TRACKING_URI
 ```
 
 triton 서버를 실행합니다.
-
 * TRITON_PORT: 30000-32767 범위 내에서 사용 가능한 포트 중 하나를 선택합니다. 이 포트는 k8s nodeport 포트 포함 모든 사용 중인 포트를 제외한 포트입니다.
-* --model-repository=/models: 모델 레포지토리 경로
-* --model-control-mode=poll: 모델 추론 서버가 모델 레포지토리를 주기적으로 폴링하도록 설정
-* --repository-poll-secs=3: 3초마다 모델 레포지토리를 폴링
-* --http-port=$TRITON_PORT: HTTP 포트 지정
-* --allow-grpc=false: GRPC 서비스 비활성화
-* --allow-metrics=false: Metrics 서비스 비활성화
 
 ```bash
 TRITON_PORT=30000
@@ -83,6 +130,21 @@ while [ $TRITON_PORT -le 32767 ]; do
     fi
     TRITON_PORT=$((TRITON_PORT + 1))
 done
+```
+
+어떤 포트로 할당될지 확인합니다.
+```bash
+echo $TRITON_PORT
+```
+
+triton server 실행
+* --model-repository=/models: 모델 레포지토리 경로
+* --model-control-mode=poll: 모델 추론 서버가 모델 레포지토리를 주기적으로 폴링하도록 설정
+* --repository-poll-secs=3: 3초마다 모델 레포지토리를 폴링
+* --http-port=$TRITON_PORT: HTTP 포트 지정
+* --allow-grpc=false: GRPC 서비스 비활성화
+* --allow-metrics=false: Metrics 서비스 비활성화
+```bash
 tritonserver --model-repository=/models --model-control-mode=poll --repository-poll-secs=3 --http-port=$TRITON_PORT --allow-grpc=false --allow-metrics=false
 ```
 
@@ -131,9 +193,16 @@ dog_detection.jpg 파일이 생성되었는지 확인합니다. 추론 후 Box �
 mv model_repository/onnx-model model_repository/python-model
 ```
 
+기존 onnx-model이 unload되고 python-model이 load됩니다.
+
+```bash
+I0522 01:36:44.378783 148 model_lifecycle.cc:636] "successfully unloaded 'onnx-model' version 1"
+I0522 01:39:05.862312 148 model_lifecycle.cc:849] "successfully loaded 'python-model'"
+```
+
 triton 서버는 config.pbtxt 파일에 명시적으로 name을 지정해주지 않으면 폴더명을 모델명으로 인식합니다. 또한, 컨테이너 내에서 모델 레포지토리를 폴링하고 있기 때문에 기존 모델을 unload하고 자동으로 새로운 모델을 load합니다.
 
-변경된 모델 이름으로 추론해보기
+변경된 모델 이름으로 추론해보기: --model-name 인자를 onnx-model 대신 python-model로 지정합니다.
 
 ```bash
 python examples/triton_yolo_inference.py --triton-url localhost:<할당된 포트> --model-name python-model --image-path examples/dog.jpg
@@ -178,18 +247,32 @@ I0521 05:14:15.013902 1106 model.py:17] "Initializing model mymodel-onnx version
 python examples/triton_yolo_inference.py --triton-url localhost:<할당된 포트> --model-name onnx-model --image-path examples/dog.jpg
 ```
 
+### 정리하기
+triton 컨테이너 내에서 `ctrl + C` 키를 눌러 triton 서버를 종료한 뒤, `ctrl + D` 키를 눌러 컨테이너를 종료합니다.
+mlflow 프로세스를 종료한 뒤 관련 폴더를 삭제해주세요.
+```bash
+rm -rf mlruns mlartifacts
+```
+
 ## Kubernetes에서 모델 추론해보기
 
 ### triton 서버 배포
 
+triton helm chart를 배포하기 전 변수들을 지정합니다.
+* TRITON_SERVER_NAME: triton 서버의 이름
+* NAMESPACE: triton 서버의 namespace
 ```bash
 TRITON_SERVER_NAME="your_triton_server_name"
 NAMESPACE="your_namespace"
+```
+
+triton 서버를 helm chart로 직접 배포합니다.
+* charts/tritoninferenceserver: [charts/tritoninferenceserver/values.yaml](../../charts/tritoninferenceserver/values.yaml) 파일을 통해 이 레포의 [model_repository/onnx-model](../../model_repository/onnx-model) 폴더에 있는 모델을 배포합니다. gitSync를 사용해서 model_repository 폴더를 triton 서버에 동기화 합니다.
+```bash
 helm upgrade --install $TRITON_SERVER_NAME charts/tritoninferenceserver --namespace $NAMESPACE --create-namespace
 ```
 
-triton 서버는 NodePort 타입의 서비스로 생성되었습니다.
-
+triton 서버는 NodePort 타입의 서비스로 생성되었습니다. 어떤 포트로 할당되었는지 확인합니다.
 ```bash
 NODE_PORT=$(kubectl get svc -l release=$TRITON_SERVER_NAME -n $NAMESPACE -o jsonpath='{.items[0].spec.ports[0].nodePort}')
 echo $NODE_PORT
