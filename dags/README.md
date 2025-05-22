@@ -47,13 +47,32 @@ ls -la $AIRFLOW_HOME/dags
 ```
 
 ### Airflow 시작
-* AIRFLOW__WEBSERVER__WEB_SERVER_PORT를 지정해주지 않으면 포트는 기본 값인 8080으로 실행됩니다.
+* AIRFLOW__WEBSERVER__WEB_SERVER_PORT: 30000-32767 범위 내에서 사용 가능한 포트 중 하나를 선택합니다. 이 포트는 k8s nodeport 포트 포함 모든 사용 중인 포트를 제외한 포트입니다.
 ```bash
-export AIRFLOW__WEBSERVER__WEB_SERVER_PORT="your_port"
+AIRFLOW__WEBSERVER__WEB_SERVER_PORT=30000
+while [ $AIRFLOW__WEBSERVER__WEB_SERVER_PORT -le 32767 ]; do
+    if ! timeout 1 bash -c ">/dev/tcp/localhost/$AIRFLOW__WEBSERVER__WEB_SERVER_PORT" 2>/dev/null && ! kubectl get svc -A -o jsonpath='{.items[*].spec.ports[*].nodePort}' 2>/dev/null | grep -q "$AIRFLOW__WEBSERVER__WEB_SERVER_PORT"; then
+        break
+    fi
+    AIRFLOW__WEBSERVER__WEB_SERVER_PORT=$((AIRFLOW__WEBSERVER__WEB_SERVER_PORT + 1))
+done
+export AIRFLOW__WEBSERVER__WEB_SERVER_PORT=$AIRFLOW__WEBSERVER__WEB_SERVER_PORT
+```
+
+어떤 포트로 할당될지 확인합니다.
+```bash
+echo $AIRFLOW__WEBSERVER__WEB_SERVER_PORT
+```
+
+airflow standalone 실행
+
+```bash
 airflow standalone
 ```
+
 위 명령어를 실행하면 다음과 같은 메시지가 출력됩니다.
 초기 admin 비밀번호는 복사해놓으시고 web server에 접속시 사용합니다.
+
 ```bash
 standalone | Airflow is ready
 standalone | Login with username: admin  password: 초기 admin 비밀번호 <—— 복사해놓기!!
@@ -70,7 +89,7 @@ standalone | Airflow Standalone is for development purposes only. Do not use thi
 
 airflow CLI를 사용하는 터미널에도 AIRFLOW_HOME 설정이 필요합니다.
 ```bash
-export AIRFLOW_HOME="$(pwd)/test"
+export AIRFLOW_HOME="$(pwd)/airflow"
 ```
 
 ### DAG 활성화(Airflow Web UI에서도 가능)
@@ -89,12 +108,36 @@ airflow dags list | grep local_dag
 
 ### mlfow 실행
 
-이 프로젝트의 DAG 실행 시 mlflow 서버를 실행해야 합니다. 기본 포트는 5000입니다. 포트를 변경하고 싶으시면 아래 명령어에서 포트를 변경해주세요.
-포트가 변경될 경우, airflow standalone 명령어를 실행하는 터미널에 export MLFLOW_TRACKING_URI="http://localhost:<변경될 포트>" 명령어를 추가하신 후 실행해주세요.
+이 프로젝트의 DAG 실행 시 mlflow 서버를 실행해야 합니다.
 
 ```bash
-export MLFLOW_TRACKING_URI="http://localhost:5000"
-mlflow server --host 0.0.0.0 --port 5000
+MLFLOW_TRACKING_PORT=30000
+while [ $MLFLOW_TRACKING_PORT -le 32767 ]; do
+    if ! timeout 1 bash -c ">/dev/tcp/localhost/$MLFLOW_TRACKING_PORT" 2>/dev/null && ! kubectl get svc -A -o jsonpath='{.items[*].spec.ports[*].nodePort}' 2>/dev/null | grep -q "$MLFLOW_TRACKING_PORT"; then
+        break
+    fi
+    MLFLOW_TRACKING_PORT=$((MLFLOW_TRACKING_PORT + 1))
+done
+```
+
+어떤 포트로 할당될지 확인합니다.
+```bash
+echo $MLFLOW_TRACKING_PORT
+```
+
+mlflow 서버 실행
+```bash
+mlflow server --host 0.0.0.0 --port $MLFLOW_TRACKING_PORT
+```
+
+[train_yolo.py](./modules/train_yolo.py) 파일에는 아래와 같이 MLFLOW_TRACKING_URI 환경변수를 통해 mlflow 서버에 접근합니다. 기본 값은 http://localhost:5000 입니다.
+```python
+MLFLOW_TRACKING_URI = os.environ.get("MLFLOW_TRACKING_URI", "http://localhost:5000")
+```
+
+mlflow 포트가 변경될 경우, airflow standalone 명령어를 실행하는 터미널에 아래 명령어를 추가하신 후 다시 실행해주세요.
+```bash
+export MLFLOW_TRACKING_URI="http://localhost:$MLFLOW_TRACKING_PORT"
 ```
 
 ### DAG 실행(Pause 상태인 경우, Queue에 넣어놓고 실행 안함)
@@ -145,17 +188,18 @@ k9s를 이용하여 Kubernetes cluster에서 실행되는 k8s_dag의 각 Task po
 
 ### Kubernetes에 배포된 mlflow 서비스와 연동
 
-mlops-platform helm chart를 통해 이미 mlflow가 배포되어있습니다.
-[./charts/mlops-platform/values.yaml](./charts/mlops-platform/values.yaml) 파일에서 아래 설정을 통해 mlflow와 연동되어있습니다.
+mlops-platform helm chart에 [./charts/mlops-platform/values.yaml](./charts/mlops-platform/values.yaml) 파일에서 아래 설정을 통해 이미 mlflow가 추가되어있습니다.
 ```yaml
 mlflow:
   ...
 ```
 
-그리고 이 mlflow를 바라보도록 [./charts/airflow/values.yaml](./charts/airflow/values.yaml) 파일에 아래와 같이 설정되어 있습니다. 이를 통해 airflow dag에서는 이 환경변수가 주입되어 같은 kubernetes cluster에 있는 mlflow 서버에 fqdn(fully qualified domain name)을 통해 접근할 수 있습니다.
+그리고 Airflow helm chart에는 이 mlflow를 바라보도록 [./charts/airflow/values.yaml](./charts/airflow/values.yaml) 파일에 아래와 같이 설정되어 있습니다. 이를 통해 airflow dag에서는 이 환경변수가 주입됩니다. 따라서 별도로 MLFLOW_TRACKING_URI 환경변수를 설정하지 않아도 같은 kubernetes cluster에 있는 mlflow 서버에 fqdn(fully qualified domain name)을 통해 접근할 수 있습니다.
+* FQDN (Fully Qualified Domain Name): Kubernetes 클러스터 내부에서 서비스에 접근할 때 사용됨. airflow와 mlflow는 같은 클러스터에 있기 때문에 fqdn을 통해 접근할 수 있습니다.
+   fqdn은 http://<mlflow-service-name>.<namespace>.svc.cluster.local 형식으로 표현됩니다.
 ```yaml
 env:
-  - name: MLFLOW_TRACKING_URI
+  - name: MLFLOW_TRACKING_PORT
     value: "http://mlflow-tracking.mlops-platform.svc.cluster.local:80"
 ```
 
