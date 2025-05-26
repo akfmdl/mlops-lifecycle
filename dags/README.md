@@ -47,23 +47,6 @@ ls -la $AIRFLOW_HOME/dags
 ```
 
 ### Airflow 시작
-* AIRFLOW__WEBSERVER__WEB_SERVER_PORT: 30000-32767 범위 내에서 사용 가능한 포트 중 하나를 선택합니다. 이 포트는 k8s nodeport 포트 포함 모든 사용 중인 포트를 제외한 포트입니다.
-```bash
-AIRFLOW__WEBSERVER__WEB_SERVER_PORT=30000
-while [ $AIRFLOW__WEBSERVER__WEB_SERVER_PORT -le 32767 ]; do
-    if ! timeout 1 bash -c ">/dev/tcp/localhost/$AIRFLOW__WEBSERVER__WEB_SERVER_PORT" 2>/dev/null && ! kubectl get svc -A -o jsonpath='{.items[*].spec.ports[*].nodePort}' 2>/dev/null | grep -q "$AIRFLOW__WEBSERVER__WEB_SERVER_PORT"; then
-        break
-    fi
-    AIRFLOW__WEBSERVER__WEB_SERVER_PORT=$((AIRFLOW__WEBSERVER__WEB_SERVER_PORT + 1))
-done
-export AIRFLOW__WEBSERVER__WEB_SERVER_PORT=$AIRFLOW__WEBSERVER__WEB_SERVER_PORT
-```
-
-어떤 포트로 할당될지 확인합니다.
-```bash
-echo $AIRFLOW__WEBSERVER__WEB_SERVER_PORT
-```
-
 airflow standalone 실행
 
 ```bash
@@ -103,31 +86,16 @@ airflow dags list | grep local_dag
 ```
 
 혹은 Airflow Web UI에서 DAG 목록 확인:
-   - Airflow Web UI에 접속(Local 환경에서는 http://localhost:$AIRFLOW__WEBSERVER__WEB_SERVER_PORT)
+   - Airflow Web UI에 접속(Local 환경에서는 http://localhost:8080)
    - DAG 목록에서 `local_dag` 확인
 
 ### mlfow 실행
 
 이 프로젝트의 DAG 실행 시 mlflow 서버를 실행해야 합니다.
 
-```bash
-MLFLOW_TRACKING_PORT=30000
-while [ $MLFLOW_TRACKING_PORT -le 32767 ]; do
-    if ! timeout 1 bash -c ">/dev/tcp/localhost/$MLFLOW_TRACKING_PORT" 2>/dev/null && ! kubectl get svc -A -o jsonpath='{.items[*].spec.ports[*].nodePort}' 2>/dev/null | grep -q "$MLFLOW_TRACKING_PORT"; then
-        break
-    fi
-    MLFLOW_TRACKING_PORT=$((MLFLOW_TRACKING_PORT + 1))
-done
-```
-
-어떤 포트로 할당될지 확인합니다.
-```bash
-echo $MLFLOW_TRACKING_PORT
-```
-
 mlflow 서버 실행
 ```bash
-mlflow server --host 0.0.0.0 --port $MLFLOW_TRACKING_PORT
+mlflow server --host 0.0.0.0 --port 5000
 ```
 
 [train_yolo.py](./modules/train_yolo.py) 파일에는 아래와 같이 MLFLOW_TRACKING_URI 환경변수를 통해 mlflow 서버에 접근합니다. 기본 값은 http://localhost:5000 입니다.
@@ -137,7 +105,7 @@ MLFLOW_TRACKING_URI = os.environ.get("MLFLOW_TRACKING_URI", "http://localhost:50
 
 mlflow 포트가 변경될 경우, airflow standalone 명령어를 실행하는 터미널에 아래 명령어를 추가하신 후 다시 실행해주세요.
 ```bash
-export MLFLOW_TRACKING_URI="http://localhost:$MLFLOW_TRACKING_PORT"
+export MLFLOW_TRACKING_URI="http://localhost:5000"
 ```
 
 ### DAG 실행(Pause 상태인 경우, Queue에 넣어놓고 실행 안함)
@@ -148,7 +116,7 @@ export MLFLOW_TRACKING_URI="http://localhost:$MLFLOW_TRACKING_PORT"
    ```
 
 - [방법 2] Web UI를 이용한 방법
-   - Airflow Web UI에 접속(Local 환경에서는 http://localhost:$AIRFLOW__WEBSERVER__WEB_SERVER_PORT)
+   - Airflow Web UI에 접속(Local 환경에서는 http://localhost:8080)
    - DAG 목록에서 `local_dag` 클릭
    - 실행할 태스크 클릭
    - 태스크 실행 버튼 클릭

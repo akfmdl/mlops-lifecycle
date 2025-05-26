@@ -54,32 +54,16 @@ MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000")
 ```
 
 따라서 triton inference server로 배포하려면 먼저, mlflow 서버를 실행해야 합니다.
-* MLFLOW_TRACKING_PORT: 30000-32767 범위 내에서 사용 가능한 포트 중 하나를 선택합니다. 이 포트는 k8s nodeport 포트 포함 모든 사용 중인 포트를 제외한 포트입니다.
-
-```bash
-MLFLOW_TRACKING_PORT=30000
-while [ $MLFLOW_TRACKING_PORT -le 32767 ]; do
-    if ! timeout 1 bash -c ">/dev/tcp/localhost/$MLFLOW_TRACKING_PORT" 2>/dev/null && ! kubectl get svc -A -o jsonpath='{.items[*].spec.ports[*].nodePort}' 2>/dev/null | grep -q "$MLFLOW_TRACKING_PORT"; then
-        break
-    fi
-    MLFLOW_TRACKING_PORT=$((MLFLOW_TRACKING_PORT + 1))
-done
-```
-
-어떤 포트로 할당될지 확인합니다.
-```bash
-echo $MLFLOW_TRACKING_PORT
-```
 
 mlflow 서버 실행
 ```bash
-mlflow server --host 0.0.0.0 --port $MLFLOW_TRACKING_PORT
+mlflow server --host 0.0.0.0 --port 5000
 ```
 
 포트가 변경될 경우, 모든 명령어를 실행하는 터미널에 export MLFLOW_TRACKING_URI="http://localhost:<변경될 포트>" 명령어를 추가하신 후 실행해주세요.
 
 ```bash
-export MLFLOW_TRACKING_URI="http://localhost:$MLFLOW_TRACKING_PORT"
+export MLFLOW_TRACKING_URI="http://localhost:5000"
 ```
 
 ### mlflow 서버에 모델 등록
@@ -119,33 +103,15 @@ MLFLOW_TRACKING_URI 환경 변수가 제대로 주입되었는지 확인합니�
 echo $MLFLOW_TRACKING_URI
 ```
 
-triton 서버를 실행합니다.
-* TRITON_PORT: 30000-32767 범위 내에서 사용 가능한 포트 중 하나를 선택합니다. 이 포트는 k8s nodeport 포트 포함 모든 사용 중인 포트를 제외한 포트입니다.
-
-```bash
-TRITON_PORT=30000
-while [ $TRITON_PORT -le 32767 ]; do
-    if ! timeout 1 bash -c ">/dev/tcp/localhost/$TRITON_PORT" 2>/dev/null && ! kubectl get svc -A -o jsonpath='{.items[*].spec.ports[*].nodePort}' 2>/dev/null | grep -q "$TRITON_PORT"; then
-        break
-    fi
-    TRITON_PORT=$((TRITON_PORT + 1))
-done
-```
-
-어떤 포트로 할당될지 확인합니다.
-```bash
-echo $TRITON_PORT
-```
-
 triton server 실행
 * --model-repository=/models: 모델 레포지토리 경로
 * --model-control-mode=poll: 모델 추론 서버가 모델 레포지토리를 주기적으로 폴링하도록 설정
 * --repository-poll-secs=3: 3초마다 모델 레포지토리를 폴링
-* --http-port=$TRITON_PORT: HTTP 포트 지정
+* --http-port=8000: HTTP 포트 지정
 * --allow-grpc=false: GRPC 서비스 비활성화
 * --allow-metrics=false: Metrics 서비스 비활성화
 ```bash
-tritonserver --model-repository=/models --model-control-mode=poll --repository-poll-secs=3 --http-port=$TRITON_PORT --allow-grpc=false --allow-metrics=false
+tritonserver --model-repository=/models --model-control-mode=poll --repository-poll-secs=3 --http-port=8000 --allow-grpc=false --allow-metrics=false
 ```
 
 위 명령어를 통해 triton server를 실행하면 [model.py](../../model_repository/onnx-model/1/model.py) 파일에서 initialize 함수에 명시한 것처럼 mlflow로부터 모델을 다운받고 컨테이너 내에 배포합니다.
@@ -159,7 +125,7 @@ I0521 04:40:50.772720 327 model.py:35] "MLflow model loaded at /tmp/tmpzjugf7mi/
 http service에 어떤 포트가 할당되었는지는 마지막 줄에 표시됩니다. 이 포트를 사용하여 추론합니다.
 
 ```bash
-I0521 05:04:06.346963 552 http_server.cc:4755] "Started HTTPService at 0.0.0.0:<할당된 포트>"
+I0521 05:04:06.346963 552 http_server.cc:4755] "Started HTTPService at 0.0.0.0:8000"
 ```
 
 ### 추론해보기
@@ -205,7 +171,7 @@ triton 서버는 config.pbtxt 파일에 명시적으로 name을 지정해주지 
 변경된 모델 이름으로 추론해보기: --model-name 인자를 onnx-model 대신 python-model로 지정합니다.
 
 ```bash
-python examples/triton_yolo_inference.py --triton-url localhost:<할당된 포트> --model-name python-model --image-path examples/dog.jpg
+python examples/triton_yolo_inference.py --triton-url localhost:8000 --model-name python-model --image-path examples/dog.jpg
 ```
 
 복구하기
@@ -244,7 +210,7 @@ I0521 05:14:15.013902 1106 model.py:17] "Initializing model mymodel-onnx version
 변경된 모델 이름으로 추론해봅니다. --model-name 인자는 mlflow의 모델 이름이 아니라 triton 서버에 등록된 모델 이름(디렉토리명)이니 헷갈리지 않도록 주의합니다.
 
 ```bash
-python examples/triton_yolo_inference.py --triton-url localhost:<할당된 포트> --model-name onnx-model --image-path examples/dog.jpg
+python examples/triton_yolo_inference.py --triton-url localhost:8000 --model-name onnx-model --image-path examples/dog.jpg
 ```
 
 ### 정리하기

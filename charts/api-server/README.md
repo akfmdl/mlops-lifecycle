@@ -42,25 +42,6 @@ class Config(BaseSettings):
 export ONNX_MODEL_TRITON_URL="localhost:<TRITON_PORT>"
 ```
 
-FastAPI를 실행하기 전에 PORT를 지정해줍니다.
-* SERVICE_PORT: 30000-32767 범위 내에서 사용 가능한 포트 중 하나를 선택합니다. 이 포트는 k8s nodeport 포트 포함 모든 사용 중인 포트를 제외한 포트입니다.
-
-```bash
-export SERVICE_PORT=30000
-while [ $SERVICE_PORT -le 32767 ]; do
-    if ! timeout 1 bash -c ">/dev/tcp/localhost/$SERVICE_PORT" 2>/dev/null && ! kubectl get svc -A -o jsonpath='{.items[*].spec.ports[*].nodePort}' 2>/dev/null | grep -q "$SERVICE_PORT"; then
-        break
-    fi
-    SERVICE_PORT=$((SERVICE_PORT + 1))
-done
-export SERVICE_PORT=$SERVICE_PORT
-```
-
-어떤 포트로 할당될지 확인합니다.
-```bash
-echo $SERVICE_PORT
-```
-
 Cloud VM에서 실행할경우, host name을 localhost대신 public ip로 지정해주어야 합니다.
 ```bash
 export SERVICE_HOST=$(curl -s ifconfig.me)
@@ -70,17 +51,17 @@ FastAPI를 실행합니다.
 
 ```bash
 cd apis
-uvicorn main:app --host 0.0.0.0 --port $SERVICE_PORT
+uvicorn main:app --host 0.0.0.0 --port 8080
 ```
 
-http://localhost:$SERVICE_PORT/docs 에 접속하시면 Swagger UI를 확인할 수 있습니다.
+http://localhost:8080/docs 에 접속하시면 Swagger UI를 확인할 수 있습니다.
 
 /onnx-model/predict 라우터는 image_url 파라미터를 받아서 이미지를 다운로드 받고, triton inference server에 추론 요청을 보냅니다. 추론 결과는 이미지 파일로 저장된 후, FastAPI 서버의 static url로 접근할 수 있도록 반환합니다.
 
 예시: result_image_url를 클릭해서 결과 이미지를 확인할 수 있습니다.
 ```bash
 {
-  "result_image_url": "http://localhost:$SERVICE_PORT/static/6b7b8d8e-cbd7-4a87-bcb4-0c946d17baea.jpg"
+  "result_image_url": "http://localhost:8080/static/6b7b8d8e-cbd7-4a87-bcb4-0c946d17baea.jpg"
 }
 ```
 
