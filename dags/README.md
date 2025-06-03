@@ -89,7 +89,7 @@ airflow dags list | grep local_dag
    - Airflow Web UI에 접속(Local 환경에서는 http://localhost:8080)
    - DAG 목록에서 `local_dag` 확인
 
-### mlfow 실행
+### mlflow 실행
 
 이 프로젝트의 DAG 실행 시 mlflow 서버를 실행해야 합니다.
 
