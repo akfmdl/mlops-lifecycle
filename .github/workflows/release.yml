@@ -20,7 +20,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           release-branches: '["shelley"]'
-          dry-run: true
+          # dry-run: true
 
       - name: Post-release notification
         if: steps.release.outputs.new-release-published == 'true'
