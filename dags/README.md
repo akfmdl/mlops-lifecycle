@@ -21,7 +21,7 @@ pip install -r dags/requirements.txt
 
 ### AIRFLOW_HOME 설정하기
 
-AIRFLOW_HOME을 설정하지 않으면 기본적으로 ~/airflow 디렉토리에 설치됩니다.
+AIRFLOW_HOME을 설정하지 않으면 기본적으로 ~/airflow 디렉토리에 설치됩니다. 이 경로를 변경하고 싶은 경로로 설정합니다.
 
 각종 airflow 설정 파일들이 저장될 디렉토리를 생성합니다.
 ```bash
@@ -70,7 +70,7 @@ standalone | Airflow Standalone is for development purposes only. Do not use thi
 
 - admin 비밀번호를 까먹었을 경우, $AIRFLOW_HOME/standalone_admin_password.txt 에서 확인 가능
 
-airflow CLI를 사용하는 터미널에도 AIRFLOW_HOME 설정이 필요합니다.
+만약 AIRFLOW_HOME를 변경하였다면 airflow CLI를 사용하는 모든 터미널에 AIRFLOW_HOME 설정이 필요합니다.
 ```bash
 export AIRFLOW_HOME="$(pwd)/airflow"
 ```
