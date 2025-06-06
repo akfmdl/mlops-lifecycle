@@ -10,9 +10,9 @@ WORK_DIR = os.environ.get("WORK_DIR", "/tmp/airflow/data")
 with DAG(
     "local_dag",
     description="YOLO 데이터셋 Collection, Split, Validation, Train, Deploy",
-    schedule=None,
+    schedule=None,  # 수동 실행
     start_date=datetime(2024, 1, 1),
-    catchup=False,
+    catchup=False,  # 과거 실행 건너뛰기
     tags=["yolo", "local"],
     params={
         # 데이터셋 다운로드에 필요한 파라미터

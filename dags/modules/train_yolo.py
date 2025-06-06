@@ -24,8 +24,8 @@ class YOLOModel:
         self.model_path = model_path
         self.mlflow_enabled = True
 
+        # MLflow 서버가 살아있는지 health check
         try:
-            # 서버 상태 확인 (health check)
             health_url = urljoin(MLFLOW_TRACKING_URI, "health")
             response = requests.get(health_url, timeout=5)
             if response.status_code == 200:
@@ -36,12 +36,17 @@ class YOLOModel:
                 settings.update({"mlflow": True})
             else:
                 raise ConnectionError(f"MLflow 서버 응답 오류: {response.status_code}")
+        # 만약 서버가 죽어있거나 연결이 안 되면 MLflow 기능을 비활성화하고 학습은 계속 진행
         except (requests.RequestException, ConnectionError) as e:
             print(f"[경고] MLflow 연결 실패: {e}\nMLflow 기능 비활성화 상태로 진행합니다.")
             self.mlflow_enabled = False
             settings.update({"mlflow": False})
 
     def log_dataset_info(self, data_yaml_path):
+        """
+        데이터셋 정보 로깅
+        앞서 생성한 data.yaml 파일을 읽어서 데이터셋 정보를 MLflow에 기록
+        """
         if not self.mlflow_enabled:
             print("MLflow 기능이 비활성화되어 데이터셋 정보를 로깅할 수 없습니다.")
             return
@@ -98,6 +103,10 @@ class YOLOModel:
         return valid_results
 
     def register_model(self, valid_results, force_register):
+        """
+        모델 등록
+        MLflow에 등록된 모델 중 최신 모델을 가져오고, 이전 모델의 성능을 비교하여 성능이 향상된 경우 모델을 등록
+        """
         if not self.mlflow_enabled:
             print("MLflow 기능이 비활성화되어 모델 등록을 건너뜁니다.")
             return False
