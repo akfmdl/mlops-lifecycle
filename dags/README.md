@@ -76,6 +76,7 @@ export AIRFLOW_HOME="$(pwd)/airflow"
 ```
 
 ### DAG 활성화(Airflow Web UI에서도 가능)
+위에서 설정한 DAG 폴더에 있는 DAG 파일을 활성화합니다. 저희는 local_dag를 실습할 것이기 때문에 아래 명령어를 실행합니다.
 ```bash
 airflow dags unpause local_dag
 ```
@@ -91,7 +92,7 @@ airflow dags list | grep local_dag
 
 ### mlflow 실행
 
-이 프로젝트의 DAG 실행 시 mlflow 서버를 실행해야 합니다.
+이 프로젝트의 local_dag에는 학습한 모델을 mlflow에 등록하는 작업이 포함되어 있습니다. 따라서 mlflow 서버를 실행해야 합니다.
 
 mlflow 서버 실행
 ```bash
@@ -138,6 +139,11 @@ rm -rf mlruns mlartifacts
 ```
 
 ## Kubernetes에서 DAG 실행해보기
+
+### Prerequisites
+- [install.sh](../install.sh) 스크립트로 k3s 및 각종 도구들 설치
+- mlops-platform helm chart 설치
+- airflow helm chart 설치(kubectl apply -f argocd-apps/applicationset.yaml 를 실행하면 ArgoCD에서 자동으로 설치됨)
 
 ### Kubernetes에 배포된 Airflow 서비스의 NodePort를 확인
 
