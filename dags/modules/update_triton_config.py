@@ -91,6 +91,22 @@ def get_current_model_version(values_path, model_name):
         return None
 
 
+def get_latest_model_version(model_name):
+    """MLflow에서 최신 모델 버전을 가져옵니다."""
+    try:
+        mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+        print(f"MLflow tracking URI 설정: {MLFLOW_TRACKING_URI}")
+
+        client = mlflow.tracking.MlflowClient()
+        versions = client.search_model_versions(f"name='{model_name}'")
+        if versions:
+            return max(int(v.version) for v in versions)
+        return 1  # 기본값
+    except Exception as e:
+        print(f"MLflow에서 최신 버전 조회 실패: {str(e)}")
+        return 1  # 에러 발생 시 기본값
+
+
 def update_values_yaml(values_path, model_name, new_version):
     """values.yaml 파일에서 특정 모델의 버전을 업데이트합니다."""
     print(f"values.yaml 업데이트 중: {values_path} (모델: {model_name}, 새 버전: {new_version})")
@@ -125,22 +141,6 @@ def update_values_yaml(values_path, model_name, new_version):
     except Exception as e:
         print(f"values.yaml 업데이트 실패: {str(e)}")
         return False
-
-
-def get_latest_model_version(model_name):
-    """MLflow에서 최신 모델 버전을 가져옵니다."""
-    try:
-        mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
-        print(f"MLflow tracking URI 설정: {MLFLOW_TRACKING_URI}")
-
-        client = mlflow.tracking.MlflowClient()
-        versions = client.search_model_versions(f"name='{model_name}'")
-        if versions:
-            return max(int(v.version) for v in versions)
-        return 1  # 기본값
-    except Exception as e:
-        print(f"MLflow에서 최신 버전 조회 실패: {str(e)}")
-        return 1  # 에러 발생 시 기본값
 
 
 def commit_and_push_changes(repo_dir, file_path, model_name, new_version):
