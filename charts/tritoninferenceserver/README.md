@@ -9,10 +9,9 @@
 
 ## Repository Clone 및 Helm Chart 설치
 이 레포의 charts/tritoninferenceserver 폴더에 있는 helm chart를 설치합니다.
+이미 [argocd-apps/applicationset.yaml](../../argocd-apps/applicationset.yaml) 파일을 ArgoCD에 등록했다면 넘어가셔도 됩니다.
 
 ```bash
-git clone https://github.com/akfmdl/mlops-lifecycle.git
-cd mlops-lifecycle
 helm upgrade --install tritoninferenceserver charts/tritoninferenceserver --namespace mlops-platform --create-namespace
 ```
 
@@ -45,7 +44,7 @@ helm upgrade --install tritoninferenceserver charts/tritoninferenceserver --name
 
 ## 로컬에서 모델 추론해보기
 
-### local에 mlflow 서버를 띄우기
+### mlflow 서버 실행
 
 mlops-lifecycle/model_repository/onnx-model 모델은 MLFlow로부터 모델을 다운받아 저장합니다. [models.py](../../model_repository/onnx-model/1/model.py) 파일에서 initialize 함수에 명시한 것처럼 mlflow로부터 모델을 다운받고 컨테이너 내에 배포합니다. 그리고 MLFLOW_TRACKING_URI 환경변수를 통해 mlflow 서버에 접근합니다. 기본 값은 http://localhost:5000 입니다.
 
@@ -55,7 +54,7 @@ MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000")
 
 따라서 triton inference server로 배포하려면 먼저, mlflow 서버를 실행해야 합니다.
 
-mlflow 서버 실행
+만약 Host에서 mlflow cli를 이용하여 프로세스로 실행하려면 다음 명령어를 실행합니다.
 ```bash
 mlflow server --host 0.0.0.0 --port 5000
 ```
@@ -63,12 +62,13 @@ mlflow server --host 0.0.0.0 --port 5000
 포트가 변경될 경우, 모든 명령어를 실행하는 터미널에 export MLFLOW_TRACKING_URI="http://localhost:<변경될 포트>" 명령어를 추가하신 후 실행해주세요.
 
 ```bash
-export MLFLOW_TRACKING_URI="http://localhost:5000"
+export MLFLOW_TRACKING_URI="http://localhost:<변경될 포트>"
 ```
 
 ### mlflow 서버에 모델 등록
 
 모델이 로컬에 없다면 다음 명령어로 모델을 다운받을 수 있습니다.
+(examples 폴더 내에 있는 스크립트들은 mlflow 서버에 http://localhost:5000 주소로 접근합니다. 만약 다른 주소로 접근하고 싶다면 MLFLOW_TRACKING_URI 환경 변수를 변경해주세요.)
 
 ```bash
 python examples/export_yolo.py --model-path yolo11n.pt --format onnx
@@ -82,7 +82,7 @@ python examples/register_model_to_mlflow.py --model-path yolo11n.onnx --model-na
 
 ### triton 컨테이너 띄우기
 
-* --network="host": 로컬에서 실행되고 있는 mlflow에 접근할 수 있도록 호스트 네트워크 사용   
+* --network="host": 외부에서 실행되고 있는 mlflow에 접근할 수 있도록 호스트 네트워크 사용
 * -v $(pwd)/model_repository:/models: 모델 레포지토리 마운트 -> model_repository 폴더는 이 레포지토리에 있습니다.
 * -e MLFLOW_TRACKING_URI=$MLFLOW_TRACKING_URI: mlflow 서버의 주소를 환경변수로 전달
 ```bash
@@ -155,6 +155,9 @@ dog_detection.jpg 파일이 생성되었는지 확인합니다. 추론 후 Box �
 
 ### model_repository 폴더에 있는 모델의 이름을 바꾸고 추론해보기
 
+--model-control-mode=poll 설정을 통해 triton 서버가 모델 레포지토리를 주기적으로 폴링하고 있기 때문에 모델 이름을 바꾸면 자동으로 모델을 unload하고 load합니다.
+실제로도 그러한지 확인해봅니다.
+
 ```bash
 mv model_repository/onnx-model model_repository/python-model
 ```
@@ -166,7 +169,7 @@ I0522 01:36:44.378783 148 model_lifecycle.cc:636] "successfully unloaded 'onnx-m
 I0522 01:39:05.862312 148 model_lifecycle.cc:849] "successfully loaded 'python-model'"
 ```
 
-triton 서버는 config.pbtxt 파일에 명시적으로 name을 지정해주지 않으면 폴더명을 모델명으로 인식합니다. 또한, 컨테이너 내에서 모델 레포지토리를 폴링하고 있기 때문에 기존 모델을 unload하고 자동으로 새로운 모델을 load합니다.
+triton 서버는 config.pbtxt 파일에 명시적으로 name을 지정해주지 않으면 `폴더명을 모델명으로 인식`합니다. 또한, 컨테이너 내에서 모델 레포지토리를 폴링하고 있기 때문에 기존 모델을 unload하고 자동으로 새로운 모델을 load합니다.
 
 변경된 모델 이름으로 추론해보기: --model-name 인자를 onnx-model 대신 python-model로 지정합니다.
 
