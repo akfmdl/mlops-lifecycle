@@ -208,10 +208,12 @@ with DAG(
             requests={
                 "cpu": "1",
                 "memory": "4Gi",
+                "nvidia.com/gpu": "1",
             },  # GPU가 있을 경우 nvidia.com/gpu 항목 추가
             limits={
                 "cpu": "2",
                 "memory": "8Gi",
+                "nvidia.com/gpu": "1",
             },  # GPU가 있을 경우 nvidia.com/gpu 항목 추가
         ),
         is_delete_operator_pod=True,
