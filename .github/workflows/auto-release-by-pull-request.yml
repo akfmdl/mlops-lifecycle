@@ -20,7 +20,7 @@ jobs:
         uses: akfmdl/github-actions-workflows/actions/auto-release-custom-versioning@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          ssh-key: ${{ secrets.DEPLOY_KEY }}
+          # ssh-key: ${{ secrets.DEPLOY_KEY }}
           release-branches: '["test"]'
           jira-base-url: ${{ secrets.JIRA_BASE_URL }}
           version-py-path: 'src/version.py'  # 선택사항: version.py 파일 경로
