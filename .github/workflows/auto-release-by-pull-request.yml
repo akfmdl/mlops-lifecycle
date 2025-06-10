@@ -15,22 +15,11 @@ jobs:
       id-token: write
 
     steps:
-    - name: Setup SSH key
-      uses: webfactory/ssh-agent@v0.9.0
-      with:
-        ssh-private-key: ${{ secrets.DEPLOY_KEY }}
-
     - name: Checkout code
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
         ssh-key: ${{ secrets.DEPLOY_KEY }}
-
-    - name: Configure Git SSH remote
-      run: |
-        git remote set-url origin git@github.com:${{ github.repository }}.git
-        mkdir -p ~/.ssh
-        ssh-keyscan github.com >> ~/.ssh/known_hosts
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
