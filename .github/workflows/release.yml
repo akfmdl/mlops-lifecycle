@@ -3,7 +3,7 @@ name: Auto Release by Pull Request
 on:
   push:
     branches:
-      - test
+      - main
 
 jobs:
   release:
@@ -21,7 +21,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           # ssh-key: ${{ secrets.DEPLOY_KEY }}
-          release-branches: '["test"]'
+          release-branches: '["main"]'
 
       - name: Post-release notification
         if: steps.release.outputs.new-release-published == 'true'
