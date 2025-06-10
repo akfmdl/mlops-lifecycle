@@ -1,0 +1,32 @@
+name: Auto Release by Pull Request
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+
+    steps:
+      - name: Auto Release
+        id: release
+        uses: akfmdl/github-actions-workflows/actions/auto-release-custom-versioning@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # ssh-key: ${{ secrets.DEPLOY_KEY }}
+          release-branches: '["main"]'
+
+      - name: Post-release notification
+        if: steps.release.outputs.new-release-published == 'true'
+        run: |
+          echo "🎉 새로운 릴리즈가 생성되었습니다!"
+          echo "버전: ${{ steps.release.outputs.new-release-version }}"
+          echo "태그: ${{ steps.release.outputs.new-release-git-tag }}"
+          echo "SHA: ${{ steps.release.outputs.new-release-git-head }}" 
