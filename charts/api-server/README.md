@@ -27,7 +27,7 @@ pip install -r apis/requirements.txt
 
 로컬에서 FastAPI를 실행하고 /predict 라우터를 Test해보려면 로컬에 triton inference server를 실행해야 합니다.
 
-[triton inference server 실행](../tritoninferenceserver/README.md) 을 참고해서 로컬에서 mlflow 실행 및 onnx-model 모델을 서빙해주시기 바랍니다.
+[triton inference server 실행](../tritoninferenceserver/README.md) 을 참고해서 로컬에서 mlflow 실행 및 onnx-model 모델을 서빙해주시기 바랍니다. 혹은 이 실습을 통해 구축한 kubernetes 클러스터에 mlflow와 triton inference server가 이미 실행되어 있을 경우, 해당 클러스터에 있는 mlflow와 triton inference server를 사용해도 됩니다.
 
 apis/config.py 파일에는 ONNX_MODEL_TRITON_URL의 기본 주소가 localhost:8000 으로 설정되어 있습니다. 그리고 apis/mlmodels/router.py 파일에서 이 주소를 사용하여 triton inference server에 접근합니다. onnx model이 8000 포트로 실행되고 있지 않을 경우 변경해야 합니다.
 
