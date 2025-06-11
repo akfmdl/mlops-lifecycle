@@ -2,7 +2,7 @@ FROM caffeinism/pytorch:2.1.2-cpu-python3.11
 
 ARG GIT_TOKEN
 ARG DEBIAN_FRONTEND=noninteractive
-ARG DUBBING_VERSION=latest
+ARG DUBBING_VERSION=2025.06.0.0
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
