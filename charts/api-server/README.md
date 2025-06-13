@@ -67,7 +67,7 @@ cd apis
 uvicorn main:app --host 0.0.0.0 --port $SERVICE_PORT
 ```
 
-http://localhost:8080/docs(클라우드 VM에서는 http://$SERVICE_HOST:$SERVICE_PORT/docs) 에 접속하시면 Swagger UI를 확인할 수 있습니다.
+http://localhost:8080/docs (클라우드 VM에서는 http://$SERVICE_HOST:$SERVICE_PORT/docs) 에 접속하시면 Swagger UI를 확인할 수 있습니다.
 
 /onnx-model/predict 라우터는 image_url 파라미터를 받아서 이미지를 다운로드 받고, triton inference server에 추론 요청을 보냅니다. 추론 결과는 이미지 파일로 저장된 후, FastAPI 서버의 static url로 접근할 수 있도록 반환합니다.
 
