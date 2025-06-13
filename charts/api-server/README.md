@@ -47,6 +47,12 @@ Cloud VM에서 실행할경우, host name을 localhost대신 public ip로 지정
 export SERVICE_HOST=$(curl -s ifconfig.me)
 ```
 
+또한 클라우드 VM에서 실행할 경우, 실행시킬 API Server의 포트를 30000-32767 사이의 포트로 지정해야 합니다.
+
+```bash
+export SERVICE_PORT=30000
+```
+
 FastAPI를 실행합니다.
 
 ```bash
@@ -54,7 +60,14 @@ cd apis
 uvicorn main:app --host 0.0.0.0 --port 8080
 ```
 
-http://localhost:8080/docs 에 접속하시면 Swagger UI를 확인할 수 있습니다.
+클라우드 VM에서 실행할 경우, 8080 포트 대신 위에서 지정한 포트로 실행합니다.
+
+```bash
+cd apis
+uvicorn main:app --host 0.0.0.0 --port $SERVICE_PORT
+```
+
+http://localhost:8080/docs(클라우드 VM에서는 http://$SERVICE_HOST:$SERVICE_PORT/docs) 에 접속하시면 Swagger UI를 확인할 수 있습니다.
 
 /onnx-model/predict 라우터는 image_url 파라미터를 받아서 이미지를 다운로드 받고, triton inference server에 추론 요청을 보냅니다. 추론 결과는 이미지 파일로 저장된 후, FastAPI 서버의 static url로 접근할 수 있도록 반환합니다.
 
@@ -63,6 +76,11 @@ http://localhost:8080/docs 에 접속하시면 Swagger UI를 확인할 수 있�
 {
   "result_image_url": "http://localhost:8080/static/6b7b8d8e-cbd7-4a87-bcb4-0c946d17baea.jpg"
 }
+```
+
+클라우드 VM에서는 위의 주소 대신 아래의 주소로 접근합니다.
+```bash
+http://$SERVICE_HOST:$SERVICE_PORT/static/6b7b8d8e-cbd7-4a87-bcb4-0c946d17baea.jpg
 ```
 
 ### Kubernetes에서 API 서버 실행해보기
