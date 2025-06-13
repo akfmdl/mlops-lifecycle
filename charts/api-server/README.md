@@ -97,6 +97,11 @@ echo "http://localhost:$NODE_PORT"
 
 http://localhost:$NODE_PORT/docs 에 접속합니다.
 
+클라우드 VM에서는 위의 주소 대신 아래의 주소로 접근합니다.
+```bash
+http://$SERVICE_HOST:$NODE_PORT/docs
+```
+
 동일하게 /onnx-model/predict 라우터를 테스트합니다. Kubernetes에서 api-server와 onnx-model pod의 로그를 확인해보며 진행 동작을 확인합니다.
 
 ### 심화
