@@ -186,7 +186,7 @@ loki-stack:
     enabled: true
     fullnameOverride: loki
     image:
-      tag: 2.9.3
+      tag: 2.9.8
     service:
       type: NodePort
     config:
