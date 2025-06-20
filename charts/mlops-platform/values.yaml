@@ -215,21 +215,23 @@ postgresql:
     password: postgres
     database: airflow
   primary:
+    service:
+      type: NodePort
+      nodePorts:
+        postgresql: "30432"
+  primary:
     initdb:
       scripts:
         01-create-databases.sql: |
-          -- MLflow 데이터베이스 생성
-          CREATE DATABASE mlflow;
-          GRANT ALL PRIVILEGES ON DATABASE mlflow TO postgres;
-          -- Harbor 데이터베이스 생성
-          CREATE DATABASE harbor;
-          GRANT ALL PRIVILEGES ON DATABASE harbor TO postgres;
+          -- Django API 서버 데이터베이스 생성
+          CREATE DATABASE perso_live_admin;
+          GRANT ALL PRIVILEGES ON DATABASE perso_live_admin TO postgres;
     persistence:
       enabled: true
       size: 1Gi
 
 nvidia:
-  enabled: false
+  enabled: true
   image:
     repository: nvcr.io/nvidia/k8s-device-plugin
     tag: "v0.17.1"

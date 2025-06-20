@@ -1,27 +1,9 @@
 dependencies:
-- name: mlflow
-  repository: https://charts.bitnami.com/bitnami
-  version: 3.0.1
-- name: loki-stack
-  repository: https://grafana.github.io/helm-charts
-  version: 2.10.2
-- name: tempo
-  repository: https://grafana.github.io/helm-charts
-  version: 1.21.1
 - name: postgresql
   repository: https://charts.bitnami.com/bitnami
   version: 16.6.3
 - name: argo-cd
   repository: https://argoproj.github.io/argo-helm
   version: 7.8.28
-- name: harbor
-  repository: https://charts.bitnami.com/bitnami
-  version: 24.6.1
-- name: gha-runner-scale-set-controller
-  repository: file://charts/gha-runner-scale-set-controller
-  version: 0.11.0
-- name: gha-runner-scale-set
-  repository: file://charts/gha-runner-scale-set
-  version: 0.11.0
-digest: sha256:91e5b35826844f19124ed4827786f365f865994175cee1e3b9c23a1746109327
-generated: "2025-05-07T11:43:18.079424075+09:00"
+digest: sha256:f33534e50426335d6d18385fc09154c9f6e6dd6f91552303891f5f7dd24716f3
+generated: "2025-06-20T10:29:54.808681+09:00"
