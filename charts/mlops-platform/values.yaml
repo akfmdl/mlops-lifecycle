@@ -213,17 +213,8 @@ postgresql:
     postgresPassword: postgres
     username: postgres
     password: postgres
-    database: airflow
+    database: persoliveadmin
   primary:
-    initdb:
-      scripts:
-        01-create-databases.sql: |
-          -- MLflow 데이터베이스 생성
-          CREATE DATABASE mlflow;
-          GRANT ALL PRIVILEGES ON DATABASE mlflow TO postgres;
-          -- Harbor 데이터베이스 생성
-          CREATE DATABASE harbor;
-          GRANT ALL PRIVILEGES ON DATABASE harbor TO postgres;
     persistence:
       enabled: true
       size: 1Gi
