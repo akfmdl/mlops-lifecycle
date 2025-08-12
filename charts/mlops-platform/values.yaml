@@ -215,6 +215,10 @@ postgresql:
     password: postgres
     database: persoliveadmin
   primary:
+    service:
+      type: NodePort
+      nodePorts:
+        postgresql: "30432"
     persistence:
       enabled: true
       size: 1Gi
