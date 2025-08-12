@@ -222,6 +222,15 @@ postgresql:
     persistence:
       enabled: true
       size: 1Gi
+    resources:
+      requests:
+        cpu: 100m
+        ephemeral-storage: 50Mi
+        memory: 2Gi
+      limits:
+        cpu: 150m
+        ephemeral-storage: 2Gi
+        memory: 4Gi
 
 nvidia:
   enabled: true
