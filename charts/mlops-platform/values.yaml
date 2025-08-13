@@ -221,7 +221,7 @@ postgresql:
         postgresql: "30432"
     persistence:
       enabled: true
-      size: 1Gi
+      size: 5Gi
     resources:
       requests:
         cpu: 100m
