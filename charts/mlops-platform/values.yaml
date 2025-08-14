@@ -224,13 +224,77 @@ postgresql:
       size: 5Gi
     resources:
       requests:
-        cpu: 100m
-        ephemeral-storage: 50Mi
-        memory: 2Gi
-      limits:
-        cpu: 150m
+        cpu: 2000m
         ephemeral-storage: 2Gi
-        memory: 4Gi
+        memory: 8Gi
+      limits:
+        cpu: 4000m
+        ephemeral-storage: 4Gi
+        memory: 16Gi
+    
+    extendedConfiguration: |
+      # === 메모리 설정 ===
+      shared_buffers = 4GB
+      
+      # effective_cache_size: 전체 메모리의 75% (16GB * 0.75 = 12GB)
+      effective_cache_size = 12GB
+      
+      # work_mem: 연결당 작업 메모리 (16GB 환경에 맞게 증가)
+      work_mem = 64MB                             # 32MB → 64MB로 증가
+      
+      # maintenance_work_mem: 유지보수 작업용 메모리
+      maintenance_work_mem = 512MB                # 256MB → 512MB로 증가
+      
+      # === 연결 및 프로세스 설정 ===
+      max_connections = 200                       # 더 많은 CPU로 더 많은 연결 처리
+      
+      # === CPU 관련 설정 (4 vCPU 기준) ===
+      # 병렬 처리 워커 수 증가
+      max_parallel_workers_per_gather = 4         # 2 → 4로 증가
+      max_parallel_workers = 16                   # 8 → 16으로 증가  
+      max_worker_processes = 16                   # 8 → 16으로 증가
+      
+      # 병렬 유지보수 작업
+      max_parallel_maintenance_workers = 4        # 새로 추가
+      
+      # === I/O 성능 설정 ===
+      # SSD 환경 최적화
+      random_page_cost = 1.1
+      effective_io_concurrency = 200
+      maintenance_io_concurrency = 10             # 새로 추가
+      
+      # === WAL 및 체크포인트 설정 ===
+      wal_buffers = 32MB                          # 16MB → 32MB로 증가
+      checkpoint_completion_target = 0.9
+      max_wal_size = 2GB                          # WAL 크기 증가
+      min_wal_size = 512MB
+      
+      # === 쿼리 플래너 설정 ===
+      default_statistics_target = 100
+      
+      # === 백그라운드 작업 설정 ===
+      # 더 빈번한 백그라운드 작업 (더 많은 CPU 활용)
+      bgwriter_delay = 100ms                      # 200ms → 100ms
+      bgwriter_lru_maxpages = 200                 # 100 → 200
+      bgwriter_lru_multiplier = 4.0               # 2.0 → 4.0
+      
+      # === Huge Pages 설정 ===
+      huge_pages = try                            # Huge Pages 사용 시도
+      
+      # === 추가 성능 최적화 ===
+      # JIT 컴파일 (복잡한 쿼리 성능 향상)
+      jit = on
+      jit_above_cost = 100000
+      jit_optimize_above_cost = 500000
+      
+      # 통계 수집 최적화
+      track_io_timing = on                        # I/O 시간 추적
+      
+      # === 로깅 (성능 모니터링) ===
+      log_min_duration_statement = 1000          # 1초 이상 쿼리 로깅
+      log_checkpoints = on
+      log_lock_waits = on
+      log_temp_files = 10MB
 
 nvidia:
   enabled: true
