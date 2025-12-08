@@ -1,0 +1,31 @@
+{{- if .Values.pgbouncer.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-pgbouncer
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: pgbouncer
+    chart: {{ .Chart.Name }}
+    release: {{ .Release.Name }}
+spec:
+  type: {{ .Values.pgbouncer.service.type | default "ClusterIP" }}
+  {{- if and (eq .Values.pgbouncer.service.type "NodePort") .Values.pgbouncer.service.nodePort }}
+  ports:
+  - port: 6432
+    targetPort: 6432
+    nodePort: {{ .Values.pgbouncer.service.nodePort }}
+    name: pgbouncer
+    protocol: TCP
+  {{- else }}
+  ports:
+  - port: 6432
+    targetPort: 6432
+    name: pgbouncer
+    protocol: TCP
+  {{- end }}
+  selector:
+    app: pgbouncer
+    release: {{ .Release.Name }}
+{{- end }}
+

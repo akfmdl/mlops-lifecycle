@@ -224,13 +224,13 @@ postgresql:
       size: 5Gi
     resources:
       requests:
-        cpu: 2000m
+        cpu: 2000m                   # 4 vCPU의 50%
         ephemeral-storage: 2Gi
-        memory: 8Gi
+        memory: 8Gi                  # 16 GiB의 50%
       limits:
-        cpu: 4000m
+        cpu: 4000m                   # 4 vCPU (Standard_D4ds_v5)
         ephemeral-storage: 4Gi
-        memory: 16Gi
+        memory: 16Gi                 # 16 GiB (Standard_D4ds_v5)
     
     extendedConfiguration: |
       # === 메모리 설정 (리소스 제약 환경) ===
@@ -265,21 +265,21 @@ postgresql:
       
       # === I/O 성능 설정 (Standard_D4ds_v5: 150 GiB Temp SSD) ===
       # Premium SSD 환경 최적화
-      random_page_cost = 2                      # SSD 기준
-      effective_io_concurrency = 1              # SSD 동시 I/O
+      random_page_cost = 1.1                      # SSD 기준
+      effective_io_concurrency = 200              # SSD 동시 I/O
       maintenance_io_concurrency = 10             # 유지보수 작업 I/O
       
       # === WAL 및 체크포인트 설정 ===
-      wal_buffers = 2048                          # shared_buffers의 3%
+      wal_buffers = 16MB                          # shared_buffers의 3%
       checkpoint_completion_target = 0.9
-      max_wal_size = 25600
+      max_wal_size = 2GB
       min_wal_size = 512MB
       
       # === 쿼리 플래너 설정 ===
       default_statistics_target = 100
       
       # === 백그라운드 작업 설정 ===
-      bgwriter_delay = 20
+      bgwriter_delay = 200ms
       bgwriter_lru_maxpages = 100
       bgwriter_lru_multiplier = 2.0
       
@@ -296,7 +296,7 @@ postgresql:
       track_io_timing = on                        # I/O 시간 추적
       
       # === 로깅 (성능 모니터링) ===
-      log_min_duration_statement = -1           # 1초 이상 쿼리 로깅
+      log_min_duration_statement = 1000           # 1초 이상 쿼리 로깅
       log_checkpoints = on
       log_lock_waits = on
       log_temp_files = 10MB
@@ -313,14 +313,14 @@ pgbouncer:
   
   # 연결 풀링 설정 (Azure 설정과 동일)
   poolMode: transaction              # Azure: TRANSACTION
-  defaultPoolSize: 100                 # 10 → 5 (더 작게 설정하여 병목 유발)
+  defaultPoolSize: 100               # Azure: 100 (서버 연결 수)
   minPoolSize: 0                     # Azure: 0
-  reservePoolSize: 1                 # 2 → 1 (예비 연결 최소화)
+  reservePoolSize: 5                 # 예비 연결
   maxClientConn: 10000               # Azure: 10000 (최대 클라이언트 연결)
   maxPreparedStatements: 0           # Azure: 0
   
-  # 타임아웃 설정 (에러 재현을 위해 짧게 설정)
-  queryWaitTimeout: 120                # 5 → 3초 (더 빠르게 에러 발생)
+  # 타임아웃 설정 (Azure 설정과 동일)
+  queryWaitTimeout: 120              # Azure: 120초 - 연결 대기 시간
   serverIdleTimeout: 600             # Azure: 600초 - DB 연결 idle 시간
   serverLifetime: 3600               # 1시간 - DB 연결 최대 수명
   serverConnectTimeout: 15           # 15초 - 연결 시도 시간

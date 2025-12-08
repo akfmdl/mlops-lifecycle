@@ -1,0 +1,57 @@
+{{- if .Values.pgbouncer.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-pgbouncer
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: pgbouncer
+    chart: {{ .Chart.Name }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.pgbouncer.replicas | default 1 }}
+  selector:
+    matchLabels:
+      app: pgbouncer
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: pgbouncer
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: pgbouncer
+        image: {{ .Values.pgbouncer.image.repository }}:{{ .Values.pgbouncer.image.tag }}
+        imagePullPolicy: {{ .Values.pgbouncer.image.pullPolicy | default "IfNotPresent" }}
+        command: ["pgbouncer", "/etc/pgbouncer/pgbouncer.ini"]
+        ports:
+        - containerPort: 6432
+          name: pgbouncer
+          protocol: TCP
+        volumeMounts:
+        - name: config
+          mountPath: /etc/pgbouncer
+          readOnly: true
+        livenessProbe:
+          tcpSocket:
+            port: 6432
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          tcpSocket:
+            port: 6432
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        resources:
+          {{- toYaml .Values.pgbouncer.resources | nindent 10 }}
+      volumes:
+      - name: config
+        configMap:
+          name: {{ .Release.Name }}-pgbouncer-config
+{{- end }}
+

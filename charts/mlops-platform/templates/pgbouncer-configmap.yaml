@@ -1,0 +1,62 @@
+{{- if .Values.pgbouncer.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-pgbouncer-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: pgbouncer
+    chart: {{ .Chart.Name }}
+    release: {{ .Release.Name }}
+data:
+  pgbouncer.ini: |
+    [databases]
+    {{ .Values.postgresql.auth.database }} = host={{ .Values.postgresql.fullnameOverride }}.{{ .Release.Namespace }}.svc.cluster.local port=5432 dbname={{ .Values.postgresql.auth.database }}
+    
+    [pgbouncer]
+    listen_addr = *
+    listen_port = 6432
+    auth_type = md5
+    auth_file = /etc/pgbouncer/userlist.txt
+    
+    # 연결 풀링 설정 (Azure 동일 설정)
+    pool_mode = {{ .Values.pgbouncer.poolMode | default "transaction" }}
+    default_pool_size = {{ .Values.pgbouncer.defaultPoolSize | default 100 }}
+    min_pool_size = {{ .Values.pgbouncer.minPoolSize | default 0 }}
+    reserve_pool_size = {{ .Values.pgbouncer.reservePoolSize | default 5 }}
+    max_client_conn = {{ .Values.pgbouncer.maxClientConn | default 10000 }}
+    max_prepared_statements = {{ .Values.pgbouncer.maxPreparedStatements | default 0 }}
+    
+    # ====== 핵심: query_wait_timeout (Azure: 120초) ======
+    query_wait_timeout = {{ .Values.pgbouncer.queryWaitTimeout | default 120 }}
+    # ===================================================
+    
+    # 추가 타임아웃
+    server_idle_timeout = {{ .Values.pgbouncer.serverIdleTimeout | default 600 }}
+    server_lifetime = {{ .Values.pgbouncer.serverLifetime | default 3600 }}
+    server_connect_timeout = {{ .Values.pgbouncer.serverConnectTimeout | default 15 }}
+    
+    # ignore_startup_parameters (Azure 설정)
+    {{- if .Values.pgbouncer.ignoreStartupParameters }}
+    ignore_startup_parameters = {{ .Values.pgbouncer.ignoreStartupParameters }}
+    {{- else }}
+    ignore_startup_parameters = extra_float_digits
+    {{- end }}
+    
+    # 로깅
+    log_connections = {{ .Values.pgbouncer.logConnections | default 1 }}
+    log_disconnections = {{ .Values.pgbouncer.logDisconnections | default 1 }}
+    log_pooler_errors = {{ .Values.pgbouncer.logPoolerErrors | default 1 }}
+    
+    # Admin
+    admin_users = {{ .Values.postgresql.auth.username }}
+    {{- if .Values.pgbouncer.statsUsers }}
+    stats_users = {{ .Values.pgbouncer.statsUsers }}
+    {{- else }}
+    stats_users = {{ .Values.postgresql.auth.username }}
+    {{- end }}
+    
+  userlist.txt: |
+    "{{ .Values.postgresql.auth.username }}" "{{ .Values.postgresql.auth.password }}"
+{{- end }}
+
